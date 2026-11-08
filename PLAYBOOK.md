@@ -17,11 +17,15 @@ Ambil baris pertama yang belum dicentang di `topics.md` (format: slug — topik 
 
 ## 2. Naskah (13–15 kalimat, total 150–175 kata) — seri "Dari Jijik Jadi Berguna"
 WAJIB riset dulu (WebSearch, 2–4 sumber kredibel) untuk topik hari ini; semua angka/nama/tempat harus benar. Gaya: kasual, kalimat pendek, "kamu", bahasa Indonesia sehari-hari.
-- K1 = HOOK dari `topics.md` (boleh dipoles). Harus bikin orang berhenti scroll: kontras jijik/aneh vs hasil yang luar biasa, dalam ≤ 18 kata. Hook juga jadi judul video.
-- K2 = rasa penasaran/tantangan ("Kedengarannya jorok? Tapi caranya jenius.").
-- K3..K(n-2) = proses langkah demi langkah: tiap kalimat SATU tahap/mesin nyata + kenapa perlu ("Pertama… Terus… Tapi masalahnya… Jadi…"). Sisipkan 1 angka mengejutkan yang terverifikasi.
-- K(n-1) = hasil akhir + payoff ("Hasilnya: air yang lebih bersih dari air keranmu.").
+FORMAT WAJIB = rantai MASALAH → SOLUSI bertahap, persis seperti video mesin cuci (`pipeline/examples/mesin-cuci/data.json`). Penonton "ikut membangun" sistemnya dari versi paling primitif; tiap kalimat menutup satu masalah dan membuka masalah baru, sehingga penonton terus penasaran ke kalimat berikutnya.
+- K1 = HOOK dari `topics.md` (boleh dipoles, ≤ 18 kata, kontras jijik/aneh vs hasil luar biasa). Hook juga jadi judul video.
+- K2 = versi PALING PRIMITIF dengan sudut "kamu": "Kalau kamu cuma <cara paling sederhana>, kamu udah <setengah jalan>… tapi <masalah besar>."
+- K3..K(n-2) = tiap kalimat = SATU masalah nyata dari tahap sebelumnya + SATU solusi (mesin/part/tahap nyata) dengan pola bergantian:
+  "Tapi <masalah>. Jadi kamu pasang/tambah <solusi>." · "Masalahnya, <masalah baru>. Makanya <solusi>." · "Terus <efek samping solusi tadi>…"
+  Solusi selalu memunculkan masalah berikutnya (efek samping, bahaya, sisa kotoran, energi, dll). Jangan ada kalimat yang cuma informasi tanpa masalah/solusi. Sisipkan 1 angka mengejutkan yang terverifikasi.
+- K(n-1) = "Selamat, kamu udah bikin <sistem>." + payoff singkat bila muat (mis. "…airnya lebih bersih dari air keranmu.").
 - K(n) = "Habis ini, mau kita bongkar apa?"
+Contoh pembuka (kencing-astronot): K1 "Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu." K2 "Kalau kamu cuma saring pakai kain, kotorannya nyangkut… tapi baunya dan zat garamnya masih ikut." K3 "Tapi di luar angkasa nggak ada gravitasi, air nggak mau netes ke bawah. Jadi kamu pasang drum yang muter biar airnya kepental ke dinding." …
 Topik bertanda SENSITIF: tone hormat & ilmiah, tanpa candaan.
 Tulis ke `$W/data.json`:
 `{"slug","hook":"<versi singkat hook, KAPITAL, ≤28 karakter>","footer":"DARI JIJIK JADI BERGUNA","lines":[...],"chips":[...]}`
