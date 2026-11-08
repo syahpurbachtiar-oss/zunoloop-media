@@ -40,10 +40,28 @@ Lalu: `python3 pipeline/build_audio.py $W 60` (mengisi starts/durs/total di data
 Salin `pipeline/examples/mesin-cuci/scene.html` ke `$W/scene.html`. Pertahankan kerangka (renderer, lampu, lantai, sistem `part()`, highlight, overlay caption/chip/hook, `render(t)`, fungsi kamera). Ganti SEMUA model & animasi dengan benda topik hari ini:
 - Adegan K1–K2: versi primitif (seperti ember + tangan). Tangan/benda TIDAK boleh menembus objek lain.
 - Tiap part muncul di kalimat yang menyebutnya (`part(name, sceneIndex, endIndex, flyOffset)`), modelnya harus menyerupai part asli (bentuk, material logam/plastik/karet, detail).
-- `CAMS[i]` per kalimat: framing fokus ke part yang sedang dibahas, tidak terhalang dinding/part lain.
 - Dua adegan terakhir: benda UTUH dan PENUH di frame (tidak terpotong, tidak terlalu zoom), kamera orbit pelan.
 - Tanpa progress bar. Caption & chip dari data.json.
-Cek visual wajib: `python3 -I pipeline/render.py $W shot <satu waktu tengah tiap adegan>` lalu lihat `$W/contact.png` (Read). Perbaiki sampai semua adegan benar. Ulangi maksimal 4 putaran.
+
+### 4a. Shot list WAJIB (tulis dulu sebelum coding, simpan di `$W/shots.md`)
+Satu baris per kalimat: `K# | part yang dibahas | jenis angle | gerak kamera | posisi kamera [x,y,z] → target [x,y,z]`.
+Aturan sinematografi (video harus atraktif, bukan asal):
+- **Variasi angle**: pakai campuran dari — wide establishing, 3/4 depan, samping (profil), belakang, top-down (dari atas), low-angle (dari bawah ke atas), close-up/makro detail part, POV/"dari dalam" (kamera di dalam tabung/pipa/mesin), dan cutaway penampang. Minimal 6 jenis angle berbeda per video.
+- **Tidak boleh** dua kalimat berturut-turut memakai sisi/angle yang sama (mis. depan → depan). Kamera harus pindah sisi minimal tiap kalimat; selang-seling kiri ↔ kanan, atas ↔ bawah, jauh ↔ dekat.
+- **Tiap adegan punya gerak kamera sendiri** (bukan diam): orbit pelan, push-in (dolly maju), pull-out, crane naik/turun, truck/geser samping, atau tilt — variasikan antar adegan. Implementasikan di `camAt(i,t)` per adegan (mis. tabel `MOVES[i]`).
+- **Transisi**: perpindahan kamera antar adegan 0.8–1.2 s ease-in-out; boleh whip/punch-in cepat untuk momen dramatis (bahaya, kecepatan tinggi).
+- **Close-up wajib** saat part kecil dibahas (seal, katup, sensor, filter, membran): part mengisi ≥ 40% tinggi frame.
+- Part yang dibahas harus jelas terlihat: tidak tertutup part lain/dinding (pakai cutaway/clipping, atau sembunyikan dinding sementara), dan di-highlight.
+- Framing 9:16: objek utama di 2/3 atas frame; area caption (y > 1390 px) tidak menutupi part penting.
+
+### 4b. Detail realistis WAJIB
+- Bentuk mengikuti part asli (cek foto referensi lewat WebSearch bila perlu): proporsi benar, bevel/rounded edge (`RoundedBoxGeometry`), baut/mur, sambungan pipa (flange/klem), kabel, label/LED, ventilasi, rusuk penguat.
+- Material sesuai: logam (metalness 0.8–1, roughness 0.2–0.4), plastik (roughness 0.4–0.6), karet (hitam, roughness 0.8+), kaca/air (transparan), beton/kain (tekstur kanvas).
+- Gerak mekanis nyata: putaran, aliran cairan (partikel/tetesan), katup buka-tutup, getaran, lampu indikator — sesuai kalimat yang sedang dibicarakan.
+- Pencahayaan 3 titik + environment (sudah ada di template); bayangan aktif.
+
+### 4c. Cek visual (QC)
+`python3 -I pipeline/render.py $W shot <satu waktu tengah tiap adegan>` lalu Read `$W/contact.png`. Checklist per frame: angle sesuai shot list & beda dari adegan sebelumnya · part yang dibahas jelas & besar · tidak ada objek tembus · tidak ada layar kosong/terhalang dinding · tidak terpotong aneh · caption tidak menutupi part. Perbaiki sampai lulus semua (maks 5 putaran). Untuk cek gerak kamera, ambil juga 3 frame berurutan (awal, tengah, akhir) di 2–3 adegan.
 
 ## 5. Render
 `python3 -I pipeline/render.py $W full` (±40 menit; jalankan di background, cek berkala). Verifikasi `out.mp4`: 1080x1920, durasi = total, ada audio; ambil 6 frame dengan ffmpeg dan lihat.
