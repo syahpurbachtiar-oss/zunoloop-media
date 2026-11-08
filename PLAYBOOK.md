@@ -13,18 +13,20 @@ SLUG=<slug-topik>; W=/tmp/zl/$SLUG; mkdir -p $W/mp3; ln -s <repo>/pipeline/node_
 Cek kuota Buffer dulu: `get_account` → org `6ac1597aca8206e9ab9d50f7`, batas `scheduledPosts` = 10 untuk SELURUH organisasi. `list_posts` status scheduled; kalau sisa slot < 3, berhenti dan catat di log (jangan hapus post orang lain).
 
 ## 1. Topik
-Ambil baris pertama yang belum dicentang di `topics.md`. Judul selalu format "cara kerja / teknik pembuatan <benda>".
+Ambil baris pertama yang belum dicentang di `topics.md` (format: slug — topik | HOOK).
 
-## 2. Naskah (13–15 kalimat, total 150–175 kata)
-Gaya sama persis dengan contoh: kasual, kalimat pendek, "kamu".
-- K1 hook: "Kalau kamu <cara paling primitif>, kamu udah punya <benda>."
-- K2 masalah versi primitif.
-- K3..K(n-2): tiap kalimat menambah SATU part nyata + alasannya ("Tapi … Jadi kamu pasang …").
-- K(n-1): "Selamat, kamu udah bikin <benda>."
-- K(n): "Habis ini, mau kita bongkar apa?"
-Fakta teknis harus benar (cek web bila ragu). Tulis ke `$W/data.json`:
-`{"slug","hook":"KAMU SUDAH PUNYA <BENDA>","footer":"TEKNIK PEMBUATAN <BENDA>","lines":[...],"chips":[...]}`
-(`chips` = label part per kalimat, kosong "" untuk K1, K2, dua terakhir; huruf kapital, ≤18 karakter.)
+## 2. Naskah (13–15 kalimat, total 150–175 kata) — seri "Dari Jijik Jadi Berguna"
+WAJIB riset dulu (WebSearch, 2–4 sumber kredibel) untuk topik hari ini; semua angka/nama/tempat harus benar. Gaya: kasual, kalimat pendek, "kamu", bahasa Indonesia sehari-hari.
+- K1 = HOOK dari `topics.md` (boleh dipoles). Harus bikin orang berhenti scroll: kontras jijik/aneh vs hasil yang luar biasa, dalam ≤ 18 kata. Hook juga jadi judul video.
+- K2 = rasa penasaran/tantangan ("Kedengarannya jorok? Tapi caranya jenius.").
+- K3..K(n-2) = proses langkah demi langkah: tiap kalimat SATU tahap/mesin nyata + kenapa perlu ("Pertama… Terus… Tapi masalahnya… Jadi…"). Sisipkan 1 angka mengejutkan yang terverifikasi.
+- K(n-1) = hasil akhir + payoff ("Hasilnya: air yang lebih bersih dari air keranmu.").
+- K(n) = "Habis ini, mau kita bongkar apa?"
+Topik bertanda SENSITIF: tone hormat & ilmiah, tanpa candaan.
+Tulis ke `$W/data.json`:
+`{"slug","hook":"<versi singkat hook, KAPITAL, ≤28 karakter>","footer":"DARI JIJIK JADI BERGUNA","lines":[...],"chips":[...]}`
+(`chips` = nama tahap/mesin per kalimat, kosong "" untuk K1, K2, dua terakhir; KAPITAL, ≤18 karakter.)
+Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" secara bersih & tidak vulgar (stilisasi, bukan realistis menjijikkan); tahap proses = mesin/alat nyata yang dirakit; dua adegan akhir = hasil akhir + fasilitas utuh.
 
 ## 3. Suara (ElevenLabs connector)
 `creative_generate_speech` per kalimat: `voice_id=xlBOShi2835jfBgaEld4` (Rafiq), `model_id=eleven_v4`, `generations_count=1`. Kirim semua sekaligus, lalu poll `creative_get_flow_run_status`. Unduh `content_url` dengan curl ke `$W/mp3/NN.mp3` (01, 02, …). Kalimat yang gagal: generate ulang SATU kali saja. Kalau masih gagal / kredit habis → berhenti, catat di log.
@@ -55,7 +57,7 @@ git add -A && git commit -m "Video: $SLUG" && git push
 - TikTok `6ac15e0eea19ca0bde687599`: metadata.tiktok `{title:"<judul>", isAiGenerated:true}`.
 - Instagram `6ae9be9de29c69a17148c2fc`: metadata.instagram `{type:"reel", shouldShareToFeed:true, isAiGenerated:true}`.
 Caption: 1–2 kalimat isi + "Komen alat apa yang harus kita bongkar berikutnya 👇" + 6–8 hashtag Indonesia (#carakerja #edukasi #faktaunik #teknologi #animasi3d + 2 spesifik topik; YouTube + #shorts, TikTok + #fyp, IG + #reels #fyp).
-Judul: "Gimana Sih <Benda> Dibuat? 🔧 Dibongkar dalam 60 Detik" (variasikan sedikit).
+Judul: versi singkat hook (≤ 70 karakter, boleh 1 emoji), mis. "Astronot Minum Air Kencingnya Sendiri?! 🚀".
 Pastikan ketiga respons `status: scheduled`.
 
 ## 8. Tutup
