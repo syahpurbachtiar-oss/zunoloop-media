@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden}
+#c{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:"Inter Display","Inter",system-ui,Arial,sans-serif;background:var(--bg)}
+#fx{position:absolute;inset:0;pointer-events:none}
+#tag{position:absolute;left:50%;top:330px;transform:translateX(-50%);white-space:nowrap;font-weight:800;font-size:30px;letter-spacing:8px;color:var(--tagc);opacity:.95}
+#t1{position:absolute;left:40px;right:40px;top:385px;font-weight:900;font-size:156px;line-height:.92;letter-spacing:-6px;text-align:center;color:var(--t1c);text-shadow:var(--t1s)}
+#t2{position:absolute;left:50%;top:548px;transform:translateX(-50%) rotate(-2deg);white-space:nowrap;font-weight:900;font-size:88px;letter-spacing:-3px;
+ padding:12px 38px 20px;border-radius:999px;background:var(--pbg);color:var(--pc);box-shadow:var(--ps)}
+#glow{position:absolute;left:50%;bottom:220px;width:900px;height:900px;transform:translateX(-50%);border-radius:50%;background:var(--glow)}
+#sh{position:absolute;left:50%;bottom:calc(var(--bot,300px) - 40px);width:720px;height:96px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,var(--shc),#0000)}
+#hero{position:absolute;left:50%;bottom:var(--bot,300px);transform:translateX(-50%);max-width:940px;max-height:var(--mh,860px);filter:var(--hf)}
+#br{position:absolute;left:0;right:0;bottom:118px;text-align:center;font-weight:900;font-size:36px;letter-spacing:12px;color:var(--brc)}
+#br b{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--pbg);margin:0 16px 6px 0;vertical-align:middle}
+/* ===== tema ===== */
+.midnight{--bg:radial-gradient(80% 55% at 50% 62%,#2b6fd6 0%,#123a7a 42%,#08193a 78%,#050f24 100%);--tagc:#7fc4ff;--t1c:#fff;
+ --t1s:0 8px 0 #071733,0 18px 40px #0008;--pbg:#ffd23f;--pc:#1a1200;--ps:0 10px 0 #b8890a,0 24px 50px #ffd23f40;
+ --glow:radial-gradient(closest-side,#5fb4ff55,#5fb4ff00);--shc:#000a;--hf:drop-shadow(0 30px 40px #0009) drop-shadow(0 0 2px #9fd4ff88);--brc:#ffd23f}
+.midnight #fx{background-image:linear-gradient(#ffffff10 2px,transparent 2px),linear-gradient(90deg,#ffffff10 2px,transparent 2px);background-size:90px 90px;
+ -webkit-mask-image:radial-gradient(70% 50% at 50% 60%,#000,transparent 80%)}
+.lime{--bg:linear-gradient(170deg,#e9ff6b 0%,#c6f432 55%,#a8e21b 100%);--tagc:#1c2b00;--t1c:#0d1300;--t1s:none;--pbg:#0d1300;--pc:#d9ff4a;
+ --ps:0 10px 0 #00000033;--glow:radial-gradient(closest-side,#ffffff99,#fff0);--shc:#2b4a0066;--hf:drop-shadow(0 34px 34px #33500055);--brc:#0d1300}
+.lime #fx{background:repeating-radial-gradient(circle at 50% 62%,#ffffff22 0 2px,transparent 2px 60px)}
+.coral{--bg:linear-gradient(165deg,#ff8a5b 0%,#ff4f6d 55%,#e2336a 100%);--tagc:#ffe3d8;--t1c:#fff;--t1s:0 8px 0 #a3163f,0 18px 36px #0005;--pbg:#fff;--pc:#ff3f63;
+ --ps:0 10px 0 #b8173e,0 22px 40px #0003;--glow:radial-gradient(closest-side,#ffd3c255,#fff0);--shc:#6d0a2a88;--hf:drop-shadow(0 30px 36px #6d0a2a66);--brc:#fff}
+.coral #fx{background:radial-gradient(circle at 15% 20%,#ffffff26 0 120px,transparent 121px),radial-gradient(circle at 88% 82%,#ffffff1a 0 180px,transparent 181px)}
+</style></head><body>
+<div id="c"><div id="fx"></div><div id="glow"></div><div id="t1"></div><div id="t2"></div><div id="sh"></div><img id="hero"></div>
+<script>
+/* ?theme=midnight|lime|coral &t1=Air Kencing, &t2=kok bisa diminum? &img=hero.png &bot=300 &mh=860
+   Kotak aman grid IG 4:5 = y 285..1635 (judul, pill, objek harus di dalamnya). */
+const q=new URLSearchParams(location.search),c=document.getElementById('c');
+c.className=q.get('theme')||'midnight';
+for(const k of['t1','t2'])document.getElementById(k).textContent=q.get(k)||({t1:'Judul,',t2:'kok bisa?'})[k];
+if(q.get('bot'))c.style.setProperty('--bot',q.get('bot')+'px');if(q.get('mh'))c.style.setProperty('--mh',q.get('mh')+'px');
+const h=document.getElementById('hero');h.onload=()=>{window.__ok=1};h.src=q.get('img')||'hero.png';
+</script></body></html>
