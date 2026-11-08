@@ -1,0 +1,32 @@
+# Antrean topik (ambil yang paling atas yang belum dicentang)
+
+- [x] mesin-cuci — Mesin cuci front loading
+- [ ] kulkas — Kulkas (kompresor, kondensor, evaporator, termostat)
+- [ ] ac-split — AC split (kompresor, freon, kipas indoor/outdoor, remote)
+- [ ] rice-cooker — Rice cooker (elemen pemanas, termostat magnet, mode hangat)
+- [ ] kipas-angin — Kipas angin (motor, baling-baling, mekanisme geleng)
+- [ ] dispenser — Dispenser air panas-dingin
+- [ ] setrika-uap — Setrika uap (elemen, tangki, termostat bimetal)
+- [ ] blender — Blender (motor, pisau, kopling, gelas)
+- [ ] microwave — Microwave (magnetron, pemandu gelombang, piring putar)
+- [ ] pompa-air — Pompa air sumur (impeler, check valve, tabung tekanan)
+- [ ] toilet-flush — Toilet duduk (tangki, pelampung, katup flapper, siphon)
+- [ ] kunci-pintu — Kunci pintu silinder (pin tumbler)
+- [ ] motor-matic-cvt — Transmisi CVT motor matic
+- [ ] rem-cakram — Rem cakram motor (master rem, kaliper, piston, cakram)
+- [ ] lift — Lift gedung (motor traksi, counterweight, rem pengaman)
+- [ ] printer-inkjet — Printer inkjet (cartridge, head, roller)
+- [ ] mouse-komputer — Mouse optik (LED, sensor, scroll encoder)
+- [ ] kompor-gas — Kompor gas (regulator, katup, pemantik piezo)
+- [ ] water-heater — Water heater listrik (elemen, termostat, katup pengaman)
+- [ ] spbu — Pompa bensin SPBU (tangki tanam, pompa, meteran, nozzle auto-stop)
+- [ ] payung-otomatis — Payung otomatis (pegas, rangka, tombol)
+- [ ] vacuum-cleaner — Vacuum cleaner (motor, kipas, filter, wadah debu)
+- [ ] hair-dryer — Hair dryer (elemen, kipas, sekring termal)
+- [ ] jam-dinding — Jam dinding quartz (kristal, motor stepper, roda gigi)
+- [ ] senter — Senter LED isi ulang (baterai, LED, reflektor, saklar)
+- [ ] kamera-cctv — Kamera CCTV (lensa, sensor, IR LED)
+- [ ] lampu-lalu-lintas — Lampu lalu lintas (controller, timer, sensor)
+- [ ] galon-pompa — Pompa galon elektrik
+- [ ] eskalator — Eskalator (rantai anak tangga, motor, handrail)
+- [ ] sepeda-gigi — Gigi sepeda (derailleur, rantai, gir)

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><title>Teknik Pembuatan Mesin Cuci 3D</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#04101f}
+#st{position:relative;width:1080px;height:1920px;overflow:hidden;
+ background:radial-gradient(110% 60% at 50% 30%,#2a6fb8 0%,#123a6b 40%,#081d38 72%,#040e1c 100%);
+ font-family:"Plus Jakarta Sans","Segoe UI",system-ui,Arial,sans-serif;font-weight:800;-webkit-font-smoothing:antialiased}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(85% 60% at 50% 42%,#0000 55%,#00000075 100%)}
+#flash{position:absolute;inset:0;background:#e4f3ff;opacity:0;pointer-events:none;z-index:7}
+#hb{position:absolute;left:50%;top:110px;background:#ffd23f;color:#2b1c00;font-size:52px;line-height:1;
+ padding:22px 44px;border-radius:60px;white-space:nowrap;z-index:6;box-shadow:0 10px 0 #ae7a00,0 22px 46px #0008;letter-spacing:-1.5px}
+#chip{position:absolute;left:50%;top:116px;background:#1f7bea;color:#fff;font-size:46px;line-height:1;padding:20px 42px;
+ border-radius:50px;white-space:nowrap;z-index:6;box-shadow:0 8px 0 #0f4d99,0 18px 38px #0007;letter-spacing:-.5px;opacity:0}
+#cap{position:absolute;left:44px;right:44px;top:1392px;height:340px;display:flex;align-items:center;justify-content:center;
+ text-align:center;font-size:120px;line-height:1.02;color:#fff;letter-spacing:-3px;-webkit-text-stroke:19px #07213f;
+ paint-order:stroke fill;text-shadow:0 11px 0 #07213f,0 22px 42px #000b;z-index:6}
+#ttl{position:absolute;left:0;right:0;top:1806px;text-align:center;font-size:32px;color:#8ebdf5;letter-spacing:6px;z-index:6;opacity:.6}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body>
+<div id="st"><canvas id="c" width="1080" height="1920"></canvas>
+<div id="vig"></div><div id="hb">KAMU SUDAH PUNYA MESIN CUCI</div><div id="chip"></div>
+<div id="cap"></div><div id="ttl">TEKNIK PEMBUATAN MESIN CUCI</div><div id="flash"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+/* ================= timing / script ================= */
+const D=await (await fetch("data.json?"+Date.now())).json();
+const L=D.lines,ST=D.starts,DUR=D.durs,TOTAL=D.total,CHIP=D.chips;
+const N=L.length,SEND=ST.map((s,i)=>i<N-1?ST[i+1]:TOTAL);
+document.getElementById("hb").textContent=D.hook;document.getElementById("ttl").textContent=D.footer;
+
+const cl=(v,a,b)=>v<a?a:v>b?b:v, e3=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,
+ eo=x=>1-Math.pow(1-x,3), bk=x=>1+2.70158*Math.pow(x-1,3)+1.70158*Math.pow(x-1,2), lerp=(a,b,p)=>a+(b-a)*p;
+const sceneIdx=t=>{for(let i=N-1;i>=0;i--)if(t>=ST[i])return i;return 0};
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+
+/* ================= renderer ================= */
+const W=1080,H=1920,canvas=document.getElementById('c');
+const R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
+R.setPixelRatio(1);R.setSize(W,H,false);R.setClearColor(0x000000,0);
+R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.08;
+R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;R.localClippingEnabled=true;
+const scene=new THREE.Scene();
+const pm=new THREE.PMREMGenerator(R);scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture;scene.environmentIntensity=.75;
+const cam=new THREE.PerspectiveCamera(34,W/H,1,2000);cam.setViewOffset(W,H,0,170,W,H);
+
+scene.add(new THREE.HemisphereLight(0xd6ecff,0x0b2340,.55));
+const key=new THREE.DirectionalLight(0xffffff,2.3);key.position.set(90,170,130);key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);Object.assign(key.shadow.camera,{left:-95,right:95,top:115,bottom:-40,near:40,far:420});
+key.shadow.bias=-.0004;key.shadow.normalBias=.4;key.shadow.radius=4;scene.add(key);
+const rim=new THREE.DirectionalLight(0x7fc0ff,1.4);rim.position.set(-120,90,-110);scene.add(rim);
+const fill=new THREE.PointLight(0xffe2c4,900,0,1.6);fill.position.set(-60,60,110);scene.add(fill);
+const back=new THREE.PointLight(0xcfe6ff,1400,0,1.6);back.position.set(50,70,-80);scene.add(back);
+
+/* floor */
+{const g=new THREE.CircleGeometry(400,96);g.rotateX(-Math.PI/2);
+ const cv=document.createElement('canvas');cv.width=cv.height=512;const x=cv.getContext('2d');
+ const gr=x.createRadialGradient(256,256,0,256,256,256);gr.addColorStop(0,'rgba(120,180,255,.55)');gr.addColorStop(.35,'rgba(60,120,210,.22)');gr.addColorStop(1,'rgba(20,50,100,0)');
+ x.fillStyle=gr;x.fillRect(0,0,512,512);
+ const glow=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false}));
+ glow.position.y=-.05;scene.add(glow);
+ const sh=new THREE.Mesh(g.clone(),new THREE.ShadowMaterial({opacity:.42}));sh.receiveShadow=true;scene.add(sh);}
+
+/* ================= materials ================= */
+const M=(o)=>new THREE.MeshStandardMaterial(o);
+const mk=(geo,mat,parent,pos,rot)=>{const m=new THREE.Mesh(geo,mat);m.castShadow=m.receiveShadow=true;
+ if(pos)m.position.set(...pos);if(rot)m.rotation.set(...rot);parent.add(m);return m};
+const enamel=()=>M({color:0xf4f7fb,roughness:.32,metalness:0});
+const steel=()=>M({color:0xd5dde6,roughness:.24,metalness:.92});
+const darkMetal=()=>M({color:0x3b4552,roughness:.42,metalness:.75});
+const rubber=()=>M({color:0x15181d,roughness:.85,metalness:0});
+const plastic=(c)=>M({color:c,roughness:.45,metalness:0});
+
+/* ================= part system ================= */
+const PARTS=[];
+function part(name,s,e,off,parent=scene){const g=new THREE.Group();g.name=name;
+ const p=new THREE.Group();p.add(g);parent.add(p);
+ PARTS.push({g,p,s,e:e??99,off:new THREE.Vector3(...(off||[0,45,0])),hl:[]});return g}
+const P=n=>PARTS.find(x=>x.g.name===n);
+function hl(name,mesh){const pr=P(name);(Array.isArray(mesh)?mesh:[mesh]).forEach(m=>pr.hl.push(m.material))}
+
+/* ================= EMBER (scene 0-1) ================= */
+const bucket=part('bucket',0,2,[0,0,0]);
+{const red=M({color:0xe8452c,roughness:.38});
+ const wall=mk(new THREE.CylinderGeometry(17,13.5,28,64,1,true),red,bucket,[0,14,0]);wall.material.side=THREE.DoubleSide;wall.receiveShadow=false;
+ mk(new THREE.CircleGeometry(13.5,48),red,bucket,[0,.3,0],[-Math.PI/2,0,0]);
+ mk(new THREE.TorusGeometry(17.1,.9,16,80),M({color:0xff6a4d,roughness:.35}),bucket,[0,28,0],[Math.PI/2,0,0]);
+ const wat=mk(new THREE.CylinderGeometry(15.6,13.0,22,48),M({color:0x3d9cf0,roughness:.08,transparent:true,opacity:.75}),bucket,[0,11.3,0]);wat.castShadow=false;
+ const cols=[0xff5c7a,0xffcf3a,0x48c6ff,0x8b6cff,0x3fd18f];
+ cols.forEach((c,i)=>{const a=i/5*6.28;mk(lump(5.2),M({color:c,roughness:.95}),bucket,[Math.cos(a)*8,21.5+(i%2)*1.2,Math.sin(a)*8],[i,i*2,0])});
+ for(let i=0;i<22;i++){const a=rnd()*6.28,r=4+rnd()*11;mk(new THREE.SphereGeometry(.9+rnd()*1.6,14,10),
+   M({color:0xffffff,roughness:.3,transparent:true,opacity:.85}),bucket,[Math.cos(a)*r,22.4+rnd()*1.5,Math.sin(a)*r])}}
+function lump(r){const g=new THREE.SphereGeometry(r,36,24),p=g.attributes.position,v=new THREE.Vector3();
+ const a=rnd()*9,b=rnd()*9;for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);
+  const n=1+.18*Math.sin(v.x*.9+a)*Math.cos(v.y*.8+b)+.1*Math.sin(v.z*1.6+a*b);v.multiplyScalar(n);v.y*=.72;p.setXYZ(i,v.x,v.y,v.z)}
+ g.computeVertexNormals();return g}
+function hand(side){const g=new THREE.Group(),skin=M({color:0xe2a47c,roughness:.55});
+ mk(new THREE.CapsuleGeometry(3.0,70,8,24),skin,g,[0,38,0]);
+ mk(new THREE.CylinderGeometry(3.45,3.45,6,28),M({color:0x2f7fd6,roughness:.7}),g,[0,16,0]);
+ mk(new RoundedBoxGeometry(7.6,9,3,4,1.4),skin,g,[0,-3.6,0]);
+ for(let k=0;k<4;k++)mk(new THREE.CapsuleGeometry(.92,3.6,6,12),skin,g,[-2.8+k*1.87,-10.2+(k===0||k===3?.8:0),.1]);
+ mk(new THREE.CapsuleGeometry(1.0,3.4,6,12),skin,g,[side*-4.4,-4.6,.9],[0,0,side*-.55]);
+ return g}
+const handL=hand(-1),handR=hand(1);bucket.add(handL,handR);
+
+/* ================= MACHINE root ================= */
+const cabG=new THREE.Group();scene.add(cabG);
+const tubAsm=new THREE.Group();tubAsm.position.set(0,40,0);cabG.add(tubAsm);
+const TUB_R=25,TUB_L=38,DR_R=22,DR_L=34;
+const winClip=[new THREE.Plane(new THREE.Vector3(-1,0,0),9),new THREE.Plane(new THREE.Vector3(0,0,-1),1)];
+
+/* tub */
+const tubP=part('tub',2,99,[0,60,0],tubAsm);
+{const m=M({color:0xc4d8ec,roughness:.45,side:THREE.DoubleSide,clippingPlanes:winClip,clipIntersection:true});
+ const g=new THREE.CylinderGeometry(TUB_R,TUB_R,TUB_L,72,1,true);g.rotateX(Math.PI/2);mk(g,m,tubP);
+ const back=mk(new THREE.CircleGeometry(TUB_R,64),M({color:0xcfd8e2,roughness:.55,side:THREE.DoubleSide}),tubP,[0,0,-TUB_L/2]);
+ mk(new THREE.TorusGeometry(TUB_R,1.1,14,90),M({color:0xc7d2de,roughness:.4,clippingPlanes:winClip,clipIntersection:true}),tubP,[0,0,TUB_L/2]);
+ for(const z of[-12,0,12])mk(new THREE.TorusGeometry(TUB_R+.35,.6,10,90),M({color:0xb9c6d4,roughness:.4,clippingPlanes:winClip,clipIntersection:true}),tubP,[0,0,z]);
+ // window edge highlight
+ hl('tub',[]);}
+
+/* drum */
+const drumP=part('drum',2,99,[0,70,20],tubAsm);
+const drumRot=new THREE.Group();drumP.add(drumRot);
+const holeTex=(()=>{const cv=document.createElement('canvas');cv.width=1024;cv.height=256;const x=cv.getContext('2d');
+ x.fillStyle='#fff';x.fillRect(0,0,1024,256);x.fillStyle='#000';
+ for(let j=0;j<9;j++)for(let i=0;i<44;i++){const ox=(j%2)*11.6;x.beginPath();x.arc(i*23.27+ox+6,j*27+16,5.2,0,7);x.fill()}
+ const t=new THREE.CanvasTexture(cv);t.wrapS=THREE.RepeatWrapping;return t})();
+const drumMat=M({color:0xe4ebf2,roughness:.22,metalness:.95,alphaMap:holeTex,alphaTest:.5,side:THREE.DoubleSide});
+{const g=new THREE.CylinderGeometry(DR_R,DR_R,DR_L,96,1,true);g.rotateX(Math.PI/2);mk(g,drumMat,drumRot);
+ const bk_=mk(new THREE.CircleGeometry(DR_R,64),M({color:0xc9d3dd,roughness:.25,metalness:.9}),drumRot,[0,0,-DR_L/2+.1]);
+ for(let k=0;k<3;k++){const s=mk(new THREE.BoxGeometry(2.2,DR_R-2,1.2),darkMetal(),drumRot,[0,0,-DR_L/2-.8]);
+  s.geometry.translate(0,(DR_R-2)/2,0);s.rotation.z=k*2.094}
+ mk(new THREE.CylinderGeometry(3.2,3.2,4,24).rotateX(Math.PI/2),darkMetal(),drumRot,[0,0,-DR_L/2-2]);
+ mk(new THREE.TorusGeometry(DR_R,1.1,14,96),steel(),drumRot,[0,0,DR_L/2]);
+ for(const z of[-DR_L/2+1,DR_L/2-3])mk(new THREE.TorusGeometry(DR_R+.2,.5,8,96),steel(),drumRot,[0,0,z]);}
+hl('drum',drumRot.children[0]);
+
+/* lifters (fins) */
+const finP=part('fins',6,99,[0,0,0],drumRot);
+{const m=plastic(0x2d8cf0);for(let k=0;k<3;k++){const a=k*2.094+.5;
+  const f=mk(new RoundedBoxGeometry(5.2,4.6,DR_L-4,4,1.6),m,finP,[Math.cos(a)*(DR_R-2.4),Math.sin(a)*(DR_R-2.4),0]);
+  f.rotation.z=a+Math.PI/2;hl('fins',f)}}
+
+/* clothes inside drum */
+const clothes=[];{const cols=[0xff5c7a,0xffcf3a,0x48c6ff,0x8b6cff,0x3fd18f,0xff8a3d];
+ const cg=part('clothes',2,99,[0,0,0],drumP);
+ cols.forEach((c,i)=>{const m=mk(lump(6),M({color:c,roughness:.95}),cg);clothes.push({m,ph:i*1.047,z:-11+((i*7)%5)*5.2,r:13+((i*3)%3)*1.3})})}
+
+/* water in tub */
+const wPlane=new THREE.Plane(new THREE.Vector3(0,-1,0),0);
+const waterMat=M({color:0x2f93f0,roughness:.06,metalness:0,transparent:true,opacity:.5,depthWrite:false,side:THREE.DoubleSide,clippingPlanes:[wPlane]});
+const water=(()=>{const g=new THREE.CylinderGeometry(TUB_R-.6,TUB_R-.6,TUB_L-1,64,1,false);g.rotateX(Math.PI/2);const m=new THREE.Mesh(g,waterMat);tubAsm.add(m);return m})();
+const wTop=new THREE.Mesh(new THREE.PlaneGeometry(1,TUB_L-1),M({color:0x7cc6ff,roughness:.05,transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide}));
+wTop.rotation.x=-Math.PI/2;tubAsm.add(wTop);
+const foam=[];for(let i=0;i<26;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.7+rnd()*1.4,12,8),M({color:0xffffff,roughness:.35,transparent:true,opacity:.85}));
+ tubAsm.add(s);foam.push({s,x:rnd()*2-1,z:(rnd()*2-1)*15,p:rnd()*6})}
+
+/* droplets through holes (scene 3) */
+const drops=[];{const dm=M({color:0x6cc4ff,roughness:.05,transparent:true,opacity:.85});
+ for(let i=0;i<28;i++){const d=new THREE.Mesh(new THREE.SphereGeometry(.75,12,8),dm);d.scale.set(1,1.5,1);tubAsm.add(d);
+  drops.push({d,a:.2+rnd()*1.3,z:(rnd()*2-1)*14,p:rnd()})}}
+
+/* shaft + seal + big pulley + motor + belt (behind tub) */
+const motP=part('motor',4,99,[0,-10,-45],tubAsm);
+const pulley=new THREE.Group();pulley.position.set(0,0,-TUB_L/2-9);motP.add(pulley);
+{mk(new THREE.CylinderGeometry(1.8,1.8,12,20).rotateX(Math.PI/2),steel(),motP,[0,0,-TUB_L/2-4]);
+ const pm_=M({color:0xb8c2cc,roughness:.3,metalness:.9});
+ mk(new THREE.CylinderGeometry(17,17,2.2,72).rotateX(Math.PI/2),pm_,pulley);
+ mk(new THREE.CylinderGeometry(15.5,15.5,2.6,72).rotateX(Math.PI/2),darkMetal(),pulley);
+ for(let k=0;k<5;k++){const sp=mk(new THREE.BoxGeometry(2.4,14,1.6),pm_,pulley);sp.geometry.translate(0,7,0);sp.rotation.z=k*1.2566}
+ mk(new THREE.CylinderGeometry(3.4,3.4,3.2,24).rotateX(Math.PI/2),pm_,pulley);}
+const motor=new THREE.Group();motor.position.set(0,-30,-9);motP.add(motor);
+{const body=M({color:0x55606e,roughness:.4,metalness:.7});
+ const b=mk(new THREE.CylinderGeometry(6.5,6.5,18,36).rotateX(Math.PI/2),body,motor);
+ for(let k=-3;k<=3;k++)mk(new THREE.TorusGeometry(6.7,.35,8,40),darkMetal(),motor,[0,0,k*2.2]);
+ mk(new THREE.CylinderGeometry(6.8,6.8,2,36).rotateX(Math.PI/2),M({color:0x2d3640,roughness:.5,metalness:.6}),motor,[0,0,9.6]);
+ mk(new THREE.CylinderGeometry(6.8,6.8,2,36).rotateX(Math.PI/2),M({color:0x2d3640,roughness:.5,metalness:.6}),motor,[0,0,-9.6]);
+ mk(new THREE.BoxGeometry(5,3,5),M({color:0xf2a93b,roughness:.5}),motor,[0,7,3]);
+ mk(new THREE.CylinderGeometry(.9,.9,12,12).rotateX(Math.PI/2),steel(),motor,[0,0,-14]);
+ hl('motor',b);}
+const mPul=mk(new THREE.CylinderGeometry(2.6,2.6,2.2,24).rotateX(Math.PI/2),steel(),motP,[0,-30,-TUB_L/2-9]);
+const belt=(()=>{const pts=[],R1=17.1,R2=2.7,cy2=-30,n=40;
+ const d=Math.abs(cy2),a=Math.acos((R1-R2)/d);
+ for(let i=0;i<=n;i++){const t=-a+i/n*(2*Math.PI-2*a)*-1;}
+ // build path: big arc (top), tangent, small arc (bottom), tangent
+ const big=[],small=[];for(let i=0;i<=48;i++){const th=(-Math.PI/2+a)+i/48*(2*Math.PI-2*a);big.push(new THREE.Vector3(Math.cos(th)*R1,Math.sin(th)*R1,0))}
+ for(let i=0;i<=12;i++){const th=(-Math.PI/2-a)+i/12*(2*a);small.push(new THREE.Vector3(Math.cos(th+Math.PI)*-R2*-1,cy2+Math.sin(th)*R2,0))}
+ const path=[...big,...small.reverse()];const curve=new THREE.CatmullRomCurve3(path,true);
+ const g=new THREE.TubeGeometry(curve,220,.75,8,true);const m=mk(g,rubber(),motP,[0,0,-TUB_L/2-9]);m.scale.z=1.6;hl('motor',m);return m})();
+const sealP=part('seal',5,99,[0,0,-30],tubAsm);
+{const sm=M({color:0x2a2e35,roughness:.6,emissive:0xff3b3b,emissiveIntensity:0});
+ mk(new THREE.TorusGeometry(4.2,1.7,20,48),sm,sealP,[0,0,-TUB_L/2-1.2]);
+ mk(new THREE.CylinderGeometry(5.5,5.5,1.4,40).rotateX(Math.PI/2),darkMetal(),sealP,[0,0,-TUB_L/2-.2]);
+ hl('seal',sealP.children[0]);}
+
+/* cabinet: base + back (scene 4) */
+const baseP=part('base',4,99,[0,-30,0],cabG);
+{const e=enamel();mk(new RoundedBoxGeometry(60,3,58,3,1),M({color:0x9aa7b6,roughness:.5,metalness:.4}),baseP,[0,1.5,0]);
+ for(const x of[-26,26])for(const z of[-25,25])mk(new THREE.CylinderGeometry(2.2,2.6,2,16),rubber(),baseP,[x,-.4,z]);
+ }
+
+/* inlet valve (scene 7) */
+const valP=part('valve',7,99,[30,40,0],cabG);
+let stream;{const body=plastic(0x2b333d);
+ mk(new RoundedBoxGeometry(9,5,6,3,1.2),body,valP,[18,78,-24]);
+ for(const x of[15.6,20.4]){const c=mk(new THREE.CylinderGeometry(2.1,2.1,5,24),M({color:0xd9a441,roughness:.3,metalness:.85}),valP,[x,82,-24]);hl('valve',c)}
+ mk(new THREE.CylinderGeometry(1.6,1.6,7,16).rotateZ(Math.PI/2),M({color:0xd9a441,roughness:.3,metalness:.85}),valP,[25,78,-24]);
+ const c=new THREE.CatmullRomCurve3([new THREE.Vector3(13.5,78,-24),new THREE.Vector3(6,76,-18),new THREE.Vector3(2,72,-4),new THREE.Vector3(0,67,8),new THREE.Vector3(0,64.5,12)]);
+ hl('valve',mk(new THREE.TubeGeometry(c,60,1.25,12),M({color:0xe8eef5,roughness:.35,transparent:true,opacity:.92}),valP));
+ mk(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(29,78,-24),new THREE.Vector3(40,78,-27),new THREE.Vector3(60,90,-35)]),40,1.3,10),rubber(),valP);
+ stream=new THREE.Mesh(new THREE.CylinderGeometry(.9,.6,1,16),M({color:0x7ccaff,roughness:.05,transparent:true,opacity:.75}));tubAsm.add(stream);}
+
+/* pressure sensor (scene 8) */
+const presP=part('press',8,99,[-30,30,0],cabG);
+let pTube;{mk(new THREE.CylinderGeometry(4.2,4.2,3,32).rotateX(Math.PI/2),plastic(0x6b4cff),presP,[-22,76,-26]);
+ mk(new THREE.CylinderGeometry(4.6,4.6,.8,32).rotateX(Math.PI/2),plastic(0xffffff),presP,[-22,76,-24.2]);
+ const c=new THREE.CatmullRomCurve3([new THREE.Vector3(-22,72,-25),new THREE.Vector3(-27,60,-20),new THREE.Vector3(-27,30,-10),new THREE.Vector3(-18,17,-6),new THREE.Vector3(-6,15.2,-6)]);
+ pTube=mk(new THREE.TubeGeometry(c,80,.85,10),M({color:0xc9b8ff,roughness:.2,transparent:true,opacity:.8}),presP);
+ hl('press',[presP.children[0],pTube]);}
+const pBall=new THREE.Mesh(new THREE.SphereGeometry(1.05,12,10),M({color:0x7cc6ff}));presP.add(pBall);
+
+/* drain pump (scene 9) */
+const pumpP=part('pump',9,99,[-30,0,20],cabG);
+const imp=new THREE.Group();{const g=plastic(0x22a066);
+ const vol=mk(new THREE.CylinderGeometry(5.6,5.6,4.4,40).rotateX(Math.PI/2),M({color:0x2fbf7a,roughness:.35,transparent:true,opacity:.55}),pumpP,[-14,8,16]);vol.castShadow=false;
+ mk(new THREE.TorusGeometry(5.6,.6,10,40),g,pumpP,[-14,8,18.2]);
+ mk(new THREE.CylinderGeometry(3.8,3.8,8,28).rotateX(Math.PI/2),M({color:0x3c4652,roughness:.4,metalness:.6}),pumpP,[-14,8,10]);
+ imp.position.set(-14,8,16);pumpP.add(imp);
+ for(let k=0;k<5;k++){const b=mk(new THREE.BoxGeometry(.7,4.2,3),M({color:0xffffff,roughness:.4}),imp);b.geometry.translate(0,2.1,0);b.rotation.z=k*1.2566}
+ const c1=new THREE.CatmullRomCurve3([new THREE.Vector3(0,15.3,8),new THREE.Vector3(-1,11,10),new THREE.Vector3(-7,9,14),new THREE.Vector3(-9.2,8,16)]);
+ mk(new THREE.TubeGeometry(c1,40,1.9,14),M({color:0x9aa4ae,roughness:.6}),pumpP);
+ const c2=new THREE.CatmullRomCurve3([new THREE.Vector3(-19,8,16),new THREE.Vector3(-25,9,10),new THREE.Vector3(-26,14,-15),new THREE.Vector3(-24,48,-27),new THREE.Vector3(-20,70,-32)]);
+ mk(new THREE.TubeGeometry(c2,90,1.6,12),M({color:0x7e8892,roughness:.6}),pumpP);
+ hl('pump',[vol,pumpP.children[1]]);}
+const dirty=[];{const dm=M({color:0x6f8f73,roughness:.2,transparent:true,opacity:.8});
+ for(let i=0;i<10;i++){const d=new THREE.Mesh(new THREE.SphereGeometry(.7,10,8),dm);pumpP.add(d);dirty.push({d,p:i/10})}}
+const pumpPath=new THREE.CatmullRomCurve3([new THREE.Vector3(0,15,8),new THREE.Vector3(-7,9,14),new THREE.Vector3(-14,8,16),new THREE.Vector3(-25,9,10),new THREE.Vector3(-26,14,-15),new THREE.Vector3(-24,48,-27)]);
+
+/* top panel + springs + dampers + weight (scene 11) */
+const susP=part('susp',11,99,[0,50,0],cabG);
+const springs=[];{
+ const sm=M({color:0xe9a341,roughness:.3,metalness:.85});
+ for(const x of[-18,18]){const g=new THREE.Group();g.position.set(x,83.5,-6);susP.add(g);
+  const helix=new THREE.Curve();helix.getPoint=(u,o=new THREE.Vector3())=>o.set(Math.cos(u*Math.PI*2*9)*2.4,-u*21.5,Math.sin(u*Math.PI*2*9)*2.4);
+  const m=mk(new THREE.TubeGeometry(helix,400,.42,8),sm,g);springs.push(g);hl('susp',m)}
+ for(const x of[-14,14]){const g=new THREE.Group();g.position.set(x,3,8);g.rotation.z=x>0?-.32:.32;susP.add(g);
+  hl('susp',mk(new THREE.CylinderGeometry(2,2,12,20),M({color:0x2f3843,roughness:.4,metalness:.6}),g,[0,6,0]));
+  mk(new THREE.CylinderGeometry(1,1,8,14),steel(),g,[0,14,0])}
+ const tex=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=256;const x=cv.getContext('2d');x.fillStyle='#9a9fa5';x.fillRect(0,0,256,256);
+  for(let i=0;i<1800;i++){const v=110+rnd()*90|0;x.fillStyle=`rgb(${v},${v},${v})`;x.fillRect(rnd()*256,rnd()*256,1+rnd()*3,1+rnd()*3)}const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;return tx})();
+ const cw=mk(new RoundedBoxGeometry(34,7,9,3,1.5),M({map:tex,roughness:.95}),susP,[0,67.5,14]);hl('susp',cw);}
+
+/* control panel (scene 12) */
+const panP=part('panel',12,99,[0,20,30],cabG);
+const lcdCv=document.createElement('canvas');lcdCv.width=512;lcdCv.height=160;const lcdTex=new THREE.CanvasTexture(lcdCv);lcdTex.colorSpace=THREE.SRGBColorSpace;
+let lcdTxt='';function lcd(s){if(s===lcdTxt)return;lcdTxt=s;const x=lcdCv.getContext('2d');x.fillStyle='#061a2c';x.fillRect(0,0,512,160);
+ x.fillStyle='#69ffa4';x.font='800 92px "Segoe UI",Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(s,256,86);lcdTex.needsUpdate=true}
+lcd('CUCI 40°');
+const knob=new THREE.Group();{mk(new RoundedBoxGeometry(60,2.4,58,3,1),enamel(),panP,[0,85,0]);mk(new RoundedBoxGeometry(60,13,7,3,1.5),enamel(),panP,[0,79,26]);
+ mk(new RoundedBoxGeometry(56,10,.6,2,.25),M({color:0xdde4ec,roughness:.25,metalness:.1}),panP,[0,79,29.6]);
+ knob.position.set(-15,79,30);panP.add(knob);
+ mk(new THREE.CylinderGeometry(4.6,4.8,2.6,48).rotateX(Math.PI/2),steel(),knob);
+ mk(new RoundedBoxGeometry(1.2,6.5,1.4,2,.5),plastic(0x2d8cf0),knob,[0,0,1.6]);
+ for(let k=0;k<10;k++){const a=-2.4+k*.53;mk(new THREE.CircleGeometry(.45,12),M({color:k%3==0?0x2d8cf0:0x8c98a6}),panP,[-15+Math.sin(a)*6.4,79+Math.cos(a)*6.4,29.95])}
+ const lcdM=mk(new THREE.PlaneGeometry(16,5),M({map:lcdTex,emissive:0xffffff,emissiveMap:lcdTex,emissiveIntensity:.9,roughness:.2}),panP,[8,79.8,29.98]);
+ for(let k=0;k<3;k++)mk(new RoundedBoxGeometry(3.6,2,1.2,2,.5),plastic(0x2b3440),panP,[3+k*5,75.5,30]);
+ mk(new RoundedBoxGeometry(3.6,3.6,1.4,2,.8),plastic(0xff4d4f),panP,[22,79,30.1]);
+ mk(new RoundedBoxGeometry(14,7,6,3,1),M({color:0xe8edf3,roughness:.4}),panP,[-23.5+0,79,26.8]).position.x=-24;
+ hl('panel',[lcdM,knob.children[0]]);}
+
+/* front + sides + door (scene 13) */
+const frontP=part('front',13,99,[0,0,40],cabG);
+{const e=enamel();
+ const sh=new THREE.Shape();sh.moveTo(-30,0);sh.lineTo(30,0);sh.lineTo(30,72);sh.lineTo(-30,72);sh.lineTo(-30,0);
+ const hole=new THREE.Path();hole.absarc(0,40,21,0,Math.PI*2,true);sh.holes.push(hole);
+ const fg=new THREE.ExtrudeGeometry(sh,{depth:1.6,bevelEnabled:true,bevelSize:.5,bevelThickness:.5,bevelSegments:3,curveSegments:64});
+ mk(fg,e,frontP,[0,0,28]);
+ mk(new RoundedBoxGeometry(60,84,1.6,3,.7),e,frontP,[0,44,-29]);mk(new RoundedBoxGeometry(1.6,84,58,3,.7),e,frontP,[-29.2,43,0]);mk(new RoundedBoxGeometry(1.6,84,58,3,.7),e,frontP,[29.2,43,0]);
+ const door=new THREE.Group();door.position.set(0,40,31);frontP.add(door);
+ mk(new THREE.TorusGeometry(20,2.6,24,96),steel(),door);
+ mk(new THREE.TorusGeometry(17.2,1.2,16,96),M({color:0x2d3640,roughness:.4,metalness:.5}),door,[0,0,.6]);
+ const gl=mk(new THREE.SphereGeometry(18,48,24,0,Math.PI*2,0,.55),M({color:0x9fd4ff,roughness:.04,metalness:.1,transparent:true,opacity:.32}),door,[0,0,-12.5],[Math.PI/2,0,0]);gl.castShadow=false;
+ mk(new RoundedBoxGeometry(3,10,3,2,1),M({color:0xc9d3de,roughness:.3,metalness:.8}),door,[17,0,2.4]);
+ mk(new THREE.TorusGeometry(21.5,1.2,16,96),rubber(),frontP,[0,40,29.6]);}
+
+/* ================= drum angle integration ================= */
+const DT=1/120,NA=Math.ceil(TOTAL/DT)+2,ANG=new Float64Array(NA);
+function omega(t){const i=sceneIdx(t);
+ if(i<2)return 0;if(i<4)return .9;if(i<6)return 1.7;
+ if(i<10)return 2.8*Math.sin(2*Math.PI*(t-ST[6])/2.6);
+ if(i===10)return 1.5+16.5*e3(cl((t-ST[10])/1.8,0,1));
+ if(i<13)return 18-15*e3(cl((t-ST[11])/3,0,1));
+ return 1.2}
+{let a=0;for(let i=0;i<NA;i++){ANG[i]=a;a+=omega(i*DT)*DT}}
+const dAng=t=>ANG[cl(Math.round(t/DT),0,NA-1)];
+function waterY(t){const a=ST[7]+.4,b=ST[8]+2.6,c=ST[9]+.3,d=ST[9]+2.6,lo=-TUB_R-.5,hi=-6;
+ if(t<a)return lo;if(t<b)return lerp(lo,hi,e3((t-a)/(b-a)));if(t<c)return hi;if(t<d)return lerp(hi,lo,e3((t-c)/(d-c)));return lo}
+
+/* ================= cameras ================= */
+const CAMS=[
+ [[62,66,96],[0,16,0]],[[48,56,70],[0,18,2]],[[62,74,104],[0,40,0]],[[34,52,42],[10,44,6]],
+ [[78,40,-92],[0,22,-22]],[[64,58,-34],[0,40,-24]],[[20,52,74],[0,40,0]],[[64,104,34],[14,72,-16]],
+ [[-86,92,34],[-20,64,-18]],[[-42,30,66],[-12,11,10]],[[70,70,130],[0,42,0]],[[-72,100,108],[0,50,0]],
+ [[26,98,100],[0,77,24]],[[118,96,206],[0,42,0]],[[46,82,252],[0,42,0]]];
+const V=(a)=>new THREE.Vector3(...a);
+const cp=new THREE.Vector3(),ct=new THREE.Vector3();
+function camAt(i,t){const [p,tg]=CAMS[i];const P_=V(p),T_=V(tg);
+ const u=t-ST[i],dir=P_.clone().sub(T_);
+ let orbit=Math.sin(t*.32)*.06+u*.018;if(i===13||i===14)orbit=-u*.11;
+ dir.applyAxisAngle(new THREE.Vector3(0,1,0),orbit);dir.multiplyScalar(i>=13?1+Math.min(u,3)*.012:1-Math.min(u,6)*.012);
+ return [T_.clone().add(dir),T_]}
+
+/* ================= overlay ================= */
+const $=s=>document.querySelector(s);
+function chunks(t){const w=t.split(/\s+/),o=[];let c=[];for(const x of w){const tt=[...c,x].join(' ');
+ if(c.length&&(tt.length>16||c.length>=3)){o.push(c.join(' '));c=[x]}else c.push(x);if(/[,.?!:]$/.test(x)&&c.length){o.push(c.join(' '));c=[]}}
+ if(c.length)o.push(c.join(' '));return o}
+const CH=L.map(chunks),CHT=CH.map((cs,i)=>{const tot=cs.reduce((a,b)=>a+b.length,0);let t=ST[i];return cs.map(c=>{const d=DUR[i]*c.length/tot,o=[t,t+d];t+=d;return o})});
+const cap=$('#cap'),hb=$('#hb'),chip=$('#chip'),flash=$('#flash');
+const MODES=['ISI AIR','CUCI 40°','BILAS','PERAS'];
+
+/* ================= render(t) ================= */
+const tmp=new THREE.Vector3();
+function render(t){t=cl(t,0,TOTAL);const i=sceneIdx(t);
+
+ /* parts assembly */
+ for(const pr of PARTS){const a=ST[pr.s]+(pr.s===0?-1:.05);let sc=0,k=0;
+  if(t>=a){const p=cl((t-a)/.8,0,1);k=eo(p);sc=Math.max(.001,bk(cl((t-a)/.65,0,1)))}
+  if(pr.e<N&&t>=ST[pr.e]){const q=cl((t-ST[pr.e])/.45,0,1);sc*=1-e3(q);if(q>=1)sc=0}
+  pr.p.visible=sc>.002;pr.p.scale.setScalar(Math.max(sc,.001));
+  pr.p.position.copy(pr.off).multiplyScalar(1-k);
+  const hot=(i===pr.s||(pr.g.name==='motor'&&i===4))&&pr.s>=2&&pr.s<13;
+  const glow=hot?(.55*Math.pow(Math.sin(cl((t-ST[i]-.7)/2.2,0,1)*Math.PI),1)*(.6+.4*Math.sin(t*9))):0;
+  pr.hl.forEach(m=>{if(!m.emissive)return;if(pr.g.name==='seal'){m.emissive.set(0xff3b3b);m.emissiveIntensity=glow*1.4}else{m.emissive.set(0x3da2ff);m.emissiveIntensity=glow}})}
+
+ /* bucket hands */
+ {const s=Math.sin(t*(i===1?4.2:7.6)),c=Math.cos(t*(i===1?4.2:7.6));
+  handL.position.set(-5.5+s*2.6,28.2+Math.abs(c)*.8,-6+c*1.4);handL.rotation.set(-.62,.18+s*.08,.12+s*.05);
+  handR.position.set(5.5-s*2.6,28.2+Math.abs(s)*.8,-6-c*1.4);handR.rotation.set(-.62,-.18-s*.08,-.12-s*.05)}
+
+ /* drum */
+ const ang=dAng(t);drumRot.rotation.z=ang;pulley.rotation.z=ang;mPul.rotation.z=ang*6.5;
+ /* clothes */
+ const spin=cl((omega(t)-4)/10,0,1);
+ clothes.forEach((c,k)=>{const lift=1.15*Math.abs(Math.sin(ang*.5+c.ph))*(i>=6?1.25:.8);
+  const thTumble=-Math.PI/2+(k%2?1:-1)*lift*.6+Math.sin(ang+c.ph)*.25;
+  const thSpin=ang+c.ph;const th=lerp(thTumble,thSpin,spin);const r=lerp(c.r-4+Math.sin(t*2+k)*1.2,DR_R-6,spin);
+  c.m.position.set(Math.cos(th)*r,Math.sin(th)*r,c.z);c.m.rotation.set(ang*.4+k,ang*.3+c.ph,k);});
+
+ /* water */
+ {const y=waterY(t),r=TUB_R-.6;wPlane.constant=y+40;const on=y>-r+.2;
+  water.visible=on;wTop.visible=on;
+  if(on){const w=2*Math.sqrt(Math.max(0,r*r-y*y));wTop.scale.x=w;wTop.position.set(0,y,0)}
+  foam.forEach(f=>{f.s.visible=on&&y>-18;f.s.position.set(f.x*Math.sqrt(Math.max(0,r*r-y*y))*.85+Math.sin(t*1.6+f.p)*1.2,y+.3+Math.sin(t*3+f.p)*.25,f.z)});
+  const fill=i===7||i===8&&t<ST[8]+2.4;stream.visible=fill&&t>ST[7]+.4;
+  if(stream.visible){const top=24.5,bot=y+.5;stream.scale.y=top-bot;stream.position.set(0,(top+bot)/2,12)}
+  pBall.position.copy(pTube.geometry.parameters.path.getPoint(cl(.35+.55*cl((y+TUB_R)/(TUB_R-6),0,1)*-1+.6,0,1)));pBall.visible=t>ST[8];}
+ /* droplets */
+ drops.forEach(d=>{const on=i===3;d.d.visible=on;if(!on)return;const p=((t*.75+d.p)%1);
+  const r=TUB_R-1-p*9;d.d.position.set(Math.cos(d.a)*r,Math.sin(d.a)*r-p*p*6,d.z)});
+ /* dirty water to pump */
+ dirty.forEach(d=>{const on=t>ST[9]+.3&&t<ST[9]+3;d.d.visible=on;if(on)d.d.position.copy(pumpPath.getPoint((t*.45+d.p)%1))});
+ imp.rotation.z=t>=ST[9]?-(t-ST[9])*30:0;
+
+ /* shaking */
+ let a=0,cab=0;if(i===10){a=1.9*e3(cl((t-ST[10])/1.6,0,1));cab=.55*a}
+ else if(i===11){const d=cl((t-ST[11])/2.8,0,1);a=lerp(1.9,.18,e3(d));cab=lerp(1,0,d)}
+ else if(i===12)a=.12;
+ tubAsm.position.set(Math.sin(t*43)*a,40+Math.cos(t*37)*a*.6,Math.sin(t*29)*a*.3);
+ cabG.position.set(Math.sin(t*41)*cab,Math.abs(Math.sin(t*23))*cab*.6,0);cabG.rotation.z=Math.sin(t*17)*cab*.004;
+ springs.forEach(g=>{const top=83.5,bot=tubAsm.position.y+22;g.scale.y=(top-bot)/21.5})
+
+ /* LCD + knob */
+ const md=Math.floor(Math.max(0,t-ST[12]-.6)*.95)%4;lcd(t>=ST[12]+.6?MODES[md]:'CUCI 40°');knob.rotation.z=t>=ST[12]+.6?-md*.9:0;
+
+ /* camera */
+ {let [P1,T1]=camAt(i,t);if(i>0){const p=e3(cl((t-ST[i])/1.15,0,1));if(p<1){const [P0,T0]=camAt(i-1,t);P1=P0.lerp(P1,p);T1=T0.lerp(T1,p)}}
+  cam.position.copy(P1);cam.lookAt(T1)}
+
+ R.render(scene,cam);
+
+ /* overlay */
+ let txt='',cst=ST[i];CH[i].forEach((c,k)=>{if(t>=CHT[i][k][0]){txt=c;cst=CHT[i][k][0]}});cap.textContent=txt;
+ cap.style.transform=`scale(${(0.94+0.06*bk(cl((t-cst)/.14,0,1))).toFixed(4)})`;
+ const hbE=ST[2]-.3;hb.style.opacity=(t<hbE?cl(t/.35,0,1):cl(1-(t-hbE)/.28,0,1)).toFixed(3);
+ hb.style.transform=`translateX(-50%) rotate(-2deg) scale(${(0.55+0.45*bk(cl(t/.5,0,1))).toFixed(3)})`;
+ const c=CHIP[i];if(c){const a1=ST[i]+.3,b1=SEND[i]-.25,o=t<a1?0:t>b1?cl(1-(t-b1)/.25,0,1):cl((t-a1)/.3,0,1);
+  chip.textContent=c;chip.style.opacity=o.toFixed(3);chip.style.transform=`translateX(-50%) rotate(1.5deg) scale(${(0.6+0.4*bk(cl((t-a1)/.38,0,1))).toFixed(3)})`}
+ else chip.style.opacity=0;
+ const d=t-ST[i];flash.style.opacity=(i>1&&d>=0&&d<.16?(1-d/.16)*.14:0).toFixed(3);
+}
+window.__render=render;window.__TOTAL=TOTAL;render(0);window.__ready=1;
+if(!location.search.includes('capture')){let t0=null;const loop=ts=>{if(t0===null)t0=ts;let t=(ts-t0)/1000;if(t>TOTAL+1){t0=ts;t=0}render(t);requestAnimationFrame(loop)};requestAnimationFrame(loop)}
+</script></body></html>
