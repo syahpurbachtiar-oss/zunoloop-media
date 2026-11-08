@@ -1,6 +1,6 @@
 # PLAYBOOK — Video harian ZunoLoop (otomatis)
 
-Tujuan tiap run: 1 video edukasi 3D 9:16 berbahasa Indonesia (~60 detik) → push ke repo ini → jadwalkan ke YouTube, Instagram, TikTok via Buffer pada **19:30 WIB hari yang sama**. Tidak ada manusia yang menunggu: jangan bertanya, ambil keputusan terbaik, catat di `log.md`.
+Tujuan tiap run: 1 video edukasi 3D 9:16 berbahasa Indonesia (55–90 detik) → push ke repo ini → jadwalkan ke YouTube, Instagram, TikTok via Buffer pada **19:30 WIB hari yang sama**. Tidak ada manusia yang menunggu: jangan bertanya, ambil keputusan terbaik, catat di `log.md`.
 
 Contoh kualitas yang jadi patokan: `pipeline/examples/mesin-cuci/` (scene.html + data.json) dan `videos/mesin-cuci-3d.mp4`.
 
@@ -15,8 +15,16 @@ Cek kuota Buffer dulu: `get_account` → org `6ac1597aca8206e9ab9d50f7`, batas `
 ## 1. Topik
 Ambil baris pertama yang belum dicentang di `topics.md` (format: slug — topik | HOOK).
 
-## 2. Naskah (13–15 kalimat, total 150–175 kata) — seri "Dari Jijik Jadi Berguna"
-WAJIB riset dulu (WebSearch, 2–4 sumber kredibel) untuk topik hari ini; semua angka/nama/tempat harus benar. Gaya: kasual, kalimat pendek, "kamu", bahasa Indonesia sehari-hari.
+## 1b. Riset (WAJIB sebelum menulis — tidak boleh mengarang)
+- Cari dengan WebSearch/WebFetch minimal **3 sumber terpercaya**, utamakan sumber primer: situs resmi lembaga/perusahaan (NASA, PUB Singapura, Gates Foundation, Climeworks, operator fasilitas), jurnal/universitas, badan pemerintah/PBB, lalu media besar (BBC, Reuters, AP, National Geographic, dll). Hindari blog anonim, konten AI, forum, dan situs tanpa penulis/tanggal.
+- Pahami prosesnya sampai detail: urutan tahap, nama mesin/komponen, prinsip kerjanya, angka kunci (kapasitas, persen, suhu, tahun, lokasi).
+- Tulis `$W/research.md`: daftar sumber (judul, penerbit, URL, tanggal) + **tabel fakta**: `fakta | angka/nama | sumber #`. Setiap fakta harus ada di ≥1 sumber terpercaya; angka penting dicek silang ke ≥2 sumber bila memungkinkan.
+- Kalau sumber berbeda, pakai angka yang paling konservatif/terbaru dan sebutkan secara umum ("hampir", "lebih dari"). Kalau sebuah klaim di hook/topik ternyata tidak terbukti, **perbaiki hook-nya** agar akurat (jangan dipaksakan) dan catat di log.
+- Tidak boleh ada kalimat naskah yang memuat fakta di luar tabel fakta. Penyederhanaan boleh, distorsi tidak.
+- Salin `research.md` ke repo `research/<slug>.md` saat publikasi.
+
+## 2. Naskah (13–20 kalimat, total 150–240 kata → video 55–90 detik) — seri "Dari Jijik Jadi Berguna"
+Durasi fleksibel: default 55–70 detik (13–16 kalimat). Boleh sampai **maks 90 detik** (≤ 20 kalimat) hanya jika prosesnya memang punya lebih banyak tahap nyata; setiap kalimat tambahan WAJIB masalah→solusi baru, bukan pengisi. Hook + masalah pertama harus selesai dalam 3 detik pertama. Gaya: kasual, kalimat pendek, "kamu", bahasa Indonesia sehari-hari. Semua fakta dari `research.md`.
 FORMAT WAJIB = rantai MASALAH → SOLUSI bertahap, persis seperti video mesin cuci (`pipeline/examples/mesin-cuci/data.json`). Penonton "ikut membangun" sistemnya dari versi paling primitif; tiap kalimat menutup satu masalah dan membuka masalah baru, sehingga penonton terus penasaran ke kalimat berikutnya.
 - K1 = HOOK dari `topics.md` (boleh dipoles, ≤ 18 kata, kontras jijik/aneh vs hasil luar biasa). Hook juga jadi judul video.
 - K2 = versi PALING PRIMITIF dengan sudut "kamu": "Kalau kamu cuma <cara paling sederhana>, kamu udah <setengah jalan>… tapi <masalah besar>."
@@ -34,7 +42,7 @@ Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" secara bersih & tidak vulgar (st
 
 ## 3. Suara (ElevenLabs connector)
 `creative_generate_speech` per kalimat: `voice_id=xlBOShi2835jfBgaEld4` (Rafiq), `model_id=eleven_v4`, `generations_count=1`. Kirim semua sekaligus, lalu poll `creative_get_flow_run_status`. Unduh `content_url` dengan curl ke `$W/mp3/NN.mp3` (01, 02, …). Kalimat yang gagal: generate ulang SATU kali saja. Kalau masih gagal / kredit habis → berhenti, catat di log.
-Lalu: `python3 pipeline/build_audio.py $W 60` (mengisi starts/durs/total di data.json + mix.wav).
+Lalu: `python3 pipeline/build_audio.py $W 90` (90 = batas maksimal; tempo bicara dipercepat paling banyak 1.15×, jadi kalau total > 90 detik, PENDEKKAN naskah lalu generate ulang kalimat yang berubah, jangan dipaksa cepat). Mengisi starts/durs/total di data.json + mix.wav.
 
 ## 4. Scene 3D
 Salin `pipeline/examples/mesin-cuci/scene.html` ke `$W/scene.html`. Pertahankan kerangka (renderer, lampu, lantai, sistem `part()`, highlight, overlay caption/chip/hook, `render(t)`, fungsi kamera). Ganti SEMUA model & animasi dengan benda topik hari ini:
@@ -75,7 +83,7 @@ Aturan sinematografi (video harus atraktif, bukan asal):
 
 ## 6. Publikasi
 ```bash
-cp $W/final.mp4 <repo>/videos/$SLUG.mp4 && cp $W/cover.png <repo>/covers/$SLUG.png && cp $W/scene.html $W/data.json -t <repo>/pipeline/examples/$SLUG/
+cp $W/final.mp4 <repo>/videos/$SLUG.mp4 && cp $W/cover.png <repo>/covers/$SLUG.png && mkdir -p <repo>/research && cp $W/research.md <repo>/research/$SLUG.md && cp $W/scene.html $W/data.json -t <repo>/pipeline/examples/$SLUG/
 git add -A && git commit -m "Video: $SLUG" && git push
 ```
 (commit sebagai `Claude <noreply@anthropic.com>`). URL publik: `https://raw.githubusercontent.com/syahpurbachtiar-oss/zunoloop-media/main/videos/$SLUG.mp4` — cek `curl -sIL` = 200 dan content-length sama.

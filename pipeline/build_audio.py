@@ -7,7 +7,7 @@ Output: WORKDIR/vo.wav, WORKDIR/music.wav, WORKDIR/mix.wav, dan data.json diisi 
 import json, os, subprocess, sys
 
 W = sys.argv[1]
-TARGET = float(sys.argv[2]) if len(sys.argv) > 2 else 60.0
+TARGET = float(sys.argv[2]) if len(sys.argv) > 2 else 90.0
 GAP, LEAD, TAIL = 0.06, 0.25, 0.45
 run = lambda *a: subprocess.run(a, check=True)
 dur = lambda f: float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f]))
@@ -22,7 +22,7 @@ for i in range(1, n + 1):
         "-ar", "44100", "-ac", "1", f"{W}/trim/{i:02d}.wav")
 speech = sum(dur(f"{W}/trim/{i:02d}.wav") for i in range(1, n + 1))
 fixed = GAP * (n - 1) + LEAD + TAIL
-tempo = max(1.0, min(1.25, speech / max(1, TARGET - fixed)))
+tempo = max(1.0, min(1.15, speech / max(1, TARGET - fixed)))
 print(f"speech {speech:.2f}s -> tempo {tempo:.3f}")
 
 starts, durs, t, files = [], [], LEAD, []
@@ -31,6 +31,8 @@ for i in range(1, n + 1):
     run("ffmpeg", "-v", "error", "-y", "-i", f"{W}/trim/{i:02d}.wav", "-af", f"atempo={tempo:.4f}", "-ar", "44100", "-ac", "1", o)
     dd = dur(o); starts.append(round(t, 3)); durs.append(round(dd, 3)); files.append(o); t += dd + GAP
 total = round(t - GAP + TAIL, 3)
+if total > TARGET + 0.5:
+    print(f"PERINGATAN: total {total:.1f}s > {TARGET}s — pendekkan naskah")
 
 lst, prev = [], 0.0
 def sil(x, k):
