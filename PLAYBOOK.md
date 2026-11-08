@@ -66,15 +66,22 @@ Aturan sinematografi (video harus atraktif, bukan asal):
 ## 5. Render
 `python3 -I pipeline/render.py $W full` (±40 menit; jalankan di background, cek berkala). Verifikasi `out.mp4`: 1080x1920, durasi = total, ada audio; ambil 6 frame dengan ffmpeg dan lihat.
 
+### 5b. Sampul (WAJIB, tema Midnight)
+`python3 -I pipeline/cover.py $W "<Kata Kunci>," "<pertanyaan pendek?>"` → `$W/cover.png` + `$W/final.mp4` (sampul 0.4 s di frame pertama, audio digeser 0.4 s).
+- Baris 1 (putih, besar): bahan/objek jijik + koma, ≤ 12 karakter, mis. "Air Kencing," "Tinja," "HP Bekas,".
+- Baris 2 (pill kuning): pertanyaan ≤ 18 karakter, mis. "kok bisa diminum?" "jadi medali emas?".
+- Tanpa tagline, tanpa logo/nama akun. Objek = render 3D adegan terakhir (otomatis).
+- Read `$W/cover.png`: judul & pill tidak tertimpa objek, semua elemen di dalam y 285–1635 (aman untuk grid IG 4:5). Kalau objek terlalu tinggi, ulangi dengan scene render yang objeknya lebih kecil atau ubah `mh` di cover.py.
+
 ## 6. Publikasi
 ```bash
-cp $W/out.mp4 <repo>/videos/$SLUG.mp4 && cp $W/scene.html $W/data.json -t <repo>/pipeline/examples/$SLUG/
+cp $W/final.mp4 <repo>/videos/$SLUG.mp4 && cp $W/cover.png <repo>/covers/$SLUG.png && cp $W/scene.html $W/data.json -t <repo>/pipeline/examples/$SLUG/
 git add -A && git commit -m "Video: $SLUG" && git push
 ```
 (commit sebagai `Claude <noreply@anthropic.com>`). URL publik: `https://raw.githubusercontent.com/syahpurbachtiar-oss/zunoloop-media/main/videos/$SLUG.mp4` — cek `curl -sIL` = 200 dan content-length sama.
 
 ## 7. Buffer (19:30 WIB = 12:30 UTC; akun Buffer zona America/Chicago)
-`dueAt` = hari ini `T12:30:00Z` dikonversi ke offset Chicago (CST −06:00 → `T06:30:00-06:00`; CDT −05:00 → `T07:30:00-05:00`). Kalau jam itu sudah lewat, pakai besok. `mode=customScheduled`, `schedulingType=automatic`, asset `{video:{url}}`.
+`dueAt` = hari ini `T12:30:00Z` dikonversi ke offset Chicago (CST −06:00 → `T06:30:00-06:00`; CDT −05:00 → `T07:30:00-05:00`). Kalau jam itu sudah lewat, pakai besok. `mode=customScheduled`, `schedulingType=automatic`. Asset: YouTube `{video:{url}}`; TikTok & Instagram `{video:{url, metadata:{thumbnailOffset:0}}}` (sampul = frame pertama).
 - YouTube `6ac1643bea19ca0bde68cfb1`: metadata.youtube `{title:"<judul> #shorts", categoryId:"27", privacy:"public", madeForKids:false, isAiGenerated:true}`.
 - TikTok `6ac15e0eea19ca0bde687599`: metadata.tiktok `{title:"<judul>", isAiGenerated:true}`.
 - Instagram `6ae9be9de29c69a17148c2fc`: metadata.instagram `{type:"reel", shouldShareToFeed:true, isAiGenerated:true}`.
