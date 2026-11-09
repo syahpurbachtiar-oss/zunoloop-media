@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><title>Kit Demo — maskot & efek</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#cfe8ff}
+#st{position:relative;width:1080px;height:1920px;overflow:hidden;background:linear-gradient(#bfe2ff 0%,#e9f5ff 55%,#f6fbff 100%)}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><div id="st"><canvas id="c" width="1080" height="1920"></canvas></div>
+<script type="module">
+import * as THREE from 'three';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {makeCast} from './kit/mascot.js';
+import {makeFX} from './kit/fx.js';
+
+const D=await (await fetch("data.json?"+Date.now())).json();
+const L=D.lines,ST=D.starts,DUR=D.durs,TOTAL=D.total,N=L.length;
+const cl=(v,a,b)=>v<a?a:v>b?b:v,e3=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const sceneIdx=t=>{for(let i=N-1;i>=0;i--)if(t>=ST[i])return i;return 0};
+
+/* renderer — cerah siang */
+const W=1080,H=1920,canvas=document.getElementById('c');
+const R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
+R.setPixelRatio(1);R.setSize(W,H,false);R.setClearColor(0,0);R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.15;
+R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xe9f5ff,350,900);
+scene.environment=new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=.6;
+const cam=new THREE.PerspectiveCamera(36,W/H,1,2000);
+scene.add(new THREE.HemisphereLight(0xeaf6ff,0x7fae5a,1.1));
+const sun=new THREE.DirectionalLight(0xfff4e0,2.6);sun.position.set(120,220,140);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-160,right:160,top:160,bottom:-160,near:20,far:600});sun.shadow.bias=-.0004;sun.shadow.normalBias=.5;scene.add(sun);
+
+const M=(c,r=.7,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const mk=(g,mat,parent,pos,rot)=>{const o=new THREE.Mesh(g,mat);o.castShadow=o.receiveShadow=true;if(pos)o.position.set(...pos);if(rot)o.rotation.set(...rot);parent.add(o);return o};
+/* tanah rumput + jalan setapak */
+{const g=new THREE.PlaneGeometry(1600,1600);g.rotateX(-Math.PI/2);mk(g,M(0x8cc46a,.95),scene);
+ mk(new THREE.BoxGeometry(60,.4,1600),M(0xd9c7a3,.95),scene,[-70,.2,0]);
+ for(let i=0;i<40;i++){const a=i*2.4,r=180+(i*37)%260;mk(new THREE.ConeGeometry(6+(i%3)*2,16+(i%4)*4,6),M(0x6fa957,.9),scene,[Math.cos(a)*r,8,Math.sin(a)*r-120])}}
+
+/* objek demo: pipa + sambungan + rumah kecil */
+const pipe=new THREE.Group();scene.add(pipe);
+const pm=M(0xdfe5ea,.35,.3);
+mk(new THREE.CylinderGeometry(4,4,90,24).rotateZ(Math.PI/2),pm,pipe,[-35,8,0]);
+mk(new THREE.CylinderGeometry(4,4,90,24).rotateZ(Math.PI/2),pm,pipe,[57,8,0]);
+const joint=mk(new THREE.CylinderGeometry(5,5,6,24).rotateZ(Math.PI/2),M(0xbfc7cf,.4,.4),pipe,[11,8,0]);
+const clamp=new THREE.Group();clamp.position.set(11,8,0);pipe.add(clamp);
+mk(new THREE.TorusGeometry(6,1.3,12,32).rotateY(Math.PI/2),M(0x8a96a3,.25,.95),clamp);
+mk(new THREE.BoxGeometry(2.4,4,4),M(0x6d7883,.3,.9),clamp,[0,7,0]);
+const house=new THREE.Group();house.position.set(120,0,-10);scene.add(house);
+mk(new RoundedBoxGeometry(46,34,40,3,2),M(0xfff3e0,.8),house,[0,17,0]);
+mk(new THREE.ConeGeometry(36,22,4).rotateY(Math.PI/4),M(0xe0573f,.7),house,[0,45,0]);
+mk(new RoundedBoxGeometry(10,18,1,2,.5),M(0x8a5a3c,.7),house,[0,9,20.2]);
+/* air bocor */
+const drops=[];for(let i=0;i<24;i++){const d=mk(new THREE.SphereGeometry(1.4,10,8),M(0x4fb3ff,.05),scene);d.material.transparent=true;d.material.opacity=.85;drops.push(d)}
+
+/* pemeran */
+const C=makeCast(THREE,RoundedBoxGeometry);
+for(const k of['ayah','ibu','kakak','adik'])scene.add(C[k].root);
+C.ayah.root.position.set(-40,0,30);
+const FX=makeFX(THREE,document.getElementById('st'),cam,canvas);
+
+/* kamera per adegan: [pos, target] + gerak */
+const CAMS=[[[-20,58,200],[-45,30,20]],[[40,24,60],[11,10,0]],[[48,34,48],[11,10,0]],[[60,120,190],[40,10,0]],[[-30,48,185],[-30,26,25]],[[0,70,190],[-10,30,20]]];
+const V=a=>new THREE.Vector3(...a);
+function camAt(i,t){const [p,tg]=CAMS[i],u=t-ST[i],P=V(p),T=V(tg),d=P.clone().sub(T);
+ const mv=[[.0,-.03],[.06,-.02],[-.05,-.03],[.04,.01],[.08,-.02],[-.03,.01]][i];
+ d.applyAxisAngle(new THREE.Vector3(0,1,0),mv[0]*u);d.multiplyScalar(1+mv[1]*u);return [T.clone().add(d),T]}
+
+function render(t){t=cl(t,0,TOTAL);const i=sceneIdx(t),u=t-ST[i];
+ /* aksi pemeran */
+ const A=C.ayah;A.root.rotation.y=0;
+ const showFam=i===4;for(const k of['ibu','kakak','adik'])C[k].root.visible=showFam;
+ if(i===0){A.root.position.set(-70+Math.min(u,1.6)*18,0,30);A.root.rotation.y=Math.PI/2*(u<1.6?1:1-e3(cl((u-1.6)/.4,0,1)));A.act(u<1.6?'walk':'wave',u<1.6?u:u-1.6,u<1.6?'normal':'happy')}
+ else if(i===1){A.root.position.set(-16,0,30);A.root.rotation.y=.5;A.act('shock',u,'shock')}
+ else if(i===2){A.root.position.set(-16,0,30);A.root.rotation.y=.5;A.act(u<1.2?'think':'point',u<1.2?u:u-1.2,u<1.2?'think':'happy')}
+ else if(i===3){A.root.position.set(-16,0,30);A.root.rotation.y=.3;A.act('present',u,'happy')}
+ else if(i===4){A.root.position.set(-40,0,30);A.act('celebrate',u,'happy');
+   C.ibu.root.position.set(-62,0,22);C.ibu.act('wave',u,'happy');C.kakak.root.position.set(-18,0,26);C.kakak.act('celebrate',u+.2,'happy');
+   C.adik.root.position.set(-4,0,36);C.adik.act('wave',u+.4,'wink')}
+ else{A.root.position.set(-30,0,30);A.act('think',u,'think')}
+ clamp.visible=i>=2&&!(i===2&&u<1.3);clamp.scale.setScalar(i===2?Math.max(.001,cl((u-1.3)/.35,0,1)):1);
+ drops.forEach((d,k)=>{const on=i===1;d.visible=on;if(!on)return;const p=((u*1.4+k/24)%1);d.position.set(11+Math.cos(k)*p*14,8+p*10-p*p*26,Math.sin(k*1.7)*p*10)});
+ /* kamera + transisi */
+ {let [P1,T1]=camAt(i,t);if(i>0){const p=e3(cl(u/1,0,1));if(p<1){const [P0,T0]=camAt(i-1,t);P1=P0.lerp(P1,p);T1=T0.lerp(T1,p)}}cam.position.copy(P1);cam.lookAt(T1)}
+ R.render(scene,cam);
+ /* FX */
+ FX.begin();const head=()=>A.head.localToWorld(new THREE.Vector3(0,14,0));
+ FX.stage(D.problems[i],D.chips[i]||(i===0?'Versi 1: pipa':i===3?'Air sampai rumah':i===4?'Kamu bikin saluran!':'Habis ini?'),D.keys[i],u,DUR[i]);
+ FX.karaoke(L[i],D.keys[i],cl(u/DUR[i],0,1));
+ if(i===0&&u>1.6)FX.emote('!',head(),u-1.6);
+ if(i===0)FX.label('Pipa',[-35,12,4],u-.6,90,-120,2.4);
+ if(i===1){FX.arrow([11,40,0],[11,14,0],u-.2);FX.chip('pipanya bocor',[11,-4,0],u-.6,'bad');FX.boom('BLUP!',{x:760,y:700},u-.3);FX.emote('sweat',head(),u-.4);FX.rewind(u-2.0,1)}
+ if(i===2){if(u<1.2)FX.emote('idea',head(),u);FX.label('Klem baja',[11,14,0],u-1.4,-140,-110);FX.chip('nggak bocor lagi',[11,-6,0],u-2.0,'good')}
+ if(i===3){FX.arrow([-30,22,0],[100,22,0],u-.2,'#2f6bff',26);FX.chip('air sampai rumah',[110,60,-10],u-.8,'good')}
+ if(i===4){FX.confetti(u);FX.boom('SELAMAT!',{x:540,y:620},u-.2,'#2f6bff',2.6,130)}
+ if(i===5)FX.emote('?',head(),u);
+ FX.flash(u,i>0?.25:0);FX.end()}
+window.__render=render;window.__TOTAL=TOTAL;render(0);window.__ready=1;
+if(!location.search.includes('capture')){let t0=null;const loop=ts=>{if(t0===null)t0=ts;let t=(ts-t0)/1000;if(t>TOTAL+1){t0=ts;t=0}render(t);requestAnimationFrame(loop)};requestAnimationFrame(loop)}
+</script></body></html>

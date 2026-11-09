@@ -8,12 +8,14 @@ Contoh kualitas yang jadi patokan: `pipeline/examples/mesin-cuci/` (scene.html +
 ```bash
 cd <repo>/pipeline && npm i three@0.170.0 --no-audit --no-fund
 pip install --break-system-packages soundfile numpy   # playwright + chromium sudah ada
-SLUG=<slug-topik>; W=/tmp/zl/$SLUG; mkdir -p $W/mp3; ln -s <repo>/pipeline/node_modules $W/node_modules
+SLUG=<slug-topik>; W=/tmp/zl/$SLUG; mkdir -p $W/mp3; ln -s <repo>/pipeline/node_modules $W/node_modules; ln -s <repo>/pipeline/kit $W/kit
 ```
 Cek kuota Buffer dulu: `get_account` → org `6ac1597aca8206e9ab9d50f7`, batas `scheduledPosts` = 10 untuk SELURUH organisasi. `list_posts` status scheduled; kalau sisa slot < 3, berhenti dan catat di log (jangan hapus post orang lain).
 
 ## 1. Topik
-Ambil baris pertama yang belum dicentang di `topics.md` (format: slug — topik | HOOK).
+Ambil baris pertama yang belum dicentang di `topics.md` (format: [P1|P2] slug — topik | HOOK). Antrean sudah selang-seling dua pilar:
+- **P1 "Dari Jijik Jadi Berguna"**: bahan menjijikkan/terbuang → diolah jadi berguna.
+- **P2 "Di Balik Hal Biasa"**: sistem raksasa tak terlihat di balik hal yang dialami tiap hari. Pola wajib: mulai dari aksi kecil sehari-hari si "kamu" (kirim chat, scan QRIS, naik lift) → kamera ZOOM OUT ke skala sistemnya (menara, kabel bawah laut, satelit, pusat data) → ZOOM IN sampai level mekanisme terkecil yang terverifikasi (sensor, sinyal, elektron, katup). Bedah lebih dalam dari "cara dibuat": tunjukkan KENAPA tiap komponen harus ada. Hindari topik yang mekanismenya rahasia perusahaan (tidak bisa diverifikasi).
 
 ## 1b. Riset (WAJIB sebelum menulis — tidak boleh mengarang)
 - Cari dengan WebSearch/WebFetch minimal **3 sumber terpercaya**, utamakan sumber primer: situs resmi lembaga/perusahaan (NASA, PUB Singapura, Gates Foundation, Climeworks, operator fasilitas), jurnal/universitas, badan pemerintah/PBB, lalu media besar (BBC, Reuters, AP, National Geographic, dll). Hindari blog anonim, konten AI, forum, dan situs tanpa penulis/tanggal.
@@ -23,7 +25,7 @@ Ambil baris pertama yang belum dicentang di `topics.md` (format: slug — topik 
 - Tidak boleh ada kalimat naskah yang memuat fakta di luar tabel fakta. Penyederhanaan boleh, distorsi tidak.
 - Salin `research.md` ke repo `research/<slug>.md` saat publikasi.
 
-## 2. Naskah (18–26 kalimat, total 230–320 kata → video 85–115 detik) — seri "Dari Jijik Jadi Berguna"
+## 2. Naskah (18–26 kalimat, total 230–320 kata → video 85–115 detik) — seri "Dibongkar" (P1 / P2)
 Durasi 85–115 detik (keputusan Ari 10 Nov 2026, patokan akun @kalbotau ±1:45 dengan 1,29 juta likes): cukup panjang supaya tiap masalah & solusi tersampaikan utuh. Panjang hanya boleh dari tahap nyata, setiap kalimat WAJIB masalah→solusi baru atau visualisasi masalahnya, bukan pengisi. Tempo cepat: ganti shot tiap 2–4 detik. Hook + masalah pertama harus selesai dalam 3 detik pertama.
 Nomor seri: N = jumlah baris `[x]` di `topics.md` + 1 (mesin-cuci = #1, kencing-astronot = #2). Dipakai di judul, caption, dan kalimat terakhir. Gaya: kasual, kalimat pendek, "kamu", bahasa Indonesia sehari-hari. Semua fakta dari `research.md`.
 FORMAT WAJIB = rantai MASALAH → SOLUSI bertahap, persis seperti video mesin cuci (`pipeline/examples/mesin-cuci/data.json`). Penonton "ikut membangun" sistemnya dari versi paling primitif; tiap kalimat menutup satu masalah dan membuka masalah baru, sehingga penonton terus penasaran ke kalimat berikutnya.
@@ -40,7 +42,7 @@ Tulis ke `$W/data.json`:
 `{"slug","hook":"<versi singkat hook, KAPITAL, ≤28 karakter>","footer":"DARI BIASA JADI BERGUNA","lines":[...],"chips":[...],"problems":[...],"keys":[...]}`
 (`problems` = masalah singkat per kalimat untuk label pojok kiri atas, KAPITAL ≤22 karakter, "" bila tidak ada; `keys` = 1 kata kunci per kalimat yang diberi kotak biru di caption.)
 (`chips` = nama tahap/mesin per kalimat, kosong "" untuk K1, K2, dua terakhir; KAPITAL, ≤18 karakter.)
-Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" secara bersih & tidak vulgar (stilisasi, bukan realistis menjijikkan); tahap proses = mesin/alat nyata yang dirakit; dua adegan akhir = hasil akhir + fasilitas utuh.
+Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" (P1) atau aksi sehari-hari si ayah (P2) secara bersih & tidak vulgar (stilisasi, bukan realistis menjijikkan); tahap proses = mesin/alat nyata yang dirakit; dua adegan akhir = hasil akhir + fasilitas utuh.
 **Gaya @kalbotau (WAJIB, hasil bedah 10 Nov 2026):**
 - **Gagal dulu, baru solusi:** tiap MASALAH divisualkan terjadi di layar (melengkung, patah, bocor, runtuh, meledak kecil) dengan panah merah + chip "✗ <masalah>"; solusinya lalu muncul dan diuji ulang dengan chip "✓ <hasil>". Boleh efek teks onomatope besar miring (mis. "KRAAAK!", "BLUP!") dan efek mundur "◀◀ ULANG" saat percobaan gagal.
 - **Label tahap pojok kiri atas** (tetap tampil per adegan): baris kecil KAPITAL "• MASALAH: <masalah singkat>" + di bawahnya nama solusi tebal dengan kata kunci di kotak biru (mis. "Gelagar huruf I [gelagar]"). Isi dari `chips`/`problems` di data.json.
@@ -50,6 +52,13 @@ Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" secara bersih & tidak vulgar (st
 - **Visual cerah**: siang hari, warna pastel bersih, low-poly rapi; hindari adegan gelap.
 - **Ending loop**: adegan terakhir "Selamat!" dengan efek teks besar, lalu frame terakhir dibuat mirip/menyambung ke adegan K1 supaya video berulang mulus (penonton menonton ulang).
 - Jangan menyalin aset, karakter, nama, atau kalimat khas akun itu; ambil polanya saja.
+
+**Kit maskot & efek (WAJIB dipakai, `pipeline/kit/`)** — contoh lengkap: `pipeline/examples/kit-demo/scene.html`, pratinjau: `pipeline/kit/preview-maskot.png`.
+- `makeCast(THREE,RoundedBoxGeometry)` → `ayah` (tokoh utama = "kamu", wajib tampil di K1, tiap adegan gagal, dan adegan "Selamat"), `ibu`, `kakak`, `adik` (pemeran pendukung bila cerita butuh: mis. ibu memakai hasilnya, anak bertanya). Jangan ganti desain/warna/emblem; atur skala agar proporsional dengan benda (`root.scale`).
+- Tiap frame: `C.ayah.act(aksi, detikSejakMulaiAksi, ekspresi)`. Aksi: idle, walk, wave, point, think, shock, celebrate, facepalm, present, hold, crouch. Ekspresi: normal, happy, shock, worried, think, wink. Sesuaikan aksi dengan kalimat: masalah → shock/facepalm + worried; ide solusi → think lalu point; hasil → present/celebrate + happy.
+- `makeFX(...)` dipanggil di `render(t)` setelah `R.render`: `FX.begin()` → `stage(problems[i], judulTahap, keys[i], u)` setiap adegan → `karaoke(lines[i], keys[i], progres)` setiap adegan → efek momen → `FX.end()`. Ganti overlay lama (#hb/#chip/#cap) dengan FX; hook tetap tampil besar di K1 (pakai `FX.boom` atau stage).
+- Kuota minimal per video: ≥4 `arrow` (merah = gaya/masalah, biru = aliran, hijau = solusi), ≥4 `chip` (✗ bad untuk tiap masalah, ✓ good untuk tiap solusi), ≥6 `label` nama part, ≥3 `emote` (!, ?, idea, sweat, love), ≥2 `boom` onomatope (KRAAAK!, BLUP!, WUSSH!, DUAR!), ≥1 `rewind` (ULANG) setelah percobaan gagal, `lines` untuk angin/panas/kecepatan bila relevan, `confetti` + `boom('SELAMAT!')` di adegan akhir, `flash` kecil tiap ganti adegan.
+- Gerak kamera ala @kalbotau: ganti shot 2–4 detik; campur wide (lihat karakter + benda), close-up wajah saat reaksi (shock/think), POV/over-the-shoulder karakter, top-down untuk skala, dan punch-in cepat saat momen gagal. Karakter & benda tidak boleh menembus satu sama lain.
 **Hook visual 2 detik pertama (WAJIB):** begitu sampul 0.4 s lewat, K1 langsung menampilkan momen paling aneh/kontras (bahan jijik berdampingan dengan hasil akhirnya, atau benda dalam gerak) dengan gerak kamera cepat (punch-in/whip), bukan wide shot diam. `hook` di data.json berupa pertanyaan/klaim kontras (mis. "KENCING JADI AIR MINUM?") dan tampil besar di layar sepanjang K1.
 
 ## 3. Suara (ElevenLabs connector)
@@ -57,8 +66,8 @@ Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" secara bersih & tidak vulgar (st
 Lalu: `python3 pipeline/build_audio.py $W 115` (115 = batas maksimal; tempo bicara dipercepat paling banyak 1.15×, jadi kalau total > 115 detik, PENDEKKAN naskah lalu generate ulang kalimat yang berubah, jangan dipaksa cepat). Mengisi starts/durs/total di data.json + mix.wav.
 
 ## 4. Scene 3D
-Salin `pipeline/examples/mesin-cuci/scene.html` ke `$W/scene.html`. Pertahankan kerangka (renderer, lampu, lantai, sistem `part()`, highlight, overlay caption/chip/hook, `render(t)`, fungsi kamera). Ganti SEMUA model & animasi dengan benda topik hari ini:
-- Adegan K1–K2: versi primitif (seperti ember + tangan). Tangan/benda TIDAK boleh menembus objek lain.
+Salin `pipeline/examples/kit-demo/scene.html` (kerangka cerah + maskot + FX) ke `$W/scene.html`; ambil sistem `part()`/highlight/model detail dari `pipeline/examples/mesin-cuci/scene.html` bila perlu. Pertahankan `render(t)`, `window.__render/__ready`, dan fungsi kamera. Ganti SEMUA model & animasi dengan benda topik hari ini:
+- Adegan K1–K2: versi primitif dikerjakan maskot `ayah` (mis. menimba, menyaring, mengirim surat). Tangan/benda TIDAK boleh menembus objek lain.
 - Tiap part muncul di kalimat yang menyebutnya (`part(name, sceneIndex, endIndex, flyOffset)`), modelnya harus menyerupai part asli (bentuk, material logam/plastik/karet, detail).
 - Dua adegan terakhir: benda UTUH dan PENUH di frame (tidak terpotong, tidak terlalu zoom), kamera orbit pelan.
 - Tanpa progress bar. Caption & chip dari data.json.
