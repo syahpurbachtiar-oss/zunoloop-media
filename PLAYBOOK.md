@@ -1,6 +1,6 @@
 # PLAYBOOK — Video harian ZunoLoop (otomatis)
 
-Tujuan tiap run: 1 video edukasi 3D 9:16 berbahasa Indonesia (35–50 detik) → push ke repo ini → jadwalkan ke YouTube, Instagram, TikTok via Buffer pada **19:30 WIB hari yang sama**. Tidak ada manusia yang menunggu: jangan bertanya, ambil keputusan terbaik, catat di `log.md`.
+Tujuan tiap run: 1 video edukasi 3D 9:16 berbahasa Indonesia (85–115 detik) → push ke repo ini → jadwalkan ke YouTube, Instagram, TikTok via Buffer pada **19:30 WIB hari yang sama**. Tidak ada manusia yang menunggu: jangan bertanya, ambil keputusan terbaik, catat di `log.md`.
 
 Contoh kualitas yang jadi patokan: `pipeline/examples/mesin-cuci/` (scene.html + data.json) dan `videos/mesin-cuci-3d.mp4`.
 
@@ -23,8 +23,8 @@ Ambil baris pertama yang belum dicentang di `topics.md` (format: slug — topik 
 - Tidak boleh ada kalimat naskah yang memuat fakta di luar tabel fakta. Penyederhanaan boleh, distorsi tidak.
 - Salin `research.md` ke repo `research/<slug>.md` saat publikasi.
 
-## 2. Naskah (9–13 kalimat, total 90–135 kata → video 35–50 detik) — seri "Dari Jijik Jadi Berguna"
-Durasi WAJIB 35–50 detik (keputusan Ari 10 Nov 2026: retensi TikTok video 61 detik cuma ±28%). Kalau prosesnya punya banyak tahap, pilih tahap paling penting/visual saja; gabungkan tahap kecil. Setiap kalimat WAJIB masalah→solusi baru, bukan pengisi. Hook + masalah pertama harus selesai dalam 3 detik pertama.
+## 2. Naskah (18–26 kalimat, total 230–320 kata → video 85–115 detik) — seri "Dari Jijik Jadi Berguna"
+Durasi 85–115 detik (keputusan Ari 10 Nov 2026, patokan akun @kalbotau ±1:45 dengan 1,29 juta likes): cukup panjang supaya tiap masalah & solusi tersampaikan utuh. Panjang hanya boleh dari tahap nyata, setiap kalimat WAJIB masalah→solusi baru atau visualisasi masalahnya, bukan pengisi. Tempo cepat: ganti shot tiap 2–4 detik. Hook + masalah pertama harus selesai dalam 3 detik pertama.
 Nomor seri: N = jumlah baris `[x]` di `topics.md` + 1 (mesin-cuci = #1, kencing-astronot = #2). Dipakai di judul, caption, dan kalimat terakhir. Gaya: kasual, kalimat pendek, "kamu", bahasa Indonesia sehari-hari. Semua fakta dari `research.md`.
 FORMAT WAJIB = rantai MASALAH → SOLUSI bertahap, persis seperti video mesin cuci (`pipeline/examples/mesin-cuci/data.json`). Penonton "ikut membangun" sistemnya dari versi paling primitif; tiap kalimat menutup satu masalah dan membuka masalah baru, sehingga penonton terus penasaran ke kalimat berikutnya.
 - K1 = HOOK dari `topics.md` (boleh dipoles, ≤ 18 kata, kontras jijik/aneh vs hasil luar biasa). Hook juga jadi judul video.
@@ -37,14 +37,24 @@ FORMAT WAJIB = rantai MASALAH → SOLUSI bertahap, persis seperti video mesin cu
 Contoh pembuka (kencing-astronot): K1 "Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu." K2 "Kalau kamu cuma saring pakai kain, kotorannya nyangkut… tapi baunya dan zat garamnya masih ikut." K3 "Tapi di luar angkasa nggak ada gravitasi, air nggak mau netes ke bawah. Jadi kamu pasang drum yang muter biar airnya kepental ke dinding." …
 Topik bertanda SENSITIF: tone hormat & ilmiah, tanpa candaan.
 Tulis ke `$W/data.json`:
-`{"slug","hook":"<versi singkat hook, KAPITAL, ≤28 karakter>","footer":"DARI BIASA JADI BERGUNA","lines":[...],"chips":[...]}`
+`{"slug","hook":"<versi singkat hook, KAPITAL, ≤28 karakter>","footer":"DARI BIASA JADI BERGUNA","lines":[...],"chips":[...],"problems":[...],"keys":[...]}`
+(`problems` = masalah singkat per kalimat untuk label pojok kiri atas, KAPITAL ≤22 karakter, "" bila tidak ada; `keys` = 1 kata kunci per kalimat yang diberi kotak biru di caption.)
 (`chips` = nama tahap/mesin per kalimat, kosong "" untuk K1, K2, dua terakhir; KAPITAL, ≤18 karakter.)
 Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" secara bersih & tidak vulgar (stilisasi, bukan realistis menjijikkan); tahap proses = mesin/alat nyata yang dirakit; dua adegan akhir = hasil akhir + fasilitas utuh.
+**Gaya @kalbotau (WAJIB, hasil bedah 10 Nov 2026):**
+- **Gagal dulu, baru solusi:** tiap MASALAH divisualkan terjadi di layar (melengkung, patah, bocor, runtuh, meledak kecil) dengan panah merah + chip "✗ <masalah>"; solusinya lalu muncul dan diuji ulang dengan chip "✓ <hasil>". Boleh efek teks onomatope besar miring (mis. "KRAAAK!", "BLUP!") dan efek mundur "◀◀ ULANG" saat percobaan gagal.
+- **Label tahap pojok kiri atas** (tetap tampil per adegan): baris kecil KAPITAL "• MASALAH: <masalah singkat>" + di bawahnya nama solusi tebal dengan kata kunci di kotak biru (mis. "Gelagar huruf I [gelagar]"). Isi dari `chips`/`problems` di data.json.
+- **Caption karaoke**: teks di tengah-bawah, muncul per kata mengikuti suara (estimasi waktu per kata dari durasi kalimat, proporsional panjang kata); kata kunci tiap kalimat diberi kotak biru tebal. Tambahkan field `keys` (1 kata kunci per kalimat) di data.json.
+- **Label nama part di scene** (teks kecil KAPITAL + garis penunjuk) saat part pertama kali muncul.
+- **Analogi sehari-hari** minimal 1 (mis. "kayak penggaris: tidur gampang ditekuk, berdiri susah banget") dan konteks Indonesia (motor, sawah, gang, dll) bila relevan.
+- **Visual cerah**: siang hari, warna pastel bersih, low-poly rapi; hindari adegan gelap.
+- **Ending loop**: adegan terakhir "Selamat!" dengan efek teks besar, lalu frame terakhir dibuat mirip/menyambung ke adegan K1 supaya video berulang mulus (penonton menonton ulang).
+- Jangan menyalin aset, karakter, nama, atau kalimat khas akun itu; ambil polanya saja.
 **Hook visual 2 detik pertama (WAJIB):** begitu sampul 0.4 s lewat, K1 langsung menampilkan momen paling aneh/kontras (bahan jijik berdampingan dengan hasil akhirnya, atau benda dalam gerak) dengan gerak kamera cepat (punch-in/whip), bukan wide shot diam. `hook` di data.json berupa pertanyaan/klaim kontras (mis. "KENCING JADI AIR MINUM?") dan tampil besar di layar sepanjang K1.
 
 ## 3. Suara (ElevenLabs connector)
 `creative_generate_speech` per kalimat: `voice_id=xlBOShi2835jfBgaEld4` (Rafiq), `model_id=eleven_v4`, `generations_count=1`. Kirim semua sekaligus, lalu poll `creative_get_flow_run_status`. Unduh `content_url` dengan curl ke `$W/mp3/NN.mp3` (01, 02, …). Kalimat yang gagal: generate ulang SATU kali saja. Kalau masih gagal / kredit habis → berhenti, catat di log.
-Lalu: `python3 pipeline/build_audio.py $W 50` (50 = batas maksimal; tempo bicara dipercepat paling banyak 1.15×, jadi kalau total > 50 detik, PENDEKKAN naskah lalu generate ulang kalimat yang berubah, jangan dipaksa cepat). Mengisi starts/durs/total di data.json + mix.wav.
+Lalu: `python3 pipeline/build_audio.py $W 115` (115 = batas maksimal; tempo bicara dipercepat paling banyak 1.15×, jadi kalau total > 115 detik, PENDEKKAN naskah lalu generate ulang kalimat yang berubah, jangan dipaksa cepat). Mengisi starts/durs/total di data.json + mix.wav.
 
 ## 4. Scene 3D
 Salin `pipeline/examples/mesin-cuci/scene.html` ke `$W/scene.html`. Pertahankan kerangka (renderer, lampu, lantai, sistem `part()`, highlight, overlay caption/chip/hook, `render(t)`, fungsi kamera). Ganti SEMUA model & animasi dengan benda topik hari ini:
