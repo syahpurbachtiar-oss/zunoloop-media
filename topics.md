@@ -2,65 +2,65 @@
 
 Ambil baris paling atas yang belum dicentang. Hook di bawah = kalimat 1 naskah (boleh dipoles, tapi harus tetap mengejutkan & AKURAT — cek fakta di web dulu).
 Format: `- [ ] [P1|P2] slug — topik | HOOK`
-P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Antrean sudah diselang-seling; tetap ambil baris paling atas yang belum dicentang.
+P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P2 dulu (keputusan Ari 10 Nov 2026), baru P1. Tetap ambil baris paling atas yang belum dicentang.
 - [x] mesin-cuci — Teknik pembuatan mesin cuci (run perdana)
 - [x] kencing-astronot — Daur ulang air kencing jadi air minum di ISS | Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu.
 - [ ] [P2] wa-luar-negeri — Chat WA ke luar negeri: HP → BTS → serat optik → kabel bawah laut → server | Chat WA-mu ke luar negeri… menyelam ke dasar laut dulu sebelum sampai.
-- [ ] [P1] newater-singapura — NEWater: air bekas toilet diolah jadi layak minum | Di Singapura, air bekas toilet diolah lagi… sampai layak diminum.
 - [ ] [P2] gps-einstein — GPS: satelit, jam atom, koreksi relativitas | Tanpa teori Einstein, Google Maps-mu meleset kilometer tiap hari.
-- [ ] [P1] tinja-jadi-air — Omni Processor: tinja jadi air minum + listrik | Bill Gates pernah minum segelas air… yang beberapa menit sebelumnya masih berupa tinja.
 - [ ] [P2] qris-2-detik — QRIS: alur pembayaran dari scan sampai dana masuk | Scan QRIS, lunas dalam 2 detik… padahal uangmu lewat 4 pihak.
-- [ ] [P1] air-laut-tawar — Desalinasi reverse osmosis (Dubai & Israel) | Kota di tengah gurun ini minum air laut setiap hari.
 - [ ] [P2] pesawat-kabut — ILS: pesawat mendarat dalam kabut | Pilot ini mendarat tanpa bisa lihat landasan sama sekali.
-- [ ] [P1] copenhill — CopenHill: pembakaran sampah jadi listrik + atap lintasan ski | Di Denmark, tempat bakar sampah ini… atapnya dipakai main ski.
 - [ ] [P2] lift-tidak-jatuh — Rem pengaman lift (safety gear + governor) | Kalau semua kabel lift putus… lift-nya tetap nggak jatuh.
-- [ ] [P1] biogas-sapi — Biogas digester: kotoran sapi jadi gas & listrik | Kotoran sapi ini bisa nyalain kompor dan lampu rumah.
 - [ ] [P2] listrik-jam-7 — Penyeimbangan beban jaringan listrik, frekuensi 50 Hz | Jam 7 malam semua orang nyalain AC… kok listriknya nggak padam?
-- [ ] [P1] jelantah-pesawat — Minyak jelantah jadi bahan bakar pesawat (SAF) | Pesawat ini terbang pakai minyak bekas gorengan.
 - [ ] [P2] tsunami-buoy — Peringatan dini tsunami: sensor dasar laut + buoy (InaTEWS/DART) | Pelampung di tengah laut ini tahu tsunami datang… sebelum sampai pantai.
-- [ ] [P1] botol-jadi-kaos — Botol plastik bekas jadi kaos (rPET) | Jersey yang dipakai pemain bola dunia… dibuat dari botol plastik bekas.
 - [ ] [P2] handover-kereta — Handover sinyal seluler di kereta cepat | Nelpon di kereta 350 km/jam nggak putus… sinyalmu dioper estafet.
-- [ ] [P1] udara-jadi-air — Atmospheric water generator: udara jadi air minum | Di gurun tanpa sumur, mesin ini bikin air minum dari udara.
 - [ ] [P2] youtube-cdn — CDN / cache server dekat pengguna | Video YouTube-mu sebenarnya udah dititip di gedung dekat rumahmu.
-- [ ] [P1] co2-jadi-batu — Climeworks + Carbfix Islandia: CO₂ jadi batu | Di Islandia, polusi udara disedot… lalu diubah jadi batu.
 - [ ] [P2] jam-hp-atom — Sinkronisasi waktu HP (NTP/jaringan) ke jam atom | Jam HP-mu diam-diam disamain sama jam atom.
-- [ ] [P1] panas-tubuh-stockholm — Panas tubuh penumpang Stasiun Stockholm menghangatkan gedung | Di Swedia, gedung ini dipanaskan pakai panas tubuh ribuan orang yang lewat tiap hari.
 - [ ] [P2] parabola-satelit — Satelit geostasioner & arah antena parabola | Kenapa parabola harus menghadap satu titik di langit yang nggak kelihatan?
-- [ ] [P1] hp-jadi-medali — Medali Olimpiade Tokyo 2020 dari HP bekas | Medali emas Olimpiade Tokyo dibuat dari… HP bekas yang dibuang orang.
 - [ ] [P2] maps-macet — Google Maps tahu macet dari data lokasi anonim | Google Maps tahu jalan macet… dari HP-mu sendiri.
-- [ ] [P1] asap-jadi-cincin — Smog Free Tower: polusi udara jadi cincin | Di Belanda, ada menara yang menyedot polusi udara… lalu dijadikan cincin.
 - [ ] [P2] transfer-antarbank — Transfer antarbank real-time (BI-FAST) | Transfer antarbank masuk dalam detik… padahal uangnya nggak benar-benar pindah.
-- [ ] [P1] bio-bus — Bio-Bus Bristol: bahan bakar dari kotoran manusia | Bus ini jalan pakai bahan bakar dari kotoran manusia.
 - [ ] [P2] etoll-tanpa-baterai — Kartu e-toll/NFC tanpa baterai | Kartu tanpa baterai ini kok bisa ngobrol sama gerbang tol?
-- [ ] [P1] lalat-bsf — Larva lalat tentara hitam makan sampah jadi pakan ikan | Lalat ini makan sampah dapurmu… lalu jadi makanan ikan.
 - [ ] [P2] jalan-tol-udara — ATC & jalur udara: ribuan pesawat tidak tabrakan | Ribuan pesawat di langit nggak tabrakan… ada jalan tol nggak kelihatan di udara.
-- [ ] [P1] kopi-gajah — Black Ivory Coffee dari kotoran gajah | Kopi termahal di dunia… keluar dari kotoran gajah.
 - [ ] [P2] lampu-merah-magnet — Detektor loop induktif di bawah aspal | Ada magnet di bawah aspal yang tahu mobilmu lagi nunggu.
-- [ ] [P1] air-ink — Air-Ink: asap knalpot jadi tinta | Pulpen ini tintanya dari asap knalpot mobil.
 - [ ] [P2] mrt-presisi — MRT menyetir otomatis (CBTC/ATO) berhenti presisi | MRT ini berhenti pas di depan pintu… keretanya nyetir sendiri.
-- [ ] [P1] keringat-jadi-air — Mesin UNICEF Swedia: keringat jadi air minum | Di Swedia, orang antre minum… keringat orang lain.
 - [ ] [P2] etle-plat — ETLE: kamera baca plat nomor (ANPR) | Dari foto plat nomor… jadi surat tilang di rumahmu.
-- [ ] [P1] kentut-sapi — Ransel penampung gas metana sapi (Argentina) | Di Argentina, sapi dipasangi ransel… buat nampung kentutnya.
 - [ ] [P2] eskalator — Mekanisme anak tangga eskalator | Tangga eskalator ke mana hilangnya di ujung?
-- [ ] [P1] ulat-styrofoam — Ulat hongkong yang bisa mencerna styrofoam | Ulat ini bisa makan styrofoam… dan tetap hidup.
 - [ ] [P2] pdam-lantai-30 — Pompa booster & tangki atap gedung tinggi | Air keran di lantai 30… siapa yang dorong naik setinggi itu?
-- [ ] [P1] bakteri-minyak — Bakteri pemakan tumpahan minyak di laut | Tumpahan minyak di laut dibersihkan… sama bakteri.
 - [ ] [P2] bensin-ke-spbu — Rantai BBM dari kilang ke SPBU + meter pompa | Bensin di motormu udah jalan ribuan kilometer sebelum masuk tangki.
-- [ ] [P1] rambut-salon — Rambut potongan salon jadi penyerap tumpahan minyak | Rambut yang kamu potong di salon… dipakai buat nyedot tumpahan minyak di laut.
 - [ ] [P2] jakarta-pompa — Sistem polder & pompa banjir Jakarta | Sebagian Jakarta lebih rendah dari laut… kota ini dipompa tiap hujan.
-- [ ] [P1] ampas-kopi-bus — Ampas kopi London jadi bahan bakar bus | Bus di London pernah jalan pakai ampas kopi.
 - [ ] [P2] burung-kabel-pln — Beda potensial: burung di kabel tidak kesetrum | Burung ini nangkring di kabel listrik ribuan volt… kok nggak kesetrum?
-- [ ] [P1] kertas-gajah — Kertas dari kotoran gajah (Sri Lanka) | Kertas ini dibuat dari kotoran gajah… dan nggak bau sama sekali.
 - [ ] [P2] bmkg-hujan — Prakiraan cuaca: radar, satelit, superkomputer | BMKG tahu besok hujan… dari superkomputer yang ngitung langit.
-- [ ] [P1] gas-tpa — Gas metana TPA jadi listrik | Bau busuk tempat sampah ini… nyalain listrik ribuan rumah.
 - [ ] [P2] darah-donor — Pemisahan komponen darah donor (sentrifugasi) | Sekantong darah donormu bisa nolong lebih dari satu orang.
-- [ ] [P1] kapal-terumbu — Kapal perang bekas ditenggelamkan jadi terumbu karang | Kapal perang raksasa ini sengaja ditenggelamkan… biar jadi rumah ikan.
 - [ ] [P2] kapsul-usus — Lapisan enterik kapsul obat | Kapsul ini tahu kapan harus pecah… bukan di lambung, tapi di usus.
-- [ ] [P1] popok-daur-ulang — Daur ulang popok bekas | Popok bekas bayi ternyata bisa didaur ulang… jadi barang baru.
 - [ ] [P2] xray-bandara — Pemindai X-ray bagasi bandara (dual-energy) | Mesin bandara ini bisa bedain sabun dan bahan peledak di dalam kopermu.
-- [ ] [P1] jalan-plastik — Jalan raya dari sampah plastik | Jalan raya ini dibuat dari sampah plastik.
 - [ ] [P2] paket-besok-sampai — Gudang sortir otomatis paket e-commerce | Paketmu dipilah mesin bareng ribuan paket lain dalam hitungan detik.
-- [ ] [P1] kaca-jadi-pasir — Botol kaca bekas jadi pasir pantai (New Orleans) | Botol bekas ini digiling jadi pasir… buat nyelamatin pantai.
 - [ ] [P2] kontainer-pelabuhan — Pelabuhan kontainer: kapal, crane, kontainer standar | Barang di tokomu datang lewat kotak besi yang ukurannya sama di seluruh dunia.
-- [ ] [P1] jasad-jadi-tanah — Human composting (AS) — SENSITIF, tone hormat & ilmiah | Di Amerika, jasad manusia bisa diubah jadi tanah subur.
 - [ ] [P2] flush-gedung-50 — Sistem pipa air kotor gedung tinggi | Flush toilet di lantai 50… ke mana perginya, kok pipanya nggak meledak?
+- [ ] [P1] newater-singapura — NEWater: air bekas toilet diolah jadi layak minum | Di Singapura, air bekas toilet diolah lagi… sampai layak diminum.
+- [ ] [P1] tinja-jadi-air — Omni Processor: tinja jadi air minum + listrik | Bill Gates pernah minum segelas air… yang beberapa menit sebelumnya masih berupa tinja.
+- [ ] [P1] air-laut-tawar — Desalinasi reverse osmosis (Dubai & Israel) | Kota di tengah gurun ini minum air laut setiap hari.
+- [ ] [P1] copenhill — CopenHill: pembakaran sampah jadi listrik + atap lintasan ski | Di Denmark, tempat bakar sampah ini… atapnya dipakai main ski.
+- [ ] [P1] biogas-sapi — Biogas digester: kotoran sapi jadi gas & listrik | Kotoran sapi ini bisa nyalain kompor dan lampu rumah.
+- [ ] [P1] jelantah-pesawat — Minyak jelantah jadi bahan bakar pesawat (SAF) | Pesawat ini terbang pakai minyak bekas gorengan.
+- [ ] [P1] botol-jadi-kaos — Botol plastik bekas jadi kaos (rPET) | Jersey yang dipakai pemain bola dunia… dibuat dari botol plastik bekas.
+- [ ] [P1] udara-jadi-air — Atmospheric water generator: udara jadi air minum | Di gurun tanpa sumur, mesin ini bikin air minum dari udara.
+- [ ] [P1] co2-jadi-batu — Climeworks + Carbfix Islandia: CO₂ jadi batu | Di Islandia, polusi udara disedot… lalu diubah jadi batu.
+- [ ] [P1] panas-tubuh-stockholm — Panas tubuh penumpang Stasiun Stockholm menghangatkan gedung | Di Swedia, gedung ini dipanaskan pakai panas tubuh ribuan orang yang lewat tiap hari.
+- [ ] [P1] hp-jadi-medali — Medali Olimpiade Tokyo 2020 dari HP bekas | Medali emas Olimpiade Tokyo dibuat dari… HP bekas yang dibuang orang.
+- [ ] [P1] asap-jadi-cincin — Smog Free Tower: polusi udara jadi cincin | Di Belanda, ada menara yang menyedot polusi udara… lalu dijadikan cincin.
+- [ ] [P1] bio-bus — Bio-Bus Bristol: bahan bakar dari kotoran manusia | Bus ini jalan pakai bahan bakar dari kotoran manusia.
+- [ ] [P1] lalat-bsf — Larva lalat tentara hitam makan sampah jadi pakan ikan | Lalat ini makan sampah dapurmu… lalu jadi makanan ikan.
+- [ ] [P1] kopi-gajah — Black Ivory Coffee dari kotoran gajah | Kopi termahal di dunia… keluar dari kotoran gajah.
+- [ ] [P1] air-ink — Air-Ink: asap knalpot jadi tinta | Pulpen ini tintanya dari asap knalpot mobil.
+- [ ] [P1] keringat-jadi-air — Mesin UNICEF Swedia: keringat jadi air minum | Di Swedia, orang antre minum… keringat orang lain.
+- [ ] [P1] kentut-sapi — Ransel penampung gas metana sapi (Argentina) | Di Argentina, sapi dipasangi ransel… buat nampung kentutnya.
+- [ ] [P1] ulat-styrofoam — Ulat hongkong yang bisa mencerna styrofoam | Ulat ini bisa makan styrofoam… dan tetap hidup.
+- [ ] [P1] bakteri-minyak — Bakteri pemakan tumpahan minyak di laut | Tumpahan minyak di laut dibersihkan… sama bakteri.
+- [ ] [P1] rambut-salon — Rambut potongan salon jadi penyerap tumpahan minyak | Rambut yang kamu potong di salon… dipakai buat nyedot tumpahan minyak di laut.
+- [ ] [P1] ampas-kopi-bus — Ampas kopi London jadi bahan bakar bus | Bus di London pernah jalan pakai ampas kopi.
+- [ ] [P1] kertas-gajah — Kertas dari kotoran gajah (Sri Lanka) | Kertas ini dibuat dari kotoran gajah… dan nggak bau sama sekali.
+- [ ] [P1] gas-tpa — Gas metana TPA jadi listrik | Bau busuk tempat sampah ini… nyalain listrik ribuan rumah.
+- [ ] [P1] kapal-terumbu — Kapal perang bekas ditenggelamkan jadi terumbu karang | Kapal perang raksasa ini sengaja ditenggelamkan… biar jadi rumah ikan.
+- [ ] [P1] popok-daur-ulang — Daur ulang popok bekas | Popok bekas bayi ternyata bisa didaur ulang… jadi barang baru.
+- [ ] [P1] jalan-plastik — Jalan raya dari sampah plastik | Jalan raya ini dibuat dari sampah plastik.
+- [ ] [P1] kaca-jadi-pasir — Botol kaca bekas jadi pasir pantai (New Orleans) | Botol bekas ini digiling jadi pasir… buat nyelamatin pantai.
+- [ ] [P1] jasad-jadi-tanah — Human composting (AS) — SENSITIF, tone hormat & ilmiah | Di Amerika, jasad manusia bisa diubah jadi tanah subur.
