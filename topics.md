@@ -3,7 +3,7 @@
 Ambil baris paling atas yang belum dicentang. Hook di bawah = kalimat 1 naskah (boleh dipoles, tapi harus tetap mengejutkan & AKURAT — cek fakta di web dulu).
 Format: `- [ ] slug — topik | HOOK`
 - [x] mesin-cuci — Teknik pembuatan mesin cuci (run perdana)
-- [ ] kencing-astronot — Daur ulang air kencing jadi air minum di ISS | Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu.
+- [x] kencing-astronot — Daur ulang air kencing jadi air minum di ISS | Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu.
 - [ ] newater-singapura — NEWater: air bekas toilet diolah jadi layak minum | Di Singapura, air bekas toilet diolah lagi… sampai layak diminum.
 - [ ] tinja-jadi-air — Omni Processor: tinja jadi air minum + listrik | Bill Gates pernah minum segelas air… yang beberapa menit sebelumnya masih berupa tinja.
 - [ ] air-laut-tawar — Desalinasi reverse osmosis (Dubai & Israel) | Kota di tengah gurun ini minum air laut setiap hari.
