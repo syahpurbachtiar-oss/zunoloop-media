@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><title>Daur Ulang Air Kencing ISS 3D</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#04101f}
+#st{position:relative;width:1080px;height:1920px;overflow:hidden;
+ background:radial-gradient(110% 60% at 50% 30%,#2a6fb8 0%,#123a6b 40%,#081d38 72%,#040e1c 100%);
+ font-family:"Plus Jakarta Sans","Segoe UI",system-ui,Arial,sans-serif;font-weight:800;-webkit-font-smoothing:antialiased}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(85% 60% at 50% 42%,#0000 55%,#00000075 100%)}
+#flash{position:absolute;inset:0;background:#e4f3ff;opacity:0;pointer-events:none;z-index:7}
+#hb{position:absolute;left:50%;top:110px;background:#ffd23f;color:#2b1c00;font-size:52px;line-height:1;
+ padding:22px 44px;border-radius:60px;white-space:nowrap;z-index:6;box-shadow:0 10px 0 #ae7a00,0 22px 46px #0008;letter-spacing:-1.5px}
+#chip{position:absolute;left:50%;top:116px;background:#1f7bea;color:#fff;font-size:46px;line-height:1;padding:20px 42px;
+ border-radius:50px;white-space:nowrap;z-index:6;box-shadow:0 8px 0 #0f4d99,0 18px 38px #0007;letter-spacing:-.5px;opacity:0}
+#cap{position:absolute;left:44px;right:44px;top:1392px;height:340px;display:flex;align-items:center;justify-content:center;
+ text-align:center;font-size:120px;line-height:1.02;color:#fff;letter-spacing:-3px;-webkit-text-stroke:19px #07213f;
+ paint-order:stroke fill;text-shadow:0 11px 0 #07213f,0 22px 42px #000b;z-index:6}
+#ttl{position:absolute;left:0;right:0;top:1806px;text-align:center;font-size:32px;color:#8ebdf5;letter-spacing:6px;z-index:6;opacity:.6}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body>
+<div id="st"><canvas id="c" width="1080" height="1920"></canvas>
+<div id="vig"></div><div id="hb"></div><div id="chip"></div>
+<div id="cap"></div><div id="ttl"></div><div id="flash"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+/* ================= timing / script ================= */
+const D=await (await fetch("data.json?"+Date.now())).json();
+const L=D.lines,ST=D.starts,DUR=D.durs,TOTAL=D.total,CHIP=D.chips;
+const N=L.length,SEND=ST.map((s,i)=>i<N-1?ST[i+1]:TOTAL);
+document.getElementById("hb").textContent=D.hook;document.getElementById("ttl").textContent=D.footer;
+
+const cl=(v,a,b)=>v<a?a:v>b?b:v, e3=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,
+ eo=x=>1-Math.pow(1-x,3), bk=x=>1+2.70158*Math.pow(x-1,3)+1.70158*Math.pow(x-1,2), lerp=(a,b,p)=>a+(b-a)*p;
+const sceneIdx=t=>{for(let i=N-1;i>=0;i--)if(t>=ST[i])return i;return 0};
+const sp=(i,t)=>cl((t-ST[i])/(SEND[i]-ST[i]),0,1); // progress within scene i
+let seed=11;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+
+/* ================= renderer ================= */
+const W=1080,H=1920,canvas=document.getElementById('c');
+const R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
+R.setPixelRatio(1);R.setSize(W,H,false);R.setClearColor(0x000000,0);
+R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.08;
+R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;R.localClippingEnabled=true;
+const scene=new THREE.Scene();
+const pm=new THREE.PMREMGenerator(R);scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture;scene.environmentIntensity=.75;
+const cam=new THREE.PerspectiveCamera(34,W/H,1,3000);cam.setViewOffset(W,H,0,170,W,H);
+
+scene.add(new THREE.HemisphereLight(0xd6ecff,0x0b2340,.6));
+const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(110,200,170);key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);Object.assign(key.shadow.camera,{left:-120,right:120,top:170,bottom:-40,near:40,far:600});
+key.shadow.bias=-.0004;key.shadow.normalBias=.4;key.shadow.radius=4;scene.add(key);
+const rim=new THREE.DirectionalLight(0x7fc0ff,1.4);rim.position.set(-140,110,-130);scene.add(rim);
+const fill=new THREE.PointLight(0xffe2c4,1300,0,1.6);fill.position.set(-70,80,130);scene.add(fill);
+const back=new THREE.PointLight(0xcfe6ff,1600,0,1.6);back.position.set(60,90,-90);scene.add(back);
+
+/* floor */
+{const g=new THREE.CircleGeometry(500,96);g.rotateX(-Math.PI/2);
+ const cv=document.createElement('canvas');cv.width=cv.height=512;const x=cv.getContext('2d');
+ const gr=x.createRadialGradient(256,256,0,256,256,256);gr.addColorStop(0,'rgba(120,180,255,.55)');gr.addColorStop(.3,'rgba(60,120,210,.22)');gr.addColorStop(1,'rgba(20,50,100,0)');
+ x.fillStyle=gr;x.fillRect(0,0,512,512);
+ const glow=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false}));
+ glow.position.y=-.05;scene.add(glow);
+ const sh=new THREE.Mesh(g.clone(),new THREE.ShadowMaterial({opacity:.42}));sh.receiveShadow=true;scene.add(sh);}
+
+/* ================= materials ================= */
+const M=(o)=>new THREE.MeshStandardMaterial(o);
+const mk=(geo,mat,parent,pos,rot)=>{const m=new THREE.Mesh(geo,mat);m.castShadow=m.receiveShadow=true;
+ if(pos)m.position.set(...pos);if(rot)m.rotation.set(...rot);parent.add(m);return m};
+const steel=()=>M({color:0xd5dde6,roughness:.24,metalness:.92});
+const alu=()=>M({color:0xbfc8d2,roughness:.33,metalness:.85});
+const darkMetal=()=>M({color:0x3b4552,roughness:.42,metalness:.75});
+const rubber=()=>M({color:0x15181d,roughness:.85,metalness:0});
+const plastic=(c)=>M({color:c,roughness:.45,metalness:0});
+const panel=()=>M({color:0xeef2f6,roughness:.42,metalness:.05});
+const glass=(c=0xcfe8ff,o=.22)=>M({color:c,roughness:.05,metalness:.1,transparent:true,opacity:o,depthWrite:false,side:THREE.DoubleSide});
+const liquid=(c,o=.78)=>M({color:c,roughness:.08,metalness:0,transparent:true,opacity:o});
+const URINE=0xf2c230,WATER=0x49aef5,BRINE=0xb8862a;
+const noShadow=m=>{m.castShadow=false;return m};
+function textTex(lines,{w=512,h=128,bg='#0b2340',fg='#ffffff',font=64}={}){const cv=document.createElement('canvas');cv.width=w;cv.height=h;const x=cv.getContext('2d');
+ x.fillStyle=bg;x.fillRect(0,0,w,h);x.fillStyle=fg;x.font=`800 ${font}px "Segoe UI",Arial,sans-serif`;x.textAlign='center';x.textBaseline='middle';
+ const ls=[].concat(lines);ls.forEach((s,k)=>x.fillText(s,w/2,h/2+(k-(ls.length-1)/2)*font*1.1));const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t}
+const label=(txt,wd,ht,parent,pos,rot,opt)=>mk(new THREE.PlaneGeometry(wd,ht),M({map:textTex(txt,opt),roughness:.5}),parent,pos,rot);
+const V=(...a)=>new THREE.Vector3(...a);
+function pipe(pts,r,mat,parent,seg=80){const c=new THREE.CatmullRomCurve3(pts.map(p=>V(...p)),false,'centripetal');
+ const m=mk(new THREE.TubeGeometry(c,seg,r,14),mat,parent);m.userData.curve=c;
+ for(const p of[pts[0],pts[pts.length-1]])mk(new THREE.SphereGeometry(r*1.35,16,12),darkMetal(),parent,p); // fittings
+ return m}
+function cylY(r,h,mat,parent,pos,seg=40){return mk(new THREE.CylinderGeometry(r,r,h,seg),mat,parent,pos)}
+function bolt(parent,pos,rot){return mk(new THREE.CylinderGeometry(.45,.45,.5,6),steel(),parent,pos,rot)}
+function lump(r,sq=.72,amp=.18){const g=new THREE.SphereGeometry(r,36,24),p=g.attributes.position,v=new THREE.Vector3();
+ const a=rnd()*9,b=rnd()*9;for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);
+  const n=1+amp*Math.sin(v.x*.9+a)*Math.cos(v.y*.8+b)+.1*Math.sin(v.z*1.6+a*b);v.multiplyScalar(n);v.y*=sq;p.setXYZ(i,v.x,v.y,v.z)}
+ g.computeVertexNormals();return g}
+
+/* ================= part system (pivot-based) ================= */
+const PARTS=[];
+function part(name,s,e,off,pivot=[0,0,0]){const p=new THREE.Group();p.position.set(...pivot);scene.add(p);
+ const g=new THREE.Group();g.position.set(-pivot[0],-pivot[1],-pivot[2]);p.add(g);g.name=name;
+ PARTS.push({g,p,s,e:e??99,off:V(...(off||[0,45,0])),piv:V(...pivot),hl:[]});return g}
+const P=n=>PARTS.find(x=>x.g.name===n);
+function hl(name,mesh){const pr=P(name);(Array.isArray(mesh)?mesh:[mesh]).forEach(m=>{if(m&&m.material)pr.hl.push(m.material)})}
+
+/* flow particles along curves */
+const FLOWS=[];
+function flow(curve,n,color,on,speed=.35,size=.75,parent=scene){const mat=M({color,roughness:.15,transparent:true,opacity:.9,emissive:color,emissiveIntensity:.25});
+ const arr=[];for(let k=0;k<n;k++){const s=new THREE.Mesh(new THREE.SphereGeometry(size,10,8),mat);s.visible=false;parent.add(s);arr.push(s)}
+ FLOWS.push({curve,arr,on,speed});}
+
+/* ================= PRIMITIVE PROPS (K1–K3) ================= */
+const FZ=45;
+/* jug of urine (stylized, clean) */
+const jug=part('jug',0,2,[0,0,0],[-20,0,FZ]);
+{mk(new THREE.CylinderGeometry(7,7.4,19,48,1,true),glass(0xe9f3ff,.3),jug,[-20,9.5,FZ]).castShadow=false;
+ mk(new THREE.CircleGeometry(7.4,40),glass(0xe9f3ff,.4),jug,[-20,.05,FZ],[-Math.PI/2,0,0]);
+ mk(new THREE.CylinderGeometry(6.6,7,13,40),liquid(URINE,.82),jug,[-20,6.7,FZ]);
+ mk(new THREE.CylinderGeometry(3,3.4,3,28),plastic(0x2d8cf0),jug,[-20,20.5,FZ]);
+ const h=mk(new THREE.TorusGeometry(4.6,1,12,32,Math.PI),glass(0xe9f3ff,.5),jug,[-27,11,FZ],[0,0,Math.PI/2]);h.castShadow=false;
+ label('URINE',7,2.4,jug,[-20,15.5,FZ+7.2],[0,0,0],{w:256,h:88,bg:'#f2c230',fg:'#4a3200',font:56});}
+/* drinking pouch (clean water) */
+function pouchMesh(parent,pos,s=1){const g=new THREE.Group();g.position.set(...pos);g.scale.setScalar(s);parent.add(g);
+ const b=mk(new RoundedBoxGeometry(11,15,3.2,4,1.4),glass(0xe9f6ff,.45),g);b.castShadow=false;
+ mk(new RoundedBoxGeometry(10,10.5,2.4,4,1.1),liquid(WATER,.8),g,[0,-1.8,0]);
+ mk(new THREE.CylinderGeometry(1.4,1.4,2.4,24),plastic(0x2d8cf0),g,[0,8.6,0]);
+ mk(new THREE.CylinderGeometry(.5,.5,7,12),plastic(0xffffff),g,[0,12.5,0]);
+ label('AIR MINUM',8,2.2,g,[0,4.6,1.65],[0,0,0],{w:384,h:96,bg:'#ffffff',fg:'#1f6fd0',font:52});return g}
+const pouch0=part('pouch0',0,1,[0,0,0],[14,14,FZ]);
+const pouch0m=pouchMesh(pouch0,[14,14,FZ+2]);
+/* floating droplets (microgravity) */
+const floaters=part('float',0,1,[0,0,0],[0,14,FZ]);const FL=[];
+for(let k=0;k<14;k++){const y=k%2===0,s=new THREE.Mesh(new THREE.SphereGeometry(.7+rnd()*1.1,16,12),liquid(y?URINE:WATER,.85));s.castShadow=true;floaters.add(s);
+ FL.push({s,x:(rnd()*2-1)*26,y:32+rnd()*14,z:FZ+(rnd()*2-1)*14,p:rnd()*6})}
+/* cloth filter: beaker + funnel + cloth */
+const cloth=part('cloth',1,2,[0,40,0],[2,10,FZ]);
+let beakLiq,clothDrops=[];
+{const bx=2;mk(new THREE.CylinderGeometry(6.5,6.2,15,48,1,true),glass(),cloth,[bx,7.5,FZ]).castShadow=false;
+ mk(new THREE.CircleGeometry(6.2,40),glass(0xe9f3ff,.4),cloth,[bx,.05,FZ],[-Math.PI/2,0,0]);
+ mk(new THREE.TorusGeometry(6.5,.3,8,48),glass(0xffffff,.6),cloth,[bx,15,FZ],[Math.PI/2,0,0]);
+ beakLiq=mk(new THREE.CylinderGeometry(6,6,1,40),liquid(URINE,.8),cloth,[bx,.5,FZ]);
+ for(let k=1;k<5;k++)mk(new THREE.BoxGeometry(1.6,.18,.1),M({color:0xffffff}),cloth,[bx+3.6,k*3,FZ+6.4]);
+ const clothY=r=>r>9?26.35+(r-9)*-.4:Math.max(20.7,17+(r-1.2)*9/7.8-.35);
+ const fun=mk(new THREE.CylinderGeometry(9,1.2,9,48,1,true),glass(0xe9f3ff,.35),cloth,[bx,21.5,FZ]);fun.castShadow=false;
+ mk(new THREE.CylinderGeometry(1.1,1.1,4,16,1,true),glass(0xe9f3ff,.4),cloth,[bx,15.5,FZ]);
+ // cloth: sagging disc (canvas texture)
+ const cv=document.createElement('canvas');cv.width=cv.height=256;const x=cv.getContext('2d');x.fillStyle='#efe6d2';x.fillRect(0,0,256,256);
+ x.strokeStyle='#d6c9ad';x.lineWidth=2;for(let i=0;i<256;i+=6){x.beginPath();x.moveTo(i,0);x.lineTo(i,256);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(256,i);x.stroke()}
+ x.fillStyle='rgba(205,160,40,.55)';x.beginPath();x.arc(128,128,80,0,7);x.fill();
+ const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;
+ const cg=new THREE.CircleGeometry(10.2,64,0,Math.PI*2);cg.rotateX(-Math.PI/2);const pp=cg.attributes.position;
+ for(let i=0;i<pp.count;i++){const r=Math.hypot(pp.getX(i),pp.getZ(i));pp.setY(i,clothY(r)-26+Math.sin(Math.atan2(pp.getZ(i),pp.getX(i))*7)*.12*(r/10.2))}cg.computeVertexNormals();
+ mk(cg,M({map:tx,roughness:.95,side:THREE.DoubleSide}),cloth,[bx,26,FZ]);
+ for(let k=0;k<9;k++){const a=rnd()*6.28,r=rnd()*5;mk(lump(.9,.6),M({color:0x7a5a2e,roughness:.9}),cloth,[bx+Math.cos(a)*r,clothY(r)+.55,FZ+Math.sin(a)*r])}
+ const dm=liquid(URINE,.9);for(let k=0;k<4;k++){const d=new THREE.Mesh(new THREE.SphereGeometry(.6,10,8),dm);d.scale.set(1,1.5,1);cloth.add(d);clothDrops.push({d,p:k/4})}}
+/* boiling: hotplate + flask + condenser tube + collecting glass */
+const still=part('still',2,3,[0,40,0],[6,10,FZ]);
+let steamP=[],stillDrops=[],coilMat,collLiq;
+{mk(new RoundedBoxGeometry(20,4,20,3,1),darkMetal(),still,[-4,2,FZ]);
+ coilMat=M({color:0x3a1810,emissive:0xff4a1a,emissiveIntensity:0,roughness:.6});
+ mk(new THREE.TorusGeometry(6,.5,10,48),coilMat,still,[-4,4.1,FZ],[Math.PI/2,0,0]);mk(new THREE.TorusGeometry(3.4,.5,10,40),coilMat,still,[-4,4.1,FZ],[Math.PI/2,0,0]);
+ mk(new RoundedBoxGeometry(3,1.6,1,2,.4),plastic(0xff4d4f),still,[-4,2,FZ+10.2]);
+ const fl=mk(new THREE.SphereGeometry(7,48,32),glass(0xe9f3ff,.28),still,[-4,11.3,FZ]);fl.castShadow=false;
+ const lq=new THREE.SphereGeometry(6.6,40,24,0,Math.PI*2,Math.PI*.55,Math.PI*.45);mk(lq,liquid(URINE,.85),still,[-4,11.3,FZ]);
+ mk(new THREE.CylinderGeometry(1.8,1.8,8,24,1,true),glass(0xe9f3ff,.35),still,[-4,21,FZ]).castShadow=false;
+ const tube=pipe([[-4,24.5,FZ],[-3,28,FZ],[6,27,FZ],[15,20,FZ],[19,14,FZ]],1,glass(0xe9f3ff,.4),still);tube.castShadow=false;
+ mk(new THREE.CylinderGeometry(4.6,4.4,11,40,1,true),glass(),still,[19,5.5,FZ]).castShadow=false;
+ mk(new THREE.CircleGeometry(4.4,32),glass(0xe9f3ff,.4),still,[19,.05,FZ],[-Math.PI/2,0,0]);
+ collLiq=mk(new THREE.CylinderGeometry(4.1,4.1,1,32),liquid(WATER,.8),still,[19,.5,FZ]);
+ const sm=M({color:0xffffff,roughness:.4,transparent:true,opacity:.5,depthWrite:false});
+ for(let k=0;k<14;k++){const s=new THREE.Mesh(new THREE.SphereGeometry(.6+rnd()*.6,10,8),sm);still.add(s);steamP.push({s,p:rnd(),x:(rnd()*2-1)}) }
+ const dm=liquid(WATER,.9);for(let k=0;k<3;k++){const d=new THREE.Mesh(new THREE.SphereGeometry(.55,10,8),dm);d.scale.set(1,1.4,1);still.add(d);stillDrops.push({d,p:k/3})}
+ for(let k=0;k<8;k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.35+rnd()*.3,8,6),M({color:0xfff2c4,transparent:true,opacity:.7}));still.add(b);steamP.push({s:b,p:rnd(),x:(rnd()*2-1),bub:1})}}
+
+/* ================= RACKS ================= */
+function rack(name,s,cx,shelves,title){const g=part(name,s,99,[0,0,0],[cx,0,0]);const a=alu();
+ for(const x of[cx-25,cx+25])for(const z of[-20,20]){mk(new RoundedBoxGeometry(2.4,135,2.4,2,.4),a,g,[x,67.5,z]);
+   for(let y=8;y<135;y+=12)mk(new THREE.BoxGeometry(.5,.9,.5),darkMetal(),g,[x+(x<cx?1.25:-1.25),y,z+(z>0?1.21:-1.21)])}
+ for(const y of shelves){mk(new RoundedBoxGeometry(50,1.2,40,2,.4),M({color:0xc9d2dc,roughness:.45,metalness:.6}),g,[cx,y,0]);
+   for(const z of[-19,19])mk(new RoundedBoxGeometry(52,2.2,1.6,2,.5),a,g,[cx,y,z]);
+   for(const x of[cx-23,cx+23])bolt(g,[x,y+.8,18],[0,0,0])}
+ mk(new RoundedBoxGeometry(52,3,42,2,.8),a,g,[cx,135,0]);
+ label(title,20,4.4,g,[cx,135,21.1],[0,0,0],{w:512,h:112,bg:'#0f4d99',fg:'#ffffff',font:70});
+ return g}
+const rackL=rack('rackL',3,-28,[.6,46,94],'URINE PROC.');
+const rackR=rack('rackR',8,28,[.6,40,72,102],'WATER PROC.');
+
+/* ================= DISTILLATION ASSEMBLY (K4) ================= */
+const DA_C=[-38,60.6,0],DR=11.4;
+const da=part('da',3,99,[0,0,60],DA_C);
+const drumRot=new THREE.Group();drumRot.position.set(...DA_C);da.add(drumRot);
+let filmMat,vapor=[];
+{const hm=M({color:0xc7d0da,roughness:.3,metalness:.85,side:THREE.DoubleSide});
+ const hs=new THREE.CylinderGeometry(13,13,30,72,1,true);hs.rotateX(Math.PI/2);mk(hs,hm,da,DA_C);
+ mk(new THREE.CircleGeometry(13,64),M({color:0x9aa6b3,roughness:.4,metalness:.8,side:THREE.DoubleSide}),da,[DA_C[0],DA_C[1],-15]);
+ for(const z of[15,-15,0])mk(new THREE.TorusGeometry(13.2,.7,12,80),steel(),da,[DA_C[0],DA_C[1],z]);
+ for(let k=0;k<12;k++){const a=k/12*6.283;bolt(da,[DA_C[0]+Math.cos(a)*13.6,DA_C[1]+Math.sin(a)*13.6,15.3],[Math.PI/2,0,0])}
+ // saddles
+ for(const z of[-9,9]){const sh=new THREE.Shape();sh.moveTo(-9,0);sh.lineTo(9,0);sh.lineTo(9,4);sh.absarc(0,14,13.1,-.75,-Math.PI+.75,true);sh.lineTo(-9,4);
+  const eg=new THREE.ExtrudeGeometry(sh,{depth:2.4,bevelEnabled:false,curveSegments:24});mk(eg,darkMetal(),da,[DA_C[0],46.6,z-1.2])}
+ // rotating drum interior: wall with stripes + urine film
+ const cv=document.createElement('canvas');cv.width=512;cv.height=64;const x=cv.getContext('2d');x.fillStyle='#d8e0e8';x.fillRect(0,0,512,64);
+ x.fillStyle='#55606c';for(let i=0;i<16;i++)x.fillRect(i*32,0,6,64);const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;
+ const dg=new THREE.CylinderGeometry(DR,DR,28,72,1,true);dg.rotateX(Math.PI/2);mk(dg,M({map:tx,roughness:.3,metalness:.8,side:THREE.BackSide}),drumRot);
+ filmMat=M({color:URINE,roughness:.1,transparent:true,opacity:.0,side:THREE.BackSide,depthWrite:false});
+ const fg=new THREE.CylinderGeometry(DR-.9,DR-.9,26,72,1,true);fg.rotateX(Math.PI/2);noShadow(mk(fg,filmMat,drumRot));
+ for(const z of[-13.6,13.6])mk(new THREE.TorusGeometry(DR,.6,10,72),steel(),drumRot,[0,0,z]);
+ for(let k=0;k<6;k++){const r=mk(new THREE.BoxGeometry(1.2,1.4,26),darkMetal(),drumRot,[0,0,0]);r.position.set(Math.cos(k*1.047)*(DR-.5),Math.sin(k*1.047)*(DR-.5),0);r.rotation.z=k*1.047}
+ // central stationary feed tube
+ mk(new THREE.CylinderGeometry(1.1,1.1,30,16).rotateX(Math.PI/2),steel(),da,[DA_C[0],DA_C[1],0]);
+ // motor at rear
+ mk(new THREE.CylinderGeometry(4.5,4.5,4,32).rotateX(Math.PI/2),M({color:0x55606e,roughness:.4,metalness:.7}),da,[DA_C[0],DA_C[1],-17.2]);
+ for(let k=0;k<4;k++)mk(new THREE.TorusGeometry(4.6,.25,6,32),darkMetal(),da,[DA_C[0],DA_C[1],-15.6-k*1.0]);
+ label('DA 220 RPM',9,2.2,da,[DA_C[0],DA_C[1]+13.4,6],[-Math.PI/2,0,0],{w:384,h:96,bg:'#1f2a36',fg:'#ffd23f',font:54});
+ const vm=M({color:0xffffff,roughness:.4,transparent:true,opacity:.55,depthWrite:false});
+ for(let k=0;k<26;k++){const s=new THREE.Mesh(new THREE.SphereGeometry(.45+rnd()*.4,8,6),vm);da.add(s);vapor.push({s,a:rnd()*6.28,z:(rnd()*2-1)*12,p:rnd()})}
+ hl('da',[da.children[1]]);}
+
+/* ================= VACUUM GAUGE (K5) ================= */
+const vac=part('vac',4,99,[0,20,20],[-14,82,8]);
+let needle;
+{pipe([[-30,71.5,8],[-24,75,8],[-16,76,8],[-14,77.5,8]],.8,steel(),vac);
+ const body=mk(new THREE.CylinderGeometry(5.4,5.4,2.6,48).rotateX(Math.PI/2),M({color:0x2b333d,roughness:.4,metalness:.6}),vac,[-14,82,8]);
+ mk(new THREE.TorusGeometry(5.4,.55,12,48),steel(),vac,[-14,82,9.4]);
+ const cv=document.createElement('canvas');cv.width=cv.height=256;const x=cv.getContext('2d');x.fillStyle='#f6f8fb';x.beginPath();x.arc(128,128,128,0,7);x.fill();
+ x.strokeStyle='#1c2430';x.fillStyle='#1c2430';x.lineWidth=4;x.textAlign='center';x.font='700 22px Arial';
+ for(let k=0;k<=10;k++){const a=Math.PI*.75+k/10*Math.PI*1.5;x.beginPath();x.moveTo(128+Math.cos(a)*112,128+Math.sin(a)*112);x.lineTo(128+Math.cos(a)*(k%5?98:88),128+Math.sin(a)*(k%5?98:88));x.stroke();
+  if(k%5==0)x.fillText(String(760-k*76),128+Math.cos(a)*66,136+Math.sin(a)*66)}
+ x.strokeStyle='#e8452c';x.lineWidth=10;x.beginPath();x.arc(128,128,104,Math.PI*.75,Math.PI*1.05);x.stroke();
+ x.font='800 22px Arial';x.fillText('mmHg',128,214);const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;
+ mk(new THREE.CircleGeometry(4.9,48),M({map:tx,roughness:.4}),vac,[-14,82,9.35]);
+ needle=new THREE.Group();needle.position.set(-14,82,9.6);vac.add(needle);
+ const nd=mk(new THREE.BoxGeometry(.32,4.2,.15),M({color:0xe8452c,roughness:.4}),needle);nd.geometry.translate(0,2,0);
+ mk(new THREE.CylinderGeometry(.5,.5,.4,16).rotateX(Math.PI/2),darkMetal(),needle);
+ noShadow(mk(new THREE.CircleGeometry(4.95,48),glass(0xffffff,.15),vac,[-14,82,9.8]));
+ hl('vac',[body]);}
+
+/* ================= ROTARY LOBE COMPRESSOR (K6) ================= */
+const comp=part('comp',5,99,[30,0,0],[-14,52.6,2]);
+const lobes=[];let heatPipe;
+{const hb_=mk(new RoundedBoxGeometry(14,12,10,3,1.2),M({color:0xaebccb,roughness:.2,metalness:.3,transparent:true,opacity:.22,depthWrite:false}),comp,[-14,52.6,2]);hb_.castShadow=false;
+ mk(new RoundedBoxGeometry(14.4,1.2,10.4,2,.4),darkMetal(),comp,[-14,47.2,2]);
+ const sh=new THREE.Shape();const n=64;for(let k=0;k<=n;k++){const a=k/n*Math.PI*2,r=1.5+1.35*Math.abs(Math.cos(a));const px=Math.cos(a)*r,py=Math.sin(a)*r*.8;k?sh.lineTo(px,py):sh.moveTo(px,py)}
+ const lg=new THREE.ExtrudeGeometry(sh,{depth:7,bevelEnabled:true,bevelSize:.2,bevelThickness:.2,bevelSegments:2});lg.translate(0,0,-3.5);
+ mk(new THREE.PlaneGeometry(12.6,10.6),M({color:0x1c232b,roughness:.6}),comp,[-14,52.6,-2.4]);
+ for(const dx of[-3,3]){const l=mk(lg,M({color:0xd9a441,roughness:.3,metalness:.85}),comp,[-14+dx,52.6,2]);lobes.push(l);hl('comp',l)}
+ mk(new THREE.CylinderGeometry(3,3,6,28).rotateZ(Math.PI/2),M({color:0x55606e,roughness:.4,metalness:.7}),comp,[-4,52.6,2]);
+ for(let k=0;k<3;k++)mk(new THREE.TorusGeometry(3.1,.22,6,28),darkMetal(),comp,[-5.5+k*1.5,52.6,2],[0,Math.PI/2,0]);
+ pipe([[-26,58,4],[-23.5,56,4],[-21,54,2]],1,steel(),comp);
+ heatPipe=pipe([[-14,58.8,-1],[-15,66,-6],[-22,74,-10],[-32,75,-10],[-36,73.8,-8]],1.05,M({color:0xd9864a,roughness:.35,metalness:.7,emissive:0xff6a1a,emissiveIntensity:0}),comp);
+ label('KOMPRESOR',9,2,comp,[-14,55.8,7.1],[0,0,0],{w:384,h:84,bg:'#1f2a36',fg:'#ffffff',font:48});}
+
+/* ================= PRETREAT + URINE TANK (K7) ================= */
+const pre=part('pre',6,99,[0,50,0],[-30,108,0]);
+let germs=[],preDrops=[],preLiq;
+{// pretreat tank (orange)
+ noShadow(mk(new THREE.CylinderGeometry(5,5,20,40,1,true),glass(0xfff0e0,.3),pre,[-44,104.6,-4]));
+ preLiq=mk(new THREE.CylinderGeometry(4.6,4.6,16,36),liquid(0xff8a2a,.85),pre,[-44,102.8,-4]);
+ for(const y of[94.9,114.6])mk(new THREE.CylinderGeometry(5.4,5.4,1.2,40),steel(),pre,[-44,y,-4]);
+ label('PRETREAT',9,2,pre,[-44,108,1.3],[0,0,0],{w:384,h:84,bg:'#ff8a2a',fg:'#2b1500',font:50});
+ // urine tank (bellows)
+ noShadow(mk(new THREE.CylinderGeometry(7.5,7.5,24,48,1,true),glass(0xfff8e0,.28),pre,[-24,107.6,0]));
+ mk(new THREE.CylinderGeometry(7.1,7.1,18,44),liquid(URINE,.8),pre,[-24,104.6,0]);
+ for(let k=0;k<6;k++)mk(new THREE.TorusGeometry(7.6,.35,8,48),steel(),pre,[-24,98+k*4,0],[Math.PI/2,0,0]);
+ for(const y of[95.4,119.8])mk(new THREE.CylinderGeometry(8,8,1.4,48),steel(),pre,[-24,y,0]);
+ // dosing line pretreat -> urine tank
+ const dose=pipe([[-44,115.2,-4],[-42,121,-4],[-32,123,-2],[-26,121,0],[-24,120.5,0]],.7,M({color:0xffb27a,roughness:.3,transparent:true,opacity:.75}),pre);
+ flow(dose.userData.curve,6,0xff8a2a,t=>t>ST[6]+.6,.45,.55);
+ // urine inlet hose + funnel
+ pipe([[-22,120.5,3],[-18,126,6],[-12,126,12],[-10,123,15]],.9,M({color:0xe7ecf1,roughness:.45}),pre);
+ mk(new THREE.CylinderGeometry(3.4,1,6,32,1,true),M({color:0xf2f5f8,roughness:.4,side:THREE.DoubleSide}),pre,[-9,121,17],[Math.PI*.35,0,0]);
+ // pipe urine tank -> DA (outside, in front of shelf)
+ const tp=pipe([[-16.5,100,0],[-11,100,12],[-7,96,23],[-7,84,23],[-26,80,16],[-36,76,4],[-38,73.9,1]],.95,M({color:0xf0d985,roughness:.35,transparent:true,opacity:.85}),pre);
+ flow(tp.userData.curve,8,URINE,t=>t>ST[6]+.6,.3,.6);
+ const gm=M({color:0x6fd46b,roughness:.6,emissive:0x2b8a2b,emissiveIntensity:.3});
+ for(let k=0;k<9;k++){const s=mk(lump(.9,1,.35),gm.clone(),pre,[-24+(rnd()*2-1)*4.5,98+rnd()*12,(rnd()*2-1)*4.5]);germs.push(s)}
+ hl('pre',[preLiq]);}
+
+/* ================= BRINE PROCESSOR (K8) ================= */
+const bpa=part('bpa',7,99,[-40,0,0],[-28,18,0]);
+let bladder,fanB,airP=[],heatMat;
+{const fr=M({color:0xeef2f6,roughness:.42});
+ mk(new RoundedBoxGeometry(40,2,30,2,.6),fr,bpa,[-28,2.2,0]);mk(new RoundedBoxGeometry(40,2,30,2,.6),fr,bpa,[-28,34.2,0]);
+ mk(new RoundedBoxGeometry(40,32,1.6,2,.5),fr,bpa,[-28,18.2,-14.2]);
+ for(const x of[-47.2,-8.8])mk(new RoundedBoxGeometry(1.6,32,30,2,.5),fr,bpa,[x,18.2,0]);
+ noShadow(mk(new THREE.PlaneGeometry(36.8,30),glass(0xdff0ff,.14),bpa,[-28,18.2,14.9]));
+ for(const x of[-46,-10])for(const y of[4,32])bolt(bpa,[x,y,15.1],[Math.PI/2,0,0]);
+ // membrane bladder
+ const bm=M({color:BRINE,roughness:.35,transparent:true,opacity:.92});
+ bladder=mk(lump(9.5,.9,.1),bm,bpa,[-31,15.5,0]);bladder.scale.set(1.35,1,1.05);
+ const mesh_=new THREE.Mesh(lump(9.9,.9,.1),M({color:0xffffff,roughness:.7,wireframe:true,transparent:true,opacity:.25}));bladder.add(mesh_);
+ // fan
+ fanB=new THREE.Group();fanB.position.set(-13,19,0);bpa.add(fanB);
+ for(let k=0;k<5;k++){const b=mk(new THREE.BoxGeometry(.6,5.2,2.2),plastic(0x2d8cf0),fanB);b.geometry.translate(0,2.6,0);b.rotation.x=k*1.2566}
+ mk(new THREE.TorusGeometry(6,.6,10,40),darkMetal(),bpa,[-13,19,0],[0,Math.PI/2,0]);
+ heatMat=M({color:0x3a1810,emissive:0xff4a1a,emissiveIntensity:0,roughness:.6});
+ for(let k=0;k<5;k++)mk(new THREE.CylinderGeometry(.35,.35,22,8).rotateX(Math.PI/2),heatMat,bpa,[-16.5,11+k*3.2,0]);
+ const am=M({color:0xffb070,roughness:.4,transparent:true,opacity:.6,depthWrite:false});
+ for(let k=0;k<20;k++){const s=new THREE.Mesh(new THREE.SphereGeometry(.55,8,6),am);bpa.add(s);airP.push({s,p:rnd(),y:26+rnd()*5.5,z:(rnd()*2-1)*11})}
+ label('BRINE PROCESSOR',14,2.4,bpa,[-28,31,15],[0,0,0],{w:640,h:110,bg:'#0f4d99',fg:'#ffffff',font:58});
+ // brine pipe from DA
+ const bp=pipe([[-44,55,-12],[-50,52,-23.5],[-50,40,-23.5],[-42,37.5,-10],[-40,35.4,-8]],.9,M({color:0xc9a35a,roughness:.4}),bpa);
+ flow(bp.userData.curve,5,BRINE,t=>t>ST[7]&&t<ST[8]+.5,.3,.55);
+ hl('bpa',[bladder]);}
+
+/* ================= CONDENSING HEAT EXCHANGER (K9) ================= */
+const chx=part('chx',8,99,[50,0,0],[28,114,0]);
+let fanC,mist=[],cDrops=[];
+{const fr=M({color:0xe8edf2,roughness:.42});
+ mk(new RoundedBoxGeometry(40,1.6,24,2,.5),fr,chx,[30,103.4,0]);mk(new RoundedBoxGeometry(40,1.6,24,2,.5),fr,chx,[30,125.2,0]);
+ mk(new RoundedBoxGeometry(40,22,1.4,2,.5),fr,chx,[30,114.3,-11.4]);
+ const fm=M({color:0xc9d6e2,roughness:.25,metalness:.9});
+ for(let k=0;k<14;k++)mk(new THREE.BoxGeometry(30,19,.35),fm,chx,[31,114.3,-9+k*1.38]);
+ for(const y of[108,114,120])mk(new THREE.CylinderGeometry(.6,.6,32,12).rotateZ(Math.PI/2),M({color:0xc8743a,roughness:.3,metalness:.9}),chx,[31.5,y,10.6]);
+ // fan housing on left face
+ mk(new RoundedBoxGeometry(6,21,22,2,.6),M({color:0x2b333d,roughness:.4,metalness:.5}),chx,[11,114.3,0]);
+ fanC=new THREE.Group();fanC.position.set(7.8,114.3,0);chx.add(fanC);
+ for(let k=0;k<6;k++){const b=mk(new THREE.BoxGeometry(.5,7.5,2.6),plastic(0x2d8cf0),fanC);b.geometry.translate(0,3.8,0);b.rotation.x=k*1.047;b.rotation.y=.4}
+ mk(new THREE.TorusGeometry(8.4,.7,10,48),darkMetal(),chx,[7.9,114.3,0],[0,Math.PI/2,0]);
+ // drip tray
+ mk(new RoundedBoxGeometry(32,1,20,2,.3),steel(),chx,[31,104.7,0]);
+ const wm=M({color:0xffffff,roughness:.5,transparent:true,opacity:.45,depthWrite:false});
+ for(let k=0;k<22;k++){const s=new THREE.Mesh(new THREE.SphereGeometry(.45,8,6),wm);chx.add(s);mist.push({s,p:rnd(),y:107+rnd()*15,z:-9+1.38*(k%13)+.69})}
+ const dm=liquid(WATER,.9);for(let k=0;k<12;k++){const d=new THREE.Mesh(new THREE.SphereGeometry(.4,10,8),dm);d.scale.set(1,1.4,1);chx.add(d);cDrops.push({d,x:18+rnd()*26,z:-9+1.38*(k%13)+.69,p:rnd()})}
+ label('PENGEMBUN UDARA',14,2.4,chx,[30,127,12.1],[0,0,0],{w:640,h:110,bg:'#0f4d99',fg:'#ffffff',font:58});
+ hl('chx',chx.children.slice(3,17));}
+
+/* ================= FILTERS + MF BED (K10) ================= */
+const filt=part('filt',9,99,[0,0,50],[24,86,0]);
+let dust=[];
+{const open=Math.PI*.55; // cutaway facing +z
+ const cut=(r,h,mat,pos)=>{const g=new THREE.CylinderGeometry(r,r,h,48,1,true,open/2-.25,Math.PI*2-open);return mk(g,mat,filt,pos)};
+ const hm=()=>M({color:0xdfe5ec,roughness:.3,metalness:.6,side:THREE.DoubleSide});
+ // particulate filter (pleated)
+ cut(4,22,hm(),[14,83.6,4]);for(const y of[73.2,94])mk(new THREE.CylinderGeometry(4.4,4.4,1.2,40),steel(),filt,[14,y,4]);
+ const st=new THREE.Shape();for(let k=0;k<=48;k++){const a=k/48*Math.PI*2,r=k%2?2.2:3.4;k?st.lineTo(Math.cos(a)*r,Math.sin(a)*r):st.moveTo(Math.cos(a)*r,Math.sin(a)*r)}
+ const pl=new THREE.ExtrudeGeometry(st,{depth:19,bevelEnabled:false});pl.rotateX(-Math.PI/2);
+ const pleat=mk(pl,M({color:0xf3efe2,roughness:.85}),filt,[14,74,4]);
+ label('FILTER',6,1.6,filt,[14,96.4,8.5],[-.5,0,0],{w:256,h:72,bg:'#1f2a36',fg:'#fff',font:44});
+ // MF bed
+ cut(6.5,26,hm(),[32,85.6,0]);for(const y of[73.3,98.2])mk(new THREE.CylinderGeometry(7,7,1.4,48),steel(),filt,[32,y,0]);
+ for(let k=0;k<8;k++)bolt(filt,[32+Math.cos(k*.785)*6.4,98.9,Math.sin(k*.785)*6.4],[0,0,0]);
+ const bead1=M({color:0x22262b,roughness:.8}),bead2=M({color:0xe9b44a,roughness:.35}),bead3=M({color:0xf2f2ea,roughness:.35});
+ for(let k=0;k<170;k++){const y=75+rnd()*21.4,a=rnd()*6.28,r=Math.sqrt(rnd())*5.3;
+  const m=y>89?bead1:(k%2?bead2:bead3);const b=new THREE.Mesh(new THREE.SphereGeometry(.85,8,6),m);b.position.set(32+Math.cos(a)*r,y,Math.sin(a)*r);filt.add(b)}
+ noShadow(mk(new THREE.PlaneGeometry(7.6,.3),M({color:0xffffff}),filt,[32,89,6.2]));
+ label('BED RESIN',8,1.7,filt,[32,100.6,7.6],[-.5,0,0],{w:320,h:72,bg:'#1f2a36',fg:'#fff',font:44});
+ pipe([[18,78,4],[22,78,3],[25.6,78,1.5]],.8,steel(),filt);
+ // distillate pipe DA/compressor -> filter top
+ const dp=pipe([[-10,58.8,5],[-4,60,14],[0,63,23],[0,96,23],[5,98,23.6],[9,99,16],[12,96.5,3],[12.2,94.7,2.6]],.95,M({color:0xbfe2ff,roughness:.25,transparent:true,opacity:.85}),filt,140);
+ flow(dp.userData.curve,9,WATER,t=>t>ST[9]-.2,.22,.6);
+ // condensate pipe CHX -> filter
+ const cp=pipe([[48,104.2,9],[48.5,102.5,17],[46,101,23.5],[30,99.5,23.5],[19,98,9],[16,96,6],[15.6,94.7,5.6]],.95,M({color:0xbfe2ff,roughness:.25,transparent:true,opacity:.85}),filt,140);
+ flow(cp.userData.curve,8,WATER,t=>t>ST[9]-.2,.22,.6);
+ const dm=M({color:0x8a8070,roughness:.9});
+ for(let k=0;k<16;k++){const s=new THREE.Mesh(new THREE.SphereGeometry(.25,6,5),dm);filt.add(s);dust.push({s,a:rnd()*6.28,r:3.62,p:rnd()})}
+ hl('filt',[pleat,bead2]);}
+
+/* ================= CATALYTIC REACTOR (K11) ================= */
+const reac=part('reac',10,99,[0,-30,0],[24,50,0]);
+let coilMat2,o2=[],orgs=[];
+{mk(new THREE.CylinderGeometry(3.5,3.5,26,40).rotateZ(Math.PI/2),M({color:0xd5dde6,roughness:.28,metalness:.92}),reac,[24,50.1,0]);
+ for(const x of[11,37]){mk(new THREE.CylinderGeometry(4.6,4.6,1.2,40).rotateZ(Math.PI/2),steel(),reac,[x,50.1,0]);
+  for(let k=0;k<6;k++)bolt(reac,[x+(x<20?-.7:.7),50.1+Math.cos(k*1.047)*4,Math.sin(k*1.047)*4],[0,0,Math.PI/2])}
+ for(const x of[15,33]){mk(new RoundedBoxGeometry(3,6,8,2,.5),darkMetal(),reac,[x,43.6,0]);}
+ coilMat2=M({color:0x5a2a14,emissive:0xff5a1a,emissiveIntensity:0,roughness:.4,metalness:.6});
+ const hx=new THREE.Curve();hx.getPoint=(u,o=new THREE.Vector3())=>o.set(13+u*22,Math.cos(u*Math.PI*2*11)*4.3,Math.sin(u*Math.PI*2*11)*4.3);
+ const coil=mk(new THREE.TubeGeometry(hx,600,.38,8),coilMat2,reac,[0,50.1,0]);
+ // O2 inlet + small bottle
+ const op=pipe([[44,46,8],[42,52,8],[39,55.4,4],[35,54.4,1.5],[34,53.4,.8]],.6,M({color:0x9fd4ff,roughness:.25,transparent:true,opacity:.8}),reac);
+ mk(new THREE.CylinderGeometry(2.6,2.6,9,28),M({color:0xf2f5f8,roughness:.35,metalness:.2}),reac,[44,45.1,8]);
+ mk(new THREE.SphereGeometry(2.6,24,12,0,Math.PI*2,0,Math.PI/2),M({color:0x2fbf7a,roughness:.35}),reac,[44,49.6,8]);
+ label('O₂',3,1.6,reac,[44,45.6,10.65],[0,0,0],{w:128,h:72,bg:'#2fbf7a',fg:'#fff',font:52});
+ flow(op.userData.curve,6,0xdff2ff,t=>t>ST[10]+.5&&t<SEND[10]+.5,.5,.45);
+ // MF -> reactor inlet
+ const ip=pipe([[38.5,80,4],[44,79,23],[44,54,23],[40,51,8],[37.6,50.1,1]],.9,M({color:0xbfe2ff,roughness:.25,transparent:true,opacity:.85}),reac,120);
+ flow(ip.userData.curve,7,WATER,t=>t>ST[10]+.4,.25,.6);
+ label('REAKTOR KATALIS',13,2.2,reac,[24,55.1,2.4],[-.9,0,0],{w:640,h:108,bg:'#1f2a36',fg:'#ffd23f',font:56});
+ hl('reac',[reac.children[0]]);}
+
+/* ================= SENSOR + REJECT LOOP (K12) ================= */
+const sens=part('sens',11,99,[0,0,30],[10,44,12]);
+let ledMat,scrTex,scrCv,rejectOn=t=>t>ST[11]+.4&&t<ST[11]+(SEND[11]-ST[11])*.55;
+{mk(new RoundedBoxGeometry(6,7,5,2,.8),M({color:0xf2f5f8,roughness:.4}),sens,[10,44.1,12]);
+ scrCv=document.createElement('canvas');scrCv.width=256;scrCv.height=128;scrTex=new THREE.CanvasTexture(scrCv);scrTex.colorSpace=THREE.SRGBColorSpace;
+ mk(new THREE.PlaneGeometry(4.6,2.3),M({map:scrTex,emissive:0xffffff,emissiveMap:scrTex,emissiveIntensity:.9}),sens,[10,45.3,14.53]);
+ ledMat=M({color:0x33ff88,emissive:0x33ff88,emissiveIntensity:1.2});
+ mk(new THREE.SphereGeometry(.6,16,12),ledMat,sens,[10,42.2,14.6]);
+ const rp=pipe([[11,50.1,0],[8.4,50.4,2],[8.4,50,8],[9.4,48.6,11.4],[10,47.7,12]],.7,steel(),sens);
+ const rj=pipe([[13,44,12],[20,45,20],[23,56,24],[22,72,24],[20,84,14],[18.4,88,5.2]],.75,M({color:0xff9a9a,roughness:.3,transparent:true,opacity:.8}),sens,120);
+ flow(rj.userData.curve,8,0xff6b6b,rejectOn,.4,.55);
+ hl('sens',[sens.children[0]]);}
+function scr(s,c){const x=scrCv.getContext('2d');if(scr.last===s)return;scr.last=s;x.fillStyle='#061a2c';x.fillRect(0,0,256,128);x.fillStyle=c;x.font='800 64px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(s,128,66);scrTex.needsUpdate=true}
+
+/* ================= IODINE + PRODUCT TANK (K13) ================= */
+const iod=part('iod',12,99,[0,-30,30],[24,16,4]);
+let tankLiq,iDrops=[];
+{noShadow(mk(new THREE.CylinderGeometry(3,3,14,32,1,true),glass(0xfff0d0,.3),iod,[12,8.2,8]));
+ const ib=mk(new THREE.CylinderGeometry(2.7,2.7,12,28),M({color:0xb5651d,roughness:.4,transparent:true,opacity:.9}),iod,[12,8,8]);
+ for(const y of[1.6,15])mk(new THREE.CylinderGeometry(3.3,3.3,.9,32),steel(),iod,[12,y,8]);
+ label('YODIUM',5,1.4,iod,[12,9,11.1],[0,0,0],{w:256,h:72,bg:'#b5651d',fg:'#fff',font:46});
+ noShadow(mk(new THREE.CylinderGeometry(9,9,28,48,1,true),glass(0xe0f2ff,.25),iod,[34,15.6,0]));
+ for(const y of[1.8,29.6])mk(new THREE.CylinderGeometry(9.4,9.4,1.2,48),steel(),iod,[34,y,0]);
+ for(let k=0;k<4;k++)mk(new THREE.TorusGeometry(9.1,.3,8,48),steel(),iod,[34,6+k*6.5,0],[Math.PI/2,0,0]);
+ tankLiq=mk(new THREE.CylinderGeometry(8.5,8.5,1,44),liquid(WATER,.75),iod,[34,2.9,0]);
+ label('AIR MINUM',10,2.2,iod,[34,24,9.15],[0,0,0],{w:448,h:96,bg:'#1f7bea',fg:'#fff',font:58});
+ const sp_=pipe([[8,41.8,14.4],[8,42.4,19],[8,42.4,21.3],[8.5,36,23.5],[9,24,22],[12,19,12],[12,15.6,8.6]],.75,steel(),iod,100);
+ flow(sp_.userData.curve,6,WATER,t=>t>ST[11]+(SEND[11]-ST[11])*.6,.3,.55);
+ const tp=pipe([[15,6,8],[20,6,7],[25.4,7,3]],.75,steel(),iod);
+ flow(tp.userData.curve,4,0xd9a25a,t=>t>ST[12]+.4,.5,.5);
+ hl('iod',[ib]);}
+
+/* ================= FINAL POUCH (K14-15) ================= */
+const pouch=part('pouch',13,99,[0,30,0],[0,30,38]);
+const pouchM=pouchMesh(pouch,[0,30,38],1.25);
+
+/* ================= cameras ================= */
+const SH=[
+ {p:[66,56,195],t:[-3,16,45],m:'push',a:.2},
+ {p:[6,150,108],t:[0,8,45],m:'crane',a:-18},
+ {p:[-112,30,62],t:[6,14,45],m:'truck',a:14},
+ {p:[-30,54,74],t:[-38,61,0],m:'push',a:.25},
+ {p:[-6,98,48],t:[-14,82,8],m:'orbit',a:.35},
+ {p:[-6,50,66],t:[-17,59,0],m:'truck',a:6},
+ {p:[-4,124,72],t:[-32,106,0],m:'orbit',a:.25},
+ {p:[-8,24,112],t:[-28,18,0],m:'push',a:.2},
+ {p:[100,130,84],t:[28,113,0],m:'crane',a:10},
+ {p:[-2,100,98],t:[24,85,0],m:'orbit',a:-.3},
+ {p:[18,38,-72],t:[24,50,0],m:'truck',a:-12},
+ {p:[46,60,68],t:[14,48,8],m:'push',a:.2},
+ {p:[18,58,86],t:[22,16,4],m:'crane',a:-10},
+ {p:[-120,96,330],t:[0,68,0],m:'orbit',a:.32},
+ {p:[130,120,330],t:[0,64,0],m:'pullorbit',a:-.3}];
+function camAt(i,t){const s=SH[i],u=e3(cl((t-ST[i])/Math.max(1.5,SEND[i]-ST[i]+1.2),0,1));
+ const Pp=V(...s.p),Tt=V(...s.t);
+ if(s.m==='push')Pp.lerp(Tt,s.a*u);
+ else if(s.m==='crane'){Pp.y+=s.a*u;Tt.y+=s.a*.25*u}
+ else if(s.m==='truck'){const side=V(0,1,0).cross(Tt.clone().sub(Pp)).normalize();Pp.addScaledVector(side,s.a*u);Tt.addScaledVector(side,s.a*.6*u)}
+ else if(s.m==='orbit'||s.m==='pullorbit'){const d=Pp.clone().sub(Tt).applyAxisAngle(V(0,1,0),s.a*u);if(s.m==='pullorbit')d.multiplyScalar(1+.08*u);Pp.copy(Tt).add(d)}
+ return [Pp,Tt]}
+
+/* ================= overlay ================= */
+const $=s=>document.querySelector(s);
+function chunks(t){const w=t.split(/\s+/),o=[];let c=[];for(const x of w){const tt=[...c,x].join(' ');
+ if(c.length&&(tt.length>16||c.length>=3)){o.push(c.join(' '));c=[x]}else c.push(x);if(/[,.?!:…]$/.test(x)&&c.length){o.push(c.join(' '));c=[]}}
+ if(c.length)o.push(c.join(' '));return o}
+const CH=L.map(chunks),CHT=CH.map((cs,i)=>{const tot=cs.reduce((a,b)=>a+b.length,0);let t=ST[i];return cs.map(c=>{const d=DUR[i]*c.length/tot,o=[t,t+d];t+=d;return o})});
+const cap=$('#cap'),hb=$('#hb'),chip=$('#chip'),flash=$('#flash');
+
+/* ================= drum angle integration ================= */
+const DT=1/120,NA=Math.ceil(TOTAL/DT)+2,ANG=new Float64Array(NA);
+function omega(t){const i=sceneIdx(t);if(i<3)return 0;if(i===3)return 1+22*e3(cl((t-ST[3])/2,0,1));return 9}
+{let a=0;for(let k=0;k<NA;k++){ANG[k]=a;a+=omega(k*DT)*DT}}
+const dAng=t=>ANG[cl(Math.round(t/DT),0,NA-1)];
+
+/* ================= render(t) ================= */
+function render(t){t=cl(t,0,TOTAL);const i=sceneIdx(t);
+ for(const pr of PARTS){const a=ST[pr.s]+(pr.s===0?-1:.05);let sc=0,k=0;
+  if(t>=a){const p=cl((t-a)/.8,0,1);k=eo(p);sc=Math.max(.001,bk(cl((t-a)/.65,0,1)))}
+  if(pr.e<N&&t>=ST[pr.e]){const q=cl((t-ST[pr.e])/.45,0,1);sc*=1-e3(q);if(q>=1)sc=0}
+  pr.p.visible=sc>.002;pr.p.scale.setScalar(Math.max(sc,.001));
+  pr.p.position.copy(pr.piv).addScaledVector(pr.off,1-k);
+  const hot=i===pr.s&&pr.s>=3&&pr.s<13;
+  const glow=hot?(.5*Math.sin(cl((t-ST[i]-.7)/2.4,0,1)*Math.PI)*(.6+.4*Math.sin(t*9))):0;
+  pr.hl.forEach(m=>{if(!m.emissive)return;m.emissive.set(0x3da2ff);m.emissiveIntensity=glow})}
+
+ /* K1 floaters + pouch bob */
+ FL.forEach((f,k)=>f.s.position.set(f.x+Math.sin(t*.7+f.p)*1.5,f.y+Math.sin(t*1.1+f.p*2)*2,f.z+Math.cos(t*.8+f.p)*1.5));
+ pouch0m.position.y=14+Math.sin(t*1.3)*1.2;pouch0m.rotation.set(Math.sin(t*.9)*.12,-.35+Math.sin(t*.6)*.1,Math.sin(t*.7)*.08);
+ /* K2 cloth drip */
+ {const u=sp(1,t);beakLiq.scale.y=1+u*9;beakLiq.position.y=.5+u*4.5;
+  clothDrops.forEach(d=>{const p=(t*1.3+d.p)%1;d.d.position.set(2,13.4-p*(12.5-u*9),FZ);d.d.visible=i>=1&&p*(12.5)<12.5-u*9+.1})}
+ /* K3 still */
+ {const u=sp(2,t);coilMat.emissiveIntensity=i>=2?1.6*cl((t-ST[2])/1,0,1):0;collLiq.scale.y=1+u*5;collLiq.position.y=.5+u*2.5;
+  steamP.forEach(s=>{const p=(t*.5+s.p)%1;if(s.bub){s.s.position.set(-4+s.x*4,6+p*7.5,FZ+s.x*2);s.s.visible=i===2;return}
+   const pt=p<.4?V(-4+s.x*2.5,13+p*28,FZ+s.x):V(-4+(p-.4)/.6*6,24.5+Math.sin((p-.4)/.6*Math.PI)*3,FZ);s.s.position.copy(pt);s.s.visible=i===2&&p<.75});
+  stillDrops.forEach(d=>{const p=(t*1.1+d.p)%1;d.d.position.set(19,13-p*(12-u*5),FZ);d.d.visible=i===2})}
+ /* DA spin + film + vapor */
+ {const ang=dAng(t);drumRot.rotation.z=ang;filmMat.opacity=i>=3?.8*cl((t-ST[3]-.4)/1.2,0,1):0;
+  vapor.forEach(v=>{const p=(t*.45+v.p)%1,r=(DR-1.5)*(1-p),a=v.a+ang*.3;v.s.position.set(DA_C[0]+Math.cos(a)*r,DA_C[1]+Math.sin(a)*r,v.z);v.s.visible=i>=3&&p>.05})}
+ /* vacuum needle: 760 -> ~32 mmHg */
+ {const u=i<4?0:e3(cl((t-ST[4]-.6)/2.6,0,1));const val=lerp(760,32,u);const a=Math.PI*.75+(760-val)/760*Math.PI*1.5;needle.rotation.z=-a-Math.PI/2;}
+ /* compressor lobes + heat pipe */
+ {const r=i>=5?(t-ST[5])*7:0;lobes[0].rotation.z=r;lobes[1].rotation.z=-r+Math.PI/2;
+  heatPipe.material.emissiveIntensity=i>=5?(.5+.4*Math.sin(t*4))*cl((t-ST[5]-.6)/1,0,1)*(i===5?1:.4):0}
+ /* pretreat: germs fade, liquid level */
+ {const u=i<6?0:cl((t-ST[6]-1.8)/2.2,0,1);germs.forEach((g,k)=>{g.visible=i>=6&&u<1;g.scale.setScalar(Math.max(.01,1-u));g.position.y+=Math.sin(t*3+k)*.01;g.rotation.y=t*1.5+k})}
+ /* BPA: bladder shrink, fan, air */
+ {const u=i<7?0:cl((t-ST[7]-.8)/(SEND[7]-ST[7]),0,1);const sq=1-.55*e3(u);bladder.scale.set(1.35*(.55+.45*sq),sq,1.05*(.6+.4*sq));bladder.position.y=15.5-(1-sq)*6;
+  fanB.rotation.x=i>=7?t*14:0;heatMat.emissiveIntensity=i>=7?1.4:0;
+  airP.forEach(a=>{const p=(t*.6+a.p)%1;a.s.position.set(-15-p*30,a.y+Math.sin(p*9+a.p*6)*.6,a.z);a.s.visible=i>=7&&(i===7||i>=13)})}
+ /* CHX */
+ {fanC.rotation.x=i>=8?t*12:0;mist.forEach(m=>{const p=(t*.5+m.p)%1;m.s.position.set(8+p*38,m.y,m.z);m.s.material.opacity=.45*(1-p);m.s.visible=i>=8&&(i===8||i>=13)});
+  cDrops.forEach(d=>{const p=(t*.4+d.p)%1;d.d.position.set(d.x,123-p*17.5,d.z);d.d.visible=i>=8})}
+ /* filter dust */
+ dust.forEach(d=>{const p=(t*.3+d.p)%1;d.s.position.set(14+Math.cos(d.a)*d.r,92-p*16,4+Math.sin(d.a)*d.r);d.s.visible=i>=9});
+ /* reactor glow */
+ coilMat2.emissiveIntensity=i>=10?(i===10?1.8*cl((t-ST[10]-.5)/1.5,0,1):1.1):0;
+ /* sensor */
+ {const rej=rejectOn(t);ledMat.color.set(rej?0xff3b3b:0x33ff88);ledMat.emissive.set(rej?0xff3b3b:0x33ff88);scr(rej?'GAGAL':'OK',rej?'#ff5b5b':'#5bff9c')}
+ /* tank fill */
+ {const u=i<12?0:cl((t-ST[12])/(TOTAL-ST[12]),0,1);tankLiq.scale.y=1+u*22;tankLiq.position.y=2.9+u*11}
+ /* flows */
+ FLOWS.forEach(f=>{const on=f.on(t);f.arr.forEach((s,k)=>{s.visible=on;if(on)s.position.copy(f.curve.getPoint(((t*f.speed)+k/f.arr.length)%1))})});
+ /* final pouch bob */
+ pouchM.position.y=30+Math.sin(t*1.2)*1.4;pouchM.rotation.set(Math.sin(t*.8)*.1,Math.sin(t*.5)*.25,Math.sin(t*.6)*.06);
+
+ /* camera */
+ {let [P1,T1]=camAt(i,t);if(i>0){const p=e3(cl((t-ST[i])/1.0,0,1));if(p<1){const [P0,T0]=camAt(i-1,t);P1=P0.lerp(P1,p);T1=T0.lerp(T1,p)}}
+  cam.position.copy(P1);cam.lookAt(T1)}
+ R.render(scene,cam);
+
+ /* overlay */
+ let txt='',cst=ST[i];CH[i].forEach((c,k)=>{if(t>=CHT[i][k][0]){txt=c;cst=CHT[i][k][0]}});cap.textContent=txt;
+ cap.style.transform=`scale(${(0.94+0.06*bk(cl((t-cst)/.14,0,1))).toFixed(4)})`;
+ const hbE=ST[2]-.3;hb.style.opacity=(t<hbE?cl(t/.35,0,1):cl(1-(t-hbE)/.28,0,1)).toFixed(3);
+ hb.style.transform=`translateX(-50%) rotate(-2deg) scale(${(0.55+0.45*bk(cl(t/.5,0,1))).toFixed(3)})`;
+ const c=CHIP[i];if(c){const a1=ST[i]+.3,b1=SEND[i]-.25,o=t<a1?0:t>b1?cl(1-(t-b1)/.25,0,1):cl((t-a1)/.3,0,1);
+  chip.textContent=c;chip.style.opacity=o.toFixed(3);chip.style.transform=`translateX(-50%) rotate(1.5deg) scale(${(0.6+0.4*bk(cl((t-a1)/.38,0,1))).toFixed(3)})`}
+ else chip.style.opacity=0;
+ const d=t-ST[i];flash.style.opacity=(i>1&&d>=0&&d<.16?(1-d/.16)*.14:0).toFixed(3);
+}
+window.__render=render;window.__TOTAL=TOTAL;render(0);window.__ready=1;
+if(!location.search.includes('capture')){let t0=null;const loop=ts=>{if(t0===null)t0=ts;let t=(ts-t0)/1000;if(t>TOTAL+1){t0=ts;t=0}render(t);requestAnimationFrame(loop)};requestAnimationFrame(loop)}
+</script></body></html>
