@@ -49,7 +49,7 @@ Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" (P1) atau aksi sehari-hari si ay
 - **Caption karaoke**: teks di tengah-bawah, muncul per kata mengikuti suara (estimasi waktu per kata dari durasi kalimat, proporsional panjang kata); kata kunci tiap kalimat diberi kotak biru tebal. Tambahkan field `keys` (1 kata kunci per kalimat) di data.json.
 - **Label nama part di scene** (teks kecil KAPITAL + garis penunjuk) saat part pertama kali muncul.
 - **Analogi sehari-hari** minimal 1 (mis. "kayak penggaris: tidur gampang ditekuk, berdiri susah banget") dan konteks Indonesia (motor, sawah, gang, dll) bila relevan.
-- **Visual cerah**: siang hari, warna pastel bersih, low-poly rapi; hindari adegan gelap.
+- **Visual cerah & REALISTIS**: siang hari terang, tapi SEMUA objek (maskot, part, mesin, bangunan, lingkungan) 3D detail ala video mesin cuci: material PBR (logam/plastik/karet/kain/kaca/beton), bevel, baut, sambungan, tekstur. DILARANG gaya low-poly/kotak/kartun datar. Objek lingkungan di `kit-demo` (pohon kerucut, pipa polos, rumah sederhana) hanya placeholder — wajib diganti model detail sesuai topik.
 - **Ending loop**: adegan terakhir "Selamat!" dengan efek teks besar, lalu frame terakhir dibuat mirip/menyambung ke adegan K1 supaya video berulang mulus (penonton menonton ulang).
 - Jangan menyalin aset, karakter, nama, atau kalimat khas akun itu; ambil polanya saja.
 
