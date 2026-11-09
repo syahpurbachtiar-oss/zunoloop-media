@@ -36,7 +36,7 @@ FORMAT WAJIB = rantai MASALAH → SOLUSI bertahap, persis seperti video mesin cu
 Contoh pembuka (kencing-astronot): K1 "Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu." K2 "Kalau kamu cuma saring pakai kain, kotorannya nyangkut… tapi baunya dan zat garamnya masih ikut." K3 "Tapi di luar angkasa nggak ada gravitasi, air nggak mau netes ke bawah. Jadi kamu pasang drum yang muter biar airnya kepental ke dinding." …
 Topik bertanda SENSITIF: tone hormat & ilmiah, tanpa candaan.
 Tulis ke `$W/data.json`:
-`{"slug","hook":"<versi singkat hook, KAPITAL, ≤28 karakter>","footer":"DARI JIJIK JADI BERGUNA","lines":[...],"chips":[...]}`
+`{"slug","hook":"<versi singkat hook, KAPITAL, ≤28 karakter>","footer":"DARI BIASA JADI BERGUNA","lines":[...],"chips":[...]}`
 (`chips` = nama tahap/mesin per kalimat, kosong "" untuk K1, K2, dua terakhir; KAPITAL, ≤18 karakter.)
 Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" secara bersih & tidak vulgar (stilisasi, bukan realistis menjijikkan); tahap proses = mesin/alat nyata yang dirakit; dua adegan akhir = hasil akhir + fasilitas utuh.
 
