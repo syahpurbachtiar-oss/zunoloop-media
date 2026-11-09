@@ -1,6 +1,6 @@
 # PLAYBOOK — Video harian ZunoLoop (otomatis)
 
-Tujuan tiap run: 1 video edukasi 3D 9:16 berbahasa Indonesia (55–90 detik) → push ke repo ini → jadwalkan ke YouTube, Instagram, TikTok via Buffer pada **19:30 WIB hari yang sama**. Tidak ada manusia yang menunggu: jangan bertanya, ambil keputusan terbaik, catat di `log.md`.
+Tujuan tiap run: 1 video edukasi 3D 9:16 berbahasa Indonesia (35–50 detik) → push ke repo ini → jadwalkan ke YouTube, Instagram, TikTok via Buffer pada **19:30 WIB hari yang sama**. Tidak ada manusia yang menunggu: jangan bertanya, ambil keputusan terbaik, catat di `log.md`.
 
 Contoh kualitas yang jadi patokan: `pipeline/examples/mesin-cuci/` (scene.html + data.json) dan `videos/mesin-cuci-3d.mp4`.
 
@@ -23,8 +23,9 @@ Ambil baris pertama yang belum dicentang di `topics.md` (format: slug — topik 
 - Tidak boleh ada kalimat naskah yang memuat fakta di luar tabel fakta. Penyederhanaan boleh, distorsi tidak.
 - Salin `research.md` ke repo `research/<slug>.md` saat publikasi.
 
-## 2. Naskah (13–20 kalimat, total 150–240 kata → video 55–90 detik) — seri "Dari Jijik Jadi Berguna"
-Durasi fleksibel: default 55–70 detik (13–16 kalimat). Boleh sampai **maks 90 detik** (≤ 20 kalimat) hanya jika prosesnya memang punya lebih banyak tahap nyata; setiap kalimat tambahan WAJIB masalah→solusi baru, bukan pengisi. Hook + masalah pertama harus selesai dalam 3 detik pertama. Gaya: kasual, kalimat pendek, "kamu", bahasa Indonesia sehari-hari. Semua fakta dari `research.md`.
+## 2. Naskah (9–13 kalimat, total 90–135 kata → video 35–50 detik) — seri "Dari Jijik Jadi Berguna"
+Durasi WAJIB 35–50 detik (keputusan Ari 10 Nov 2026: retensi TikTok video 61 detik cuma ±28%). Kalau prosesnya punya banyak tahap, pilih tahap paling penting/visual saja; gabungkan tahap kecil. Setiap kalimat WAJIB masalah→solusi baru, bukan pengisi. Hook + masalah pertama harus selesai dalam 3 detik pertama.
+Nomor seri: N = jumlah baris `[x]` di `topics.md` + 1 (mesin-cuci = #1, kencing-astronot = #2). Dipakai di judul, caption, dan kalimat terakhir. Gaya: kasual, kalimat pendek, "kamu", bahasa Indonesia sehari-hari. Semua fakta dari `research.md`.
 FORMAT WAJIB = rantai MASALAH → SOLUSI bertahap, persis seperti video mesin cuci (`pipeline/examples/mesin-cuci/data.json`). Penonton "ikut membangun" sistemnya dari versi paling primitif; tiap kalimat menutup satu masalah dan membuka masalah baru, sehingga penonton terus penasaran ke kalimat berikutnya.
 - K1 = HOOK dari `topics.md` (boleh dipoles, ≤ 18 kata, kontras jijik/aneh vs hasil luar biasa). Hook juga jadi judul video.
 - K2 = versi PALING PRIMITIF dengan sudut "kamu": "Kalau kamu cuma <cara paling sederhana>, kamu udah <setengah jalan>… tapi <masalah besar>."
@@ -32,17 +33,18 @@ FORMAT WAJIB = rantai MASALAH → SOLUSI bertahap, persis seperti video mesin cu
   "Tapi <masalah>. Jadi kamu pasang/tambah <solusi>." · "Masalahnya, <masalah baru>. Makanya <solusi>." · "Terus <efek samping solusi tadi>…"
   Solusi selalu memunculkan masalah berikutnya (efek samping, bahaya, sisa kotoran, energi, dll). Jangan ada kalimat yang cuma informasi tanpa masalah/solusi. Sisipkan 1 angka mengejutkan yang terverifikasi.
 - K(n-1) = "Selamat, kamu udah bikin <sistem>." + payoff singkat bila muat (mis. "…airnya lebih bersih dari air keranmu.").
-- K(n) = "Habis ini, mau kita bongkar apa?"
+- K(n) = "Follow biar nggak ketinggalan Dibongkar #<N+1>… mau kita bongkar apa?" (≤ 12 kata).
 Contoh pembuka (kencing-astronot): K1 "Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu." K2 "Kalau kamu cuma saring pakai kain, kotorannya nyangkut… tapi baunya dan zat garamnya masih ikut." K3 "Tapi di luar angkasa nggak ada gravitasi, air nggak mau netes ke bawah. Jadi kamu pasang drum yang muter biar airnya kepental ke dinding." …
 Topik bertanda SENSITIF: tone hormat & ilmiah, tanpa candaan.
 Tulis ke `$W/data.json`:
 `{"slug","hook":"<versi singkat hook, KAPITAL, ≤28 karakter>","footer":"DARI BIASA JADI BERGUNA","lines":[...],"chips":[...]}`
 (`chips` = nama tahap/mesin per kalimat, kosong "" untuk K1, K2, dua terakhir; KAPITAL, ≤18 karakter.)
 Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" secara bersih & tidak vulgar (stilisasi, bukan realistis menjijikkan); tahap proses = mesin/alat nyata yang dirakit; dua adegan akhir = hasil akhir + fasilitas utuh.
+**Hook visual 2 detik pertama (WAJIB):** begitu sampul 0.4 s lewat, K1 langsung menampilkan momen paling aneh/kontras (bahan jijik berdampingan dengan hasil akhirnya, atau benda dalam gerak) dengan gerak kamera cepat (punch-in/whip), bukan wide shot diam. `hook` di data.json berupa pertanyaan/klaim kontras (mis. "KENCING JADI AIR MINUM?") dan tampil besar di layar sepanjang K1.
 
 ## 3. Suara (ElevenLabs connector)
 `creative_generate_speech` per kalimat: `voice_id=xlBOShi2835jfBgaEld4` (Rafiq), `model_id=eleven_v4`, `generations_count=1`. Kirim semua sekaligus, lalu poll `creative_get_flow_run_status`. Unduh `content_url` dengan curl ke `$W/mp3/NN.mp3` (01, 02, …). Kalimat yang gagal: generate ulang SATU kali saja. Kalau masih gagal / kredit habis → berhenti, catat di log.
-Lalu: `python3 pipeline/build_audio.py $W 90` (90 = batas maksimal; tempo bicara dipercepat paling banyak 1.15×, jadi kalau total > 90 detik, PENDEKKAN naskah lalu generate ulang kalimat yang berubah, jangan dipaksa cepat). Mengisi starts/durs/total di data.json + mix.wav.
+Lalu: `python3 pipeline/build_audio.py $W 50` (50 = batas maksimal; tempo bicara dipercepat paling banyak 1.15×, jadi kalau total > 50 detik, PENDEKKAN naskah lalu generate ulang kalimat yang berubah, jangan dipaksa cepat). Mengisi starts/durs/total di data.json + mix.wav.
 
 ## 4. Scene 3D
 Salin `pipeline/examples/mesin-cuci/scene.html` ke `$W/scene.html`. Pertahankan kerangka (renderer, lampu, lantai, sistem `part()`, highlight, overlay caption/chip/hook, `render(t)`, fungsi kamera). Ganti SEMUA model & animasi dengan benda topik hari ini:
@@ -93,8 +95,8 @@ git add -A && git commit -m "Video: $SLUG" && git push
 - YouTube `6ac1643bea19ca0bde68cfb1`: metadata.youtube `{title:"<judul> #shorts", categoryId:"27", privacy:"public", madeForKids:false, isAiGenerated:true}`.
 - TikTok `6ac15e0eea19ca0bde687599`: metadata.tiktok `{title:"<judul>", isAiGenerated:true}`.
 - Instagram `6ae9be9de29c69a17148c2fc`: metadata.instagram `{type:"reel", shouldShareToFeed:true, isAiGenerated:true}`.
-Caption: 1–2 kalimat isi + "Komen alat apa yang harus kita bongkar berikutnya 👇" + 6–8 hashtag Indonesia (#carakerja #edukasi #faktaunik #teknologi #animasi3d + 2 spesifik topik; YouTube + #shorts, TikTok + #fyp, IG + #reels #fyp).
-Judul: versi singkat hook (≤ 70 karakter, boleh 1 emoji), mis. "Astronot Minum Air Kencingnya Sendiri?! 🚀".
+Caption (SEO, bukan hashtag generik): kalimat pertama memuat kata kunci yang dicari orang ("Cara kerja <benda/proses> …" / "Cara <bahan> diubah jadi <hasil> …"), lalu 1 kalimat isi, lalu "Dibongkar #N — komen alat apa yang harus kita bongkar berikutnya 👇", lalu 3–5 hashtag niche: #carakerja #animasi3d + 1–3 spesifik topik (mis. #daurulangair #iss). DILARANG #fyp, #reels, #viral, #edukasi dan hashtag generik lain.
+Judul: "Dibongkar #N: <versi singkat hook>" (≤ 70 karakter, boleh 1 emoji, memuat kata kunci topik), mis. "Dibongkar #2: Astronot Minum Air Kencingnya Sendiri?! 🚀".
 Pastikan ketiga respons `status: scheduled`.
 
 ## 8. Tutup
