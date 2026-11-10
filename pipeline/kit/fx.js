@@ -31,17 +31,29 @@ export function makeFX(THREE, host, cam, glCanvas) {
     x.lineJoin = 'round'; x.strokeStyle = stroke; x.lineWidth = size * sw; x.strokeText(s, X, Y); x.fillStyle = fill; x.fillText(s, X, Y); }
 
   const SAFE = { x0: 40, x1: 950, y0: 300, y1: 1490 };
-  let occ = [], queue = [];
+  let occ = [], queue = [], segs = [];
   const hit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-  const free = r => r.x >= SAFE.x0 && r.x + r.w <= SAFE.x1 + 90 && r.y >= SAFE.y0 && r.y + r.h <= SAFE.y1 && !occ.some(o => hit(r, o));
+  // segmen panah (tebal) juga dianggap terisi: label/chip/teks tidak boleh menimpa panah
+  const segHit = (r, s_) => { const pad = s_.w / 2 + 6, R = { x: r.x - pad, y: r.y - pad, w: r.w + 2 * pad, h: r.h + 2 * pad };
+    for (let k = 0; k <= 24; k++) { const q = k / 24, X = s_.a.x + (s_.b.x - s_.a.x) * q, Y = s_.a.y + (s_.b.y - s_.a.y) * q;
+      if (X > R.x && X < R.x + R.w && Y > R.y && Y < R.y + R.h) return true; } return false; };
+  const free = r => r.x >= SAFE.x0 && r.x + r.w <= SAFE.x1 + 90 && r.y >= SAFE.y0 && r.y + r.h <= SAFE.y1 && !occ.some(o => hit(r, o)) && !segs.some(s_ => segHit(r, s_));
+  const Q = (pri, f) => queue.push({ pri, f });
   // kata kunci: string frasa ("serat optik"), array, atau '*' (semua kata) → Set kata bersih
   const clean = w => w.toLowerCase().replace(/[^a-z0-9à-ÿ\-]/gi, '');
   const keySet = key => key === '*' ? '*' : new Set((Array.isArray(key) ? key.join(' ') : (key || '')).split(/\s+/).map(clean).filter(Boolean));
 
   const FX = {
     canvas: cv, project: scr, SAFE,
-    begin() { x.clearRect(0, 0, W, H); glCanvas.style.filter = ''; occ = []; queue = []; },
-    end() { for (const q of queue) q(); queue = []; },
+    begin() { x.clearRect(0, 0, W, H); glCanvas.style.filter = ''; occ = []; queue = []; segs = []; },
+    // urutan gambar: panah (0) → teks besar/boom/ULANG (1) → chip (2) → label (3); tiap elemen menghindari yang sudah ada
+    end() { queue.sort((a, b) => a.pri - b.pri); for (const q of queue) q.f(); queue = []; },
+    /* Daftarkan area yang TIDAK boleh tertutup teks (wajah karakter, layar HP, part penting). r = {x,y,w,h} px,
+       atau avoidPts([Vector3...], pad) = kotak pembatas titik-titik dunia. Panggil SETELAH begin() dan sebelum efek lain. */
+    avoid(r) { occ.push(r); },
+    avoidPts(pts, pad = 20, hard = false) { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, any = false;
+      for (const p of pts) { const q = scr(p); if (!q.ok) continue; any = true; x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); }
+      if (any && x1 > 0 && x0 < W && y1 > 0 && y0 < H) { const r = { x: x0 - pad, y: y0 - pad, w: x1 - x0 + 2 * pad, h: y1 - y0 + 2 * pad, hard }; occ.push(r); return r; } return null; },
 
     /* Label tahap kiri atas (di bawah UI aplikasi): baris kecil "• MASALAH: ..." + judul tebal.
        key = frasa yang disorot biru: satu kata, beberapa kata berurutan ("serat optik"), atau '*' = seluruh judul.
@@ -80,7 +92,9 @@ export function makeFX(THREE, host, cam, glCanvas) {
       G.forEach(i => { const ww = x.measureText(words[i] + ' ').width; if (lw + ww > maxW && cur.length) { lines.push(cur); cur = []; lw = 0; } cur.push(i); lw += ww; });
       if (cur.length) lines.push(cur);
       const ks = keySet(key);
-      occ.push({ x: 60, y: y - sz * 1.2, w: W - 120, h: sz * 1.2 * (lines.length + .8) });
+      const kr = yy => ({ x: 60, y: yy - sz * .75 - (lines.length - 1) * sz * .57, w: W - 120, h: sz * 1.15 * lines.length + sz * .3 });
+      for (const yy of [y, y + 110, y - 140, y + 60, y - 260]) { const r = kr(yy); if (!occ.some(o => o.hard && hit(r, o)) && r.y + r.h <= SAFE.y1 + 20) { y = yy; break; } }
+      occ.push(kr(y));
       lines.forEach((L, r) => { const vis = L.filter(i => i < n); if (!vis.length) return;
         const tw = x.measureText(L.map(i => words[i]).join(' ')).width; let cx = W / 2 - tw / 2; const cy = y + r * (sz * 1.15) - (lines.length - 1) * sz * .57;
         L.forEach(i => { const w = words[i], ww = x.measureText(w).width, act = i === n - 1;
@@ -94,7 +108,18 @@ export function makeFX(THREE, host, cam, glCanvas) {
 
     /* Panah tebal bergaya (merah = gaya/masalah, biru = aliran, hijau = solusi). from/to world atau layar. */
     arrow(from, to, u, color = RED, width = 34) {
-      const a = scr(from), b = scr(to); if (!a.ok || !b.ok) return; const g = eo(cl(u / .35, 0, 1)); if (!g) return;
+      const a0 = scr(from), b0 = scr(to); if (!a0.ok || !b0.ok) return; const g = eo(cl(u / .35, 0, 1)); if (!g) return;
+      // jepit ke pita aman (di bawah label tahap, di atas subtitle) supaya tidak menimpa kotak label
+      const top = SAFE.y0 + 150, bot = SAFE.y1 - 230, clipP = (p, o) => { let X = p.x, Y = p.y;
+        if (Y < top || Y > bot) { const ty = Y < top ? top : bot, k = (ty - o.y) / ((Y - o.y) || 1e-6); if (k > 0 && k < 1) { X = o.x + (X - o.x) * k; Y = ty; } else Y = cl(Y, top, bot); }
+        return { x: cl(X, SAFE.x0, SAFE.x1 + 60), y: Y }; };
+      const a = clipP(a0, b0); let b = clipP(b0, a0);
+      const inR = (P_, r) => P_.x > r.x && P_.x < r.x + r.w && P_.y > r.y && P_.y < r.y + r.h;
+      const hits = (A_, B_) => occ.some(r => !inR(A_, r) && segHit(r, { a: A_, b: B_, w: width + 10 }));
+      if (hits(a, b)) { let q = 1; while (q > .25 && hits(a, { x: a.x + (b.x - a.x) * q, y: a.y + (b.y - a.y) * q })) q -= .04; b = { x: a.x + (b.x - a.x) * q, y: a.y + (b.y - a.y) * q }; }
+      if (Math.hypot(b.x - a.x, b.y - a.y) < 70) return;
+      segs.push({ a, b, w: width + 14 });
+      Q(0, () => {
       const bx = a.x + (b.x - a.x) * g, by = a.y + (b.y - a.y) * g, ang = Math.atan2(by - a.y, bx - a.x), hl = width * 1.6;
       const wob = Math.sin(u * 8) * 6 * (g >= 1 ? 1 : 0), ex = bx + Math.cos(ang) * wob, ey = by + Math.sin(ang) * wob;
       x.save(); x.lineCap = 'round'; x.strokeStyle = '#fff'; x.lineWidth = width + 14;
@@ -102,19 +127,20 @@ export function makeFX(THREE, host, cam, glCanvas) {
       x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(sx, sy); x.stroke(); x.strokeStyle = color; x.lineWidth = width; x.stroke();
       const head = () => { x.beginPath(); x.moveTo(ex + Math.cos(ang) * 6, ey + Math.sin(ang) * 6);
         x.lineTo(ex - Math.cos(ang - .55) * hl, ey - Math.sin(ang - .55) * hl); x.lineTo(ex - Math.cos(ang + .55) * hl, ey - Math.sin(ang + .55) * hl); x.closePath(); };
-      head(); x.lineJoin = 'round'; x.strokeStyle = '#fff'; x.lineWidth = 12; x.stroke(); x.fillStyle = color; x.fill(); x.restore(); },
+      head(); x.lineJoin = 'round'; x.strokeStyle = '#fff'; x.lineWidth = 12; x.stroke(); x.fillStyle = color; x.fill(); x.restore(); }); },
 
     /* Chip kecil di dekat objek: kind 'bad' (✗ merah), 'good' (✓ hijau), 'info' (biru) */
     chip(text, at, u, kind = 'info', dur = 99) {
       const o = fadeIO(u, dur, .2, .2); if (!o) return; const p0 = scr(at); if (!p0.ok) return;
-      queue.push(() => {
+      Q(2, () => {
       const col = { bad: RED, good: GREEN, info: BLUE }[kind], ic = { bad: '✕ ', good: '✓ ', info: '' }[kind];
       x.font = `800 42px ${FONT}`; const s2 = ic + text, w = x.measureText(s2).width + 44;
       // cari posisi bebas: titik asal lalu geser naik/turun/kiri/kanan
-      let p = { x: cl(p0.x, SAFE.x0 + w / 2, SAFE.x1 + 80 - w / 2), y: cl(p0.y, SAFE.y0 + 30, SAFE.y1 - 30) };
-      for (const [dx, dy] of [[0, 0], [0, -80], [0, 80], [0, -160], [0, 160], [-200, 0], [200, 0], [0, -240], [0, 240]]) {
-        const c = { x: cl(p.x + dx, SAFE.x0 + w / 2, SAFE.x1 + 80 - w / 2), y: cl(p.y + dy, SAFE.y0 + 30, SAFE.y1 - 30) };
+      const p1 = { x: cl(p0.x, SAFE.x0 + w / 2, SAFE.x1 + 80 - w / 2), y: cl(p0.y, SAFE.y0 + 30, SAFE.y1 - 30) }; let p = null;
+      for (const [dx, dy] of [[0, 0], [0, -80], [0, 80], [0, -160], [0, 160], [-220, 0], [220, 0], [-300, -100], [300, -100], [-300, 100], [300, 100], [0, -260], [0, 260], [0, -380], [0, 380]]) {
+        const c = { x: cl(p1.x + dx, SAFE.x0 + w / 2, SAFE.x1 + 80 - w / 2), y: cl(p1.y + dy, SAFE.y0 + 30, SAFE.y1 - 30) };
         if (free({ x: c.x - w / 2, y: c.y - 32, w, h: 64 })) { p = c; break; } }
+      if (!p) return;
       occ.push({ x: p.x - w / 2, y: p.y - 32, w, h: 64 });
       x.save(); x.globalAlpha = o; x.translate(p.x, p.y); const s = pop(u); x.scale(s, s);
       x.fillStyle = 'rgba(0,0,0,.22)'; rr(-w / 2, -24, w, 60, 30); x.fill();
@@ -125,7 +151,7 @@ export function makeFX(THREE, host, cam, glCanvas) {
     label(text, at, u, dx = 120, dy = -90, dur = 99) {
       const o = fadeIO(u, dur, .25, .2); if (!o) return; const p = scr(at); if (!p.ok) return;
       if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) return; // titik part di luar layar → label tidak ditampilkan
-      queue.push(() => {
+      Q(3, () => {
       const T = text.toUpperCase(); x.font = `900 34px ${FONT}`; const tw = x.measureText(T).width + 20;
       // kandidat arah: pilihan pemanggil dulu, lalu cermin & variasi; pilih yang muat di safe zone & tidak menabrak
       const cands = [[dx, dy], [-dx, dy], [dx, -dy], [-dx, -dy], [dx * 1.6, dy * .4], [-dx * 1.6, dy * .4], [0, dy * 1.5], [0, -dy * 1.5]];
@@ -144,23 +170,38 @@ export function makeFX(THREE, host, cam, glCanvas) {
 
     /* Onomatope besar miring (KRAAAK!, BLUP!, WUSSH!, SELAMAT!) */
     boom(text, at, u, color = '#3c6bff', dur = 1.2, size = 120) {
-      const o = fadeIO(u, dur, .05, .25); if (!o) return; const p = scr(at);
+      const o = fadeIO(u, dur, .05, .25); if (!o) return; const p0 = scr(at);
+      Q(1, () => {
+      // cari tempat yang tidak menutupi wajah/HP/label/panah: titik pilihan dulu, lalu atas, bawah, tengah; kecilkan bila perlu
+      const cands = [[p0.x, p0.y], [300, 560], [780, 560], [540, 500], [300, 1060], [780, 1060], [540, 1120], [300, 800], [780, 800], [540, 640], [540, 1000], [540, 760], [540, 880], [190, 520], [890, 520], [190, 1100], [890, 1100]];
+      let pick = null, sz = size;
+      for (let shrink = 0; shrink < 5 && !pick; shrink++, sz *= .84) {
+        x.font = `italic 900 ${sz}px ${FONT}`; const tw = x.measureText(text).width * 1.05 + sz * .3, th = sz * 1.25;
+        for (const [cx, cy] of cands) { const r = { x: cl(cx, SAFE.x0 + tw / 2, SAFE.x1 + 50 - tw / 2) - tw / 2, y: cy - th / 2, w: tw, h: th };
+          if (free(r)) { pick = [r.x + tw / 2, cy, r]; break; } } }
+      if (!pick) return; // tidak ada tempat yang tidak menutupi apa pun → tidak ditampilkan
+      occ.push(pick[2]);
       const s = pop(u) * (1 + Math.max(0, u - .3) * .05), sh = u < .35 ? Math.sin(u * 90) * 8 : 0;
-      x.save(); x.globalAlpha = o; x.translate(p.x + sh, p.y); x.rotate(-.12); x.scale(s, s);
-      textStroke(text, 0, 0, size, color, '#fff', .22, 'center', 900, 'italic');
-      x.lineWidth = 4; x.strokeStyle = INK; x.font = `italic 900 ${size}px ${FONT}`; x.strokeText(text, 0, 0); x.restore(); },
+      x.save(); x.globalAlpha = o; x.translate(pick[0] + sh, pick[1]); x.rotate(-.08); x.scale(s, s);
+      textStroke(text, 0, 0, sz, color, '#fff', .22, 'center', 900, 'italic');
+      x.lineWidth = 4; x.strokeStyle = INK; x.font = `italic 900 ${sz}px ${FONT}`; x.strokeText(text, 0, 0); x.restore(); }); },
 
     /* Efek mundur saat percobaan gagal: layar desaturasi + garis + "◀◀ ULANG" */
     rewind(u, dur = 1.0) {
       if (u < 0 || u > dur) return; const k = Math.sin(cl(u / dur, 0, 1) * Math.PI);
       glCanvas.style.filter = `grayscale(${(k * .85).toFixed(2)}) contrast(${(1 + k * .15).toFixed(2)})`;
       x.save(); x.globalAlpha = k * .25; x.fillStyle = '#fff'; for (let yy = (u * 900) % 24; yy < H; yy += 24) x.fillRect(0, yy, W, 3); x.restore();
-      x.save(); x.globalAlpha = Math.min(1, k * 2); x.translate(W / 2, 900); x.rotate(-.1); x.scale(.9 + k * .1, .9 + k * .1);
-      textStroke('◀◀ ULANG', 0, 0, 130, '#2f6bff', '#fff', .2, 'center', 900, 'italic'); x.restore(); },
+      Q(1, () => { x.font = `italic 900 120px ${FONT}`; const tw = x.measureText('◀◀ ULANG').width + 40; let py = null;
+        for (const cy of [1100, 560, 980, 680, 820]) { const r = { x: 540 - tw / 2, y: cy - 75, w: tw, h: 150 }; if (free(r)) { py = cy; occ.push(r); break; } }
+        if (py === null) return;
+        x.save(); x.globalAlpha = Math.min(1, k * 2); x.translate(W / 2, py); x.rotate(-.06); x.scale(.9 + k * .1, .9 + k * .1);
+        textStroke('◀◀ ULANG', 0, 0, 120, '#2f6bff', '#fff', .2, 'center', 900, 'italic'); x.restore(); }); },
 
     /* Emote di atas kepala karakter: '!' (kaget), '?' (bingung), 'idea' (bohlam), 'sweat' (keringat), 'love' */
     emote(type, at, u, dur = 1.4) {
       const o = fadeIO(u, dur, .1, .25); if (!o) return; const p = scr(at); if (!p.ok) return;
+      if (p.y < SAFE.y0 + 140 || p.y > SAFE.y1 - 60) return; // jangan masuk area label tahap / subtitle
+      occ.push({ x: p.x - 55, y: p.y - 65, w: 110, h: 125 });
       const s = pop(u), bob = Math.sin(u * 6) * 6;
       x.save(); x.globalAlpha = o; x.translate(p.x, p.y + bob); x.scale(s, s);
       if (type === 'sweat') { x.fillStyle = '#7cc6ff'; x.strokeStyle = '#fff'; x.lineWidth = 5; x.beginPath(); x.moveTo(0, -40); x.quadraticCurveTo(26, 0, 0, 18); x.quadraticCurveTo(-26, 0, 0, -40); x.fill(); x.stroke(); }
