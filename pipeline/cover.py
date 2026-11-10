@@ -28,6 +28,7 @@ async def main():
         pg = await b.new_page(viewport={"width": 1080, "height": 1920}, device_scale_factor=1)
         await pg.goto(f"http://127.0.0.1:{port}/scene.html?capture=1"); await pg.wait_for_function("window.__ready===1", timeout=90000)
         await pg.add_style_tag(content="html,body,#st{background:transparent!important}#cap,#chip,#hb,#ttl,#vig,#flash{display:none!important}")
+        await pg.evaluate("window.__cover=1")  # scene boleh pakai komposisi khusus sampul (tanpa FX/latar)
         await pg.evaluate("t=>window.__render(t)", total - 0.5)
         await pg.screenshot(path=f"{W}/hero_raw.png", omit_background=True)
         im = Image.open(f"{W}/hero_raw.png").convert("RGBA"); a = im.split()[3].point(lambda v: 0 if v < 235 else v); im.putalpha(a)
