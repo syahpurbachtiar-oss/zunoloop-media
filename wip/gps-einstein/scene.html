@@ -106,7 +106,7 @@ function drawScreen(S){const k=JSON.stringify(S);if(k===scrKey)return;scrKey=k;c
  scrTex.needsUpdate=true}
 drawScreen({});
 // tempel HP ke tangan kanan ayah (layar menghadap wajah)
-const rHand=A.arms[1].wr;rHand.add(phone);phone.position.set(0,-m(.105),m(.03));phone.rotation.set(-1.2,0,Math.PI);
+const rHand=A.arms[1].wr;rHand.add(phone);phone.position.set(0,-3.0,1.35);phone.rotation.set(0,0,Math.PI); // unit tangan: telapak depan z=0.9, ibu jari maks z≈1.18 → punggung HP z=1.2
 
 /* ================= LOKASI 1: DESA (jalan di tepi sawah, masjid, warung) ================= */
 const desa=outdoorScene(0x4f9ff0,0xdcefff,60,700,[60,90,50],18);
@@ -260,7 +260,7 @@ const drawClk=(sat,txt,col='#3cff7a')=>{const c=sat.userData.clkCv.getContext('2
 
 // konstelasi: 6 bidang orbit, inklinasi 55°, 31 satelit (penanda diperbesar)
 const SATS=[],planes=[];
-const satMarkerScale=RE*.05/m(2.2);
+const satMarkerScale=RE*.065/m(2.2);
 for(let p=0;p<6;p++){const pl=new THREE.Group();pl.rotation.y=p*Math.PI/3;const inc=new THREE.Group();inc.rotation.x=55*Math.PI/180;pl.add(inc);orbit.add(pl);planes.push(pl);
  const ring=new THREE.Mesh(new THREE.TorusGeometry(RO,4,6,256),new THREE.MeshBasicMaterial({color:0x7fc3ff,transparent:true,opacity:.55,toneMapped:false}));ring.rotation.x=Math.PI/2;inc.add(ring);
  const n=p===0?6:5;for(let k=0;k<n;k++){const s=satellite();s.scale.setScalar(satMarkerScale);inc.add(s);SATS.push({s,inc,ph:k/n*Math.PI*2+p*.5})}}
@@ -365,12 +365,15 @@ function useSet(name){const s=SETS[name];if(curSet!==s){curSet=s}
 const ayahAt=(x,z,ry)=>{A.root.position.set(m(x),0,m(z));A.root.rotation.y=ry};
 const headW=()=>A.head.localToWorld(V(0,m(.32),0));
 const phoneW=(o=[0,0,0])=>phone.localToWorld(V(...o));
+// POV: kamera di mata ayah melihat HP di tangannya (k<1 = sedikit lebih dekat ke HP); HP berada di tengah-atas frame
+const povPhone=(k=1,fov=40)=>{A.root.updateMatrixWorld(true);const R_=A.H.R,eye=A.H.head.localToWorld(V(0,R_*.15,R_*.95)),pc=phoneW();
+ A.arms[0].sh.visible=false;const pos=pc.clone().add(eye.clone().sub(pc).multiplyScalar(k*.88));const tg=pc.clone().add(V(0,-m(.015),0));return[pos,tg,fov]};
 const SH=[];const S=(i,f,o)=>SH.push(Object.assign({i,f},o));
 const lerpV=(a,b,p)=>a.clone().lerp(b,p);
 // posisi dasar ayah di desa: tepi jalan, menghadap kamera (+z)
 const AY=[0,4.6,0];
 // ---- K1: hook
-S(0,0,{set:'desa',cam:(u,T)=>{ayahAt(...AY);A.act('hold',u+2,'normal');A.root.updateMatrixWorld(true);const p=phoneW([0,m(.05),m(.44-u*.05)]),t=phoneW([0,m(.012),0]);return[p,t,32]},
+S(0,0,{set:'desa',cam:(u,T)=>{ayahAt(...AY);A.act('hold',u+2,'normal');A.root.updateMatrixWorld(true);return povPhone(1.05-u*.05,54)},
  scr:(u)=>({dx:lerp(0,11000,e3(cl(u/1.6,0,1))),dy:lerp(0,3000,e3(cl(u/1.6,0,1))),zoom:lerp(300,30000,e3(cl(u/1.6,0,1))),ghost:1,label:u>.9?'Meleset 11 km?!':''}),
  fx:(u)=>{FX.boom('11 KM?!',{x:540,y:560},u-.6,'#ff3b3b',2,150)}});
 S(0,.52,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('shock',u,'shock');A.root.updateMatrixWorld(true);const h=headW();return[V(h.x+m(.25),h.y-m(.15),h.z+m(2.1-u*.15)),V(h.x,h.y-m(.3),h.z),36]},
@@ -408,9 +411,9 @@ S(7,.5,{set:'orbit',cam:(u)=>{const d=PID.clone().normalize();return[d.clone().m
  act:(u)=>{satFace(2);[0,1,2].forEach(k=>{distRing[k].r.visible=true;distRing[k].ln.visible=true});pin.visible=u>.6;pin.scale.setScalar(Math.max(.01,eo(cl((u-.6)/.4,0,1))))},
  fx:(u)=>{FX.chip('ketemu di satu titik',PID,u-.9,'good');FX.label('Posisimu',PID,u-.9,140,-120)}});
 // ---- K9: jam HP murahan
-S(8,0,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('hold',u+2,'worried');return[phoneW([0,m(.05),m(.40)]),phoneW([0,m(.012),0]),32]},
+S(8,0,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('hold',u+2,'worried');return povPhone(1,54)},
  scr:(u)=>({zoom:2000,clock:'19.30.00,000001',label:'Jam HP meleset 1 mikrodetik'}),fx:(u)=>{FX.chip('jam murahan',{x:540,y:560},u-.3,'bad')}});
-S(8,.5,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('hold',u+2,'worried');const h=headW();return[V(h.x-m(.5),h.y-m(.25),h.z+m(2.2)),V(h.x,h.y-m(.45),h.z),40]},
+S(8,.5,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('hold',u+2,'worried');const h=headW();return[V(h.x-m(.4),h.y-m(.3),h.z+m(3.0)),V(h.x,h.y-m(.15),h.z),40]},
  scr:(u)=>({zoom:2000,dx:lerp(0,300,eo(cl(u/1,0,1))),ghost:1,label:'Meleset 300 m'}),fx:(u)=>{FX.boom('300 M!',{x:540,y:600},u-.2,'#ff3b3b',1.6,120);FX.emote('sweat',headW().add(V(m(.2),m(.3),0)),u-.4)}});
 // ---- K10: satelit keempat
 S(9,0,{set:'orbit',cam:(u)=>{const s=HERO[3].position;return[s.clone().add(V(RE*.9,RE*.3,RE*1.2)),s.clone().lerp(PID,.3),40]},act:(u)=>{satFace(3);[0,1,2,3].forEach(k=>{distRing[k].ln.visible=true;distRing[k].r.visible=k<3});pin.visible=true;pin.scale.setScalar(1)},
@@ -436,9 +439,9 @@ S(15,0,{set:'orbit',cam:(u)=>[V(RE*.6,RE*.5,RE*3.6-u*15),V(0,RE*.9,0),44],act:()
 S(15,.5,{set:'satD',cam:(u)=>[V(m(2.6),m(.6),m(3.2-u*.2)),V(0,m(-.2),0),40],act:(u)=>{const d=HSAT.userData;d.inside.visible=true;d.sides[1].visible=false;d.body.children[0].visible=false;drawClk(HSAT,'+45 µs/hari','#ffd23f')},
  fx:(u)=>{FX.chip('jam kecepetan 45 µs/hari',{x:540,y:1180},u-.3,'bad')},end:()=>{const d=HSAT.userData;d.inside.visible=false;d.sides[1].visible=true;d.body.children[0].visible=true}});
 // ---- K17: total 38 µs → meleset 11 km (gagal + ULANG)
-S(16,0,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('hold',u+2,'normal');return[phoneW([0,m(.05),m(.40)]),phoneW([0,m(.012),0]),32]},
+S(16,0,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('hold',u+2,'normal');return povPhone(1,54)},
  scr:(u)=>({zoom:lerp(1500,30000,eo(cl(u/2.5,0,1))),dx:lerp(0,11500,eo(cl(u/2.5,0,1))),ghost:1,label:'+38 µs/hari → >11 km'}),fx:(u)=>{FX.chip('meleset > 11 km',{x:540,y:560},u-1,'bad')}});
-S(16,.55,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('shock',u,'shock');const h=headW();return[V(h.x+m(.4),h.y-m(.15),h.z+m(2.1)),V(h.x,h.y-m(.35),h.z),40]},
+S(16,.55,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('shock',u,'shock');const h=headW();return[V(h.x+m(.4),h.y-m(.3),h.z+m(3.0)),V(h.x,h.y-m(.15),h.z),40]},
  fx:(u)=>{FX.boom('NYASAR!',{x:540,y:600},u-.1,'#ff3b3b',1.4,130);FX.rewind(u-1.3,1.0)}});
 // ---- K18: diperlambat di pabrik
 S(17,0,{set:'lab',cam:(u)=>[V(m(6-u*.3),m(3.2),m(8-u*.4)),V(m(-1),m(1.6),m(-1.5)),44],act:(u)=>drawFreq('10,23 MHz','#9fd3ff',1),fx:(u)=>{FX.label('Satelit sebelum diluncurkan',lab.children.find(o=>o.userData&&o.userData.wings)?.localToWorld(V(0,m(1.2),0))||V(0,0,0),u-.3,140,-120)}});
@@ -457,14 +460,14 @@ S(19,.5,{set:'kota',cam:(u)=>{ayahAt(1,6.8,.3);A.act('hold',u+2,'worried');const
  fx:(u)=>{const p=phoneW(),g=V(m(4),m(40),m(-13));FX.arrow(V(m(-30),m(140),m(30)),g,u,'#2f6bff',22);FX.arrow(g,p,u-.5,'#ff3b3b',22);FX.chip('sinyal mantul',{x:540,y:560},u-.7,'bad')}});
 // ---- K21: tempat terbuka ±5 m
 S(20,0,{set:'desa',cam:(u)=>{ayahAt(-6,11.9,0);A.act('hold',u+2,'happy');return[V(m(-6+3*Math.sin(u*.25)),m(9-u*.6),m(32)),V(m(-6),m(1.2),m(12)),40]},fx:(u)=>{FX.chip('langit terbuka',{x:540,y:560},u-.4,'good')}});
-S(20,.5,{set:'desa',cam:(u)=>{ayahAt(-6,11.9,0);A.act('hold',u+2,'happy');return[phoneW([0,m(.05),m(.40)]),phoneW([0,m(.012),0]),32]},scr:()=>({zoom:120,acc:4.9,label:'Akurasi ±5 meter'}),fx:(u)=>{FX.chip('tepat ±5 meter',{x:540,y:1180},u-.4,'good')}});
+S(20,.5,{set:'desa',cam:(u)=>{ayahAt(-6,11.9,0);A.act('hold',u+2,'happy');return povPhone(1,54)},scr:()=>({zoom:120,acc:4.9,label:'Akurasi ±5 meter'}),fx:(u)=>{FX.chip('tepat ±5 meter',{x:540,y:1180},u-.4,'good')}});
 // ---- K22: SELAMAT (close-up → lebar proporsional)
-S(21,0,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('celebrate',u,'happy');A.gaze=null;const h=headW();return[V(h.x,h.y-m(.3),h.z+m(2.3)),V(h.x,h.y-m(.45),h.z),42]},
+S(21,0,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('celebrate',u,'happy');A.gaze=null;const h=headW();return[V(h.x+m(.3),h.y-m(.35),h.z+m(3.0)),V(h.x,h.y-m(.15),h.z),42]},
  fx:(u)=>{FX.confetti(u);FX.boom('SELAMAT!',{x:540,y:600},u-.2,'#2f6bff',2.6,140)}});
 S(21,.5,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('celebrate',u+2,'happy');const k=e3(cl(u/2.2,0,1));return[V(m(lerp(.5,7,k)),m(lerp(1.6,5,k)),m(lerp(7,24,k))),V(m(-2*k),m(lerp(1.2,2.5,k)),m(lerp(4.6,-2,k))),44]},fx:(u)=>{FX.confetti(u+2)}});
 // ---- K23: penutup → kembali ke frame pembuka (loop)
 S(22,0,{set:'desa',cam:(u,T)=>{ayahAt(...AY);const k=e3(cl(u/T,0,1));A.act('hold',u+2,'normal');A.root.updateMatrixWorld(true);const p0=V(m(7),m(5),m(24)),t0=V(m(-2),m(2.5),m(-2));
-  const p1=phoneW([0,m(.05),m(.44)]),t1=phoneW([0,m(.012),0]);return[lerpV(p0,p1,k),lerpV(t0,t1,k),lerp(44,34,k)]},scr:()=>({zoom:300})});
+  const [p1,t1]=povPhone(1.05,54);return[lerpV(p0,p1,k),lerpV(t0,t1,k),lerp(44,54,k)]},scr:()=>({zoom:300})});
 
 /* ================= render(t) ================= */
 const shotStart=s=>s.f?ST[s.i]+s.f*DUR[s.i]:(s.i===0?0:ST[s.i]);
@@ -477,7 +480,7 @@ function render(t){t=cl(t,0,TOTAL-1e-3);
  const sc=useSet(sh.set);
  // reset orbit visuals tiap frame lalu biarkan act mengatur
  if(sh.set==='orbit'){HERO.forEach(s=>s.visible=false);distRing.forEach(d=>{d.r.visible=d.ln.visible=d.sp.visible=false});pin.visible=false}
- A.gaze=null;
+ A.gaze=null;A.arms[0].sh.visible=true;
  if(sh.act)sh.act(u,T);
  const [pos,tg,fov]=sh.cam(u,T);cam.position.copy(pos);cam.fov=fov||40;cam.updateProjectionMatrix();cam.lookAt(tg);
  // karakter dipanggil ulang setelah kamera diset agar tatapan benar
@@ -498,7 +501,10 @@ function render(t){t=cl(t,0,TOTAL-1e-3);
  if(window.__cover){coverPose();R.setClearColor(0,0);R.render(satCover,cam);FX.begin();FX.end();return}
  R.render(sc,cam);
  // ---- overlay
- FX.begin();const li=lineAt(t),lu=t-ST[li];
+ FX.begin();
+ if(A.root.parent===sc){const tp=[];for(const x_ of[-8,8])for(const y_ of[2,21])for(const z_ of[-5,5])tp.push(A.torso.localToWorld(V(x_,y_,z_)));FX.avoidPts(tp,6);const R_=A.H.R,pts=[];for(const x_ of[-1.15,1.15])for(const y_ of[-1.35,1.5])for(const z_ of[-1,1])pts.push(A.H.head.localToWorld(V(x_*R_,y_*R_,z_*R_)));FX.avoidPts(pts,18,true);const ep=[];for(const x_ of[-7,-1.5])for(const y_ of[13,19])ep.push(A.torso.localToWorld(V(x_,y_,5)));FX.avoidPts(ep,8,true);
+  const ph=[];for(const x_ of[-1,1])for(const y_ of[-1,1])ph.push(phone.localToWorld(V(x_*m(.034),y_*m(.074),0)));FX.avoidPts(ph,4,true)}
+ const li=lineAt(t),lu=t-ST[li];
  FX.stage(D.problems[li],D.chips[li],D.stageKeys[li],lu,DUR[li]+.3);
  FX.karaoke(L[li],D.keys[li],cl(lu/DUR[li],0,1));
  if(sh.fx)sh.fx(u,T);
