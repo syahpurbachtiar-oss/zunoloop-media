@@ -62,15 +62,17 @@ export function makeFX(THREE, host, cam, glCanvas) {
       const o = fadeIO(u, dur, .2, .2); if (!o) return; x.save(); x.globalAlpha = o;
       const X = 46, Y = 318; occ.push({ x: 30, y: Y - 26, w: 900, h: 130 });
       if (key === '*') key = title;
-      if (problem) { x.font = `800 30px ${FONT}`; x.textAlign = 'left'; x.textBaseline = 'middle';
-        x.fillStyle = 'rgba(11,27,51,.85)'; x.fillText('• ' + problem.toUpperCase(), X, Y); }
+      // teks putih + garis tepi gelap + bayangan → terbaca di langit terang, laut, maupun luar angkasa hitam (revisi Ari 11 Nov)
+      const shadowOn = () => { x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 10; x.shadowOffsetY = 4; }, shadowOff = () => { x.shadowColor = 'transparent'; x.shadowBlur = 0; x.shadowOffsetY = 0; };
+      if (problem) { x.font = `800 30px ${FONT}`; x.textAlign = 'left'; x.textBaseline = 'middle'; x.lineJoin = 'round';
+        const pt = '• ' + problem.toUpperCase(); shadowOn(); x.lineWidth = 7; x.strokeStyle = INK; x.strokeText(pt, X, Y); shadowOff(); x.fillStyle = '#fff'; x.fillText(pt, X, Y); }
       const sz = 60, s = eo(cl(u / .3, 0, 1)), dx = (1 - s) * -40; x.translate(dx, 0);
       x.font = `900 ${sz}px ${FONT}`; let cx = X; const ty = Y + 62;
       const parts = key && title.includes(key) ? title.split(key) : [title];
       const seg = (txt, boxed) => { if (!txt) return; const w = x.measureText(txt).width;
         if (boxed) { x.fillStyle = BLUE; rr(cx - 10, ty - sz * .62, w + 20, sz * 1.18, 10); x.fill(); x.strokeStyle = '#fff'; x.lineWidth = 5; x.stroke();
           x.fillStyle = '#fff'; x.fillText(txt, cx, ty + 2); }
-        else { x.lineWidth = 12; x.strokeStyle = '#fff'; x.lineJoin = 'round'; x.strokeText(txt, cx, ty + 2); x.fillStyle = INK; x.fillText(txt, cx, ty + 2); }
+        else { x.lineJoin = 'round'; shadowOn(); x.lineWidth = 12; x.strokeStyle = INK; x.strokeText(txt, cx, ty + 2); shadowOff(); x.fillStyle = '#fff'; x.fillText(txt, cx, ty + 2); }
         cx += w + (boxed ? 22 : 0); };
       x.textAlign = 'left'; x.textBaseline = 'middle';
       if (parts.length > 1) { seg(parts[0], false); seg(key, true); seg(parts.slice(1).join(key), false); } else seg(title, false);

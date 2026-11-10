@@ -106,7 +106,7 @@ function drawScreen(S){const k=JSON.stringify(S);if(k===scrKey)return;scrKey=k;c
  scrTex.needsUpdate=true}
 drawScreen({});
 // tempel HP ke tangan kanan ayah (layar menghadap wajah)
-const rHand=A.arms[1].wr;rHand.add(phone);phone.position.set(0,-3.0,1.35);phone.rotation.set(0,0,Math.PI); // unit tangan: telapak depan z=0.9, ibu jari maks z≈1.18 → punggung HP z=1.2
+A.grip(1,true);const rHand=A.arms[1].wr;rHand.add(phone);phone.position.set(0,-3.0,1.35);phone.rotation.set(0,0,Math.PI); // unit tangan: telapak depan z=0.9, ibu jari maks z≈1.18 → punggung HP z=1.2
 
 /* ================= LOKASI 1: DESA (jalan di tepi sawah, masjid, warung) ================= */
 const desa=outdoorScene(0x4f9ff0,0xdcefff,60,700,[60,90,50],18);

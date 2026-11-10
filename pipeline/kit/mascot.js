@@ -175,13 +175,29 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
   }
 
   /* ---------- tangan dengan jari ---------- */
+  // tangan v2: jari & ibu jari bersendi (pangkal + ruas ujung) supaya bisa menggenggam HP secara natural tanpa menembus
   function hand(skin, k, parent, sd) {
     const g = new THREE.Group(); parent.add(g);
     mk(new RBG(3.4 * k, 3.8 * k, 1.8 * k, 4, .8 * k), skin, g, [0, -1.6 * k, 0]);
-    for (let i = 0; i < 4; i++) mk(cap(.42 * k, 1.9 * k), skin, g, [(-1.2 + i * .8) * k, -4.3 * k + (i === 0 || i === 3 ? .35 * k : 0), .1 * k], [.25, 0, 0]);
-    mk(cap(.48 * k, 1.6 * k), skin, g, [sd * -1.9 * k, -2.0 * k, .7 * k], [0, 0, sd * .7]);
+    const fingers = [];
+    for (let i = 0; i < 4; i++) { const len = (i === 0 || i === 3 ? .8 : 1) * k;
+      const base = new THREE.Group(); base.position.set((-1.2 + i * .8) * k, -3.4 * k, .1 * k); g.add(base);
+      mk(cap(.42 * k, 1.0 * len), skin, base, [0, -.75 * len, 0]);
+      const tip = new THREE.Group(); tip.position.y = -1.5 * len; base.add(tip); mk(cap(.4 * k, .7 * len), skin, tip, [0, -.55 * len, 0]);
+      fingers.push({ base, tip }); }
+    const tb = new THREE.Group(); tb.position.set(sd * -1.55 * k, -1.0 * k, .55 * k); g.add(tb);
+    mk(cap(.5 * k, .9 * k), skin, tb, [0, -.7 * k, 0]);
+    const tt = new THREE.Group(); tt.position.y = -1.4 * k; tb.add(tt); mk(cap(.46 * k, .65 * k), skin, tt, [0, -.55 * k, 0]);
+    g.userData = { fingers, tb, tt, sd, k };
+    setGrip(g, false);
     return g;
   }
+  // grip=false: santai. grip=true: memegang HP yang bertumpu di telapak (punggung HP z≈1.2k): jari lurus di belakang HP,
+  // ibu jari menyusuri tepi kiri HP lalu ruas ujungnya melengkung lembut ke depan (di depan layar, tidak menembus).
+  function setGrip(g, grip) { const { fingers, tb, tt, sd } = g.userData;
+    fingers.forEach((f, i) => { f.base.rotation.set(grip ? .08 : .2, 0, 0); f.tip.rotation.set(grip ? .1 : .25, 0, 0); });
+    if (grip) { tb.position.x = sd * -1.95 * g.userData.k; tb.rotation.set(-.55, 0, sd * .12); tt.rotation.set(-.5, 0, sd * .28); }
+    else { tb.position.x = sd * -1.55 * g.userData.k; tb.rotation.set(0, 0, sd * .7); tt.rotation.set(0, 0, sd * .25); } }
 
   /* ---------- builder karakter ---------- */
   function build(s) {
@@ -242,8 +258,8 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
       const fa = 7.8 * k; mk(taper(2.25 * k, 1.9 * k, fa), s.shortSleeve ? skin : sleeve, el, [0, -fa / 2, 0]);
       if (!s.shortSleeve) mk(taper(2.1 * k, 2.1 * k, 1.6 * k), rib, el, [0, -fa + .6 * k, 0]);
       if (s.shortSleeve && s.rib) mk(new THREE.TorusGeometry(2.5 * k, .35 * k, 8, 24), rib, sh, [0, -ua * .5, 0], [Math.PI / 2, 0, 0]);
-      const wr = new THREE.Group(); wr.position.y = -fa; el.add(wr); hand(skin, k, wr, sd);
-      return { sh, el, wr, sd }; });
+      const wr = new THREE.Group(); wr.position.y = -fa; el.add(wr); const hd = hand(skin, k, wr, sd);
+      return { sh, el, wr, sd, hand: hd }; });
     return { root, body, hips, torso, neck, head: headPivot, H, legs, arms, k, legLen };
   }
 
@@ -287,12 +303,12 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     setExpr(c.H, ex || 'normal', blink, u);
   }
 
-  const mkChar = s => { const c = build(s); c.gaze = null; c.act = (name, u, ex) => apply(c, name, u, ex); c.act('idle', 0, 'normal');
+  const mkChar = s => { const c = build(s); c.gaze = null; c.grip = (side, on) => setGrip(c.arms[side].hand, on); c.act = (name, u, ex) => apply(c, name, u, ex); c.act('idle', 0, 'normal');
     c.root.updateWorldMatrix(true, true); const b = new THREE.Box3().setFromObject(c.root); c.height = b.max.y - b.min.y; c.heightM = s.heightM; return c; };
   const cast = {
     // Tokoh utama (Ari): rambut hitam belah samping, jaket varsity biru-krem + emblem ZunoLoop, kaos biru muda, celana abu, bot karet ungu sol hijau.
     ayah: mkChar({ scale: 1, heightM: 1.70, skin: 0xc68d63, hair: 0x15110e, hairStyle: 'side', top: 0x6f95cf, sleeve: 0xf1e5c6, rib: 0xf1e5c6, varsity: true,
-      shirt: 0xbcd8f4, emblem: true, pants: 0x85888c, pantsKind: 'denim', shoe: 0x6a46c8, sole: 0x9bd13a, shoeType: 'boot' }),
+      shirt: 0xbcd8f4, emblem: true, pants: 0x85888c, pantsKind: 'denim', shoe: 0x6a46c8, sole: 0x3b2a6b, shoeType: 'boot' }),
     // Istri: hijab hitam, jaket puffer teal, atasan pink, legging hitam, bot karet merah, tas selempang krem.
     ibu: mkChar({ scale: .88, heightM: 1.55, skin: 0xe0ad8a, hair: 0x18181b, hairStyle: 'hijab', top: 0x2fbfb8, topKind: 'puffer', zip: true, shirt: 0xf3b7c6,
       pants: 0x1d1d22, shoe: 0xd6302d, sole: 0xb02421, shoeType: 'boot', bag: true }),
