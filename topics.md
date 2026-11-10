@@ -6,7 +6,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P2
 - [x] mesin-cuci — Teknik pembuatan mesin cuci (run perdana)
 - [x] kencing-astronot — Daur ulang air kencing jadi air minum di ISS | Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu.
 - [x] [P2] wa-luar-negeri — Chat WA ke luar negeri: HP → BTS → serat optik → kabel bawah laut → server | Chat WA-mu ke luar negeri… menyelam ke dasar laut dulu sebelum sampai.
-- [ ] [P2] gps-einstein — GPS: satelit, jam atom, koreksi relativitas | Tanpa teori Einstein, Google Maps-mu meleset kilometer tiap hari.
+- [~] [P2] gps-einstein (SEDANG DIKERJAKAN MANUAL oleh Claude bersama Ari, 11 Nov — run otomatis: LEWATI baris ini) — GPS: satelit, jam atom, koreksi relativitas | Tanpa teori Einstein, Google Maps-mu meleset kilometer tiap hari.
 - [ ] [P2] qris-2-detik — QRIS: alur pembayaran dari scan sampai dana masuk | Scan QRIS, lunas dalam 2 detik… padahal uangmu lewat 4 pihak.
 - [ ] [P2] pesawat-kabut — ILS: pesawat mendarat dalam kabut | Pilot ini mendarat tanpa bisa lihat landasan sama sekali.
 - [ ] [P2] lift-tidak-jatuh — Rem pengaman lift (safety gear + governor) | Kalau semua kabel lift putus… lift-nya tetap nggak jatuh.
