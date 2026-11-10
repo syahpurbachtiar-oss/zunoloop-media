@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id"><head><meta charset="utf-8"><title>Kit Demo — maskot & efek</title>
+<html lang="id"><head><meta charset="utf-8"><title>Kit Demo — maskot & efek (TEMPLATE: ganti semua objek placeholder dengan model detail ukuran asli)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1920px;overflow:hidden;background:#cfe8ff}
@@ -48,7 +48,7 @@ const joint=mk(new THREE.CylinderGeometry(5,5,6,24).rotateZ(Math.PI/2),M(0xbfc7c
 const clamp=new THREE.Group();clamp.position.set(11,8,0);pipe.add(clamp);
 mk(new THREE.TorusGeometry(6,1.3,12,32).rotateY(Math.PI/2),M(0x8a96a3,.25,.95),clamp);
 mk(new THREE.BoxGeometry(2.4,4,4),M(0x6d7883,.3,.9),clamp,[0,7,0]);
-const house=new THREE.Group();house.position.set(120,0,-10);scene.add(house);
+const house=new THREE.Group();scene.add(house); // dibuat 46x34x40 unit lalu diskalakan ke ukuran asli: dinding 3,5 m, lebar ±8 m (lihat setelah makeCast)
 mk(new RoundedBoxGeometry(46,34,40,3,2),M(0xfff3e0,.8),house,[0,17,0]);
 mk(new THREE.ConeGeometry(36,22,4).rotateY(Math.PI/4),M(0xe0573f,.7),house,[0,45,0]);
 mk(new RoundedBoxGeometry(10,18,1,2,.5),M(0x8a5a3c,.7),house,[0,9,20.2]);
@@ -56,7 +56,10 @@ mk(new RoundedBoxGeometry(10,18,1,2,.5),M(0x8a5a3c,.7),house,[0,9,20.2]);
 const drops=[];for(let i=0;i<24;i++){const d=mk(new THREE.SphereGeometry(1.4,10,8),M(0x4fb3ff,.05),scene);d.material.transparent=true;d.material.opacity=.85;drops.push(d)}
 
 /* pemeran */
-const C=makeCast(THREE,RoundedBoxGeometry);
+const C=makeCast(THREE,RoundedBoxGeometry,cam);
+/* SKALA DUNIA NYATA (WAJIB, PLAYBOOK 2a): C.M = unit per meter. Semua benda pakai ukuran asli × C.M. */
+house.scale.setScalar(3.5*C.M/34);house.position.set(9*C.M,0,-6*C.M);
+scene.children.filter(o=>o.geometry&&o.geometry.type==='ConeGeometry').forEach(o=>{o.scale.setScalar(6);o.position.y*=6});
 for(const k of['ayah','ibu','kakak','adik'])scene.add(C[k].root);
 C.ayah.root.position.set(-40,0,30);
 const FX=makeFX(THREE,document.getElementById('st'),cam,canvas);

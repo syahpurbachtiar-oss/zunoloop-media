@@ -2,12 +2,14 @@
 // Pakai: import {makeCast} from './kit/mascot.js';  const C=makeCast(THREE,RoundedBoxGeometry);
 //        scene.add(C.ayah.root); C.ayah.root.position.set(x,0,z); C.ayah.root.scale.setScalar(s);
 //        tiap frame: C.ayah.act('wave', detikSejakMulai, 'happy');
-// Tinggi dasar (skala 1): ayah ±64, ibu ±57, kakak ±44, adik ±36 unit. Kaki di y=0, menghadap +z.
+// Skala dunia nyata: C.M = unit per meter (ayah 1,70 m). Tinggi: ayah 1,70 · ibu 1,55 · orang 1,68 · kakak 1,25 · adik 1,0 m. Kaki di y=0, menghadap +z.
+// Peran: ayah (kamu), ibu, kakak, adik, orang (dewasa generik: penerima/petugas/orang asing/penyadap — jangan jadikan anggota keluarga penjahat).
+// Mata menatap kamera otomatis (makeCast(THREE,RBG,cam)) atau isi c.gaze = Vector3 dunia benda yang dibahas.
 // Aksi: idle, walk, wave, point, think, shock, celebrate, facepalm, present, hold, crouch
 // Ekspresi: normal, happy, shock, worried, think, wink
 // Kepala: C.ayah.head (Object3D) — pakai head.localToWorld(new THREE.Vector3(0, 12, 0)) untuk posisi emote.
 
-export function makeCast(THREE, RBG) {
+export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menatap kamera kecuali c.gaze diisi
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
   const mk = (g, mat, parent, pos, rot, sc) => { const o = new THREE.Mesh(g, mat); o.castShadow = o.receiveShadow = true;
     if (pos) o.position.set(...pos); if (rot) o.rotation.set(...rot); if (sc) o.scale.set(...sc); parent.add(o); return o; };
@@ -84,20 +86,40 @@ export function makeCast(THREE, RBG) {
     }
     const brows = [-1, 1].map(sd => { const b = new THREE.Group(); b.position.set(sd * R * .37, R * .4, zF - R * .03); head.add(b);
       mk(cap(R * .05, R * .3), hairMat(s.brow || 0x1a1410), b, null, [0, 0, Math.PI / 2 + sd * .08]); return b; });
-    const mouth = new THREE.Group(); mouth.position.set(0, -R * .5, zF - R * .02); head.add(mouth);
-    const lip = plain(0x8a3b30, .45), dark = plain(0x3a1110, .7), teeth = plain(0xfbf8f2, .25), tongue = plain(0xc8565a, .5);
-    const curve = (w, d) => new THREE.QuadraticBezierCurve3(V(-w, 0, 0), V(0, -d, R * .06), V(w, 0, 0));
+    // ---- mulut v3 (revisi 11 Nov 2026): bentuk pipih yang MENEMPEL & mengikuti lengkung wajah, warna dari kulit,
+    //      ujung bibir meruncing ke 0 (bukan tabung merah yang menonjol seperti "cabai") ----
+    const surfZ = yy => { let z = -1e9; for (let i = 0; i < p.count; i++) { const px = p.getX(i), py = p.getY(i);
+        if (Math.abs(px) < R * .07 && Math.abs(py - yy) < R * .07) z = Math.max(z, p.getZ(i)); } return z; };
+    const MY = -R * .5, mz = surfZ(MY), slope = (surfZ(MY + R * .12) - surfZ(MY - R * .12)) / (R * .24);
+    const mouth = new THREE.Group(); mouth.position.set(0, MY, mz + R * .006); mouth.rotation.x = Math.atan(slope); head.add(mouth);
+    const RX = R * .78; // jari-jari lengkung horizontal wajah di ketinggian mulut
+    const bend = g => { const q = g.attributes.position; for (let i = 0; i < q.count; i++) q.setZ(i, q.getZ(i) - q.getX(i) * q.getX(i) / (2 * RX)); q.needsUpdate = true; g.computeVertexNormals(); return g; };
+    const flat = (c, r = .55) => new THREE.MeshStandardMaterial({ color: c, roughness: r, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
+    const lipC = new THREE.Color(s.skin).lerp(new THREE.Color(0x9a3f36), .42).multiplyScalar(.82);
+    const lip = flat(lipC, .5), dark = flat(0x3b1714, .8), teeth = flat(0xf7f2ea, .35), tongue = flat(0xc0605d, .6);
+    const layer = (shape, mat, parent, z = 0, seg = 24) => { const m = new THREE.Mesh(bend(new THREE.ShapeGeometry(shape, seg)), mat); m.position.z = z; m.renderOrder = 2; parent.add(m); return m; };
+    // bulan sabit meruncing: tepi atas (-w,0)→(0,-d1)→(w,0), tepi bawah kembali lewat (0,-d2)
+    const crescent = (w, d1, d2, y0 = 0) => { const sh = new THREE.Shape(); sh.moveTo(-w, y0); sh.quadraticCurveTo(0, y0 - d1 * 2, w, y0); sh.quadraticCurveTo(0, y0 - d2 * 2, -w, y0); return sh; };
     const M = {};
-    M.normal = new THREE.Group(); mk(new THREE.TubeGeometry(curve(R * .22, R * .1), 20, R * .035, 8), lip, M.normal);
-    M.worried = new THREE.Group(); mk(new THREE.TubeGeometry(curve(R * .2, -R * .08), 20, R * .035, 8), lip, M.worried);
-    M.think = new THREE.Group(); mk(new THREE.TubeGeometry(new THREE.LineCurve3(V(-R * .14, R * .02, 0), V(R * .16, -R * .03, 0)), 4, R * .035, 8), lip, M.think);
-    M.happy = new THREE.Group(); { const sh = new THREE.Shape(); sh.moveTo(-R * .3, 0); sh.quadraticCurveTo(0, -R * .42, R * .3, 0); sh.quadraticCurveTo(0, -R * .05, -R * .3, 0);
-      mk(new THREE.ShapeGeometry(sh, 16), dark, M.happy, [0, 0, R * .02]);
-      const tb = new THREE.Shape(); tb.moveTo(-R * .26, -R * .03); tb.quadraticCurveTo(0, -R * .09, R * .26, -R * .03); tb.lineTo(R * .2, -R * .11); tb.quadraticCurveTo(0, -R * .15, -R * .2, -R * .11);
-      mk(new THREE.ShapeGeometry(tb, 12), teeth, M.happy, [0, 0, R * .03]); mk(sph(R * .1, 14, 10), tongue, M.happy, [0, -R * .2, -R * .02], null, [1.3, .5, .4]);
-      mk(new THREE.TubeGeometry(curve(R * .3, R * .21), 24, R * .03, 8), lip, M.happy, [0, 0, R * .015]); }
-    M.shock = new THREE.Group(); { mk(new THREE.CircleGeometry(R * .15, 24), dark, M.shock, [0, -R * .08, R * .03], null, [1, 1.35, 1]);
-      mk(new THREE.TorusGeometry(R * .15, R * .035, 8, 28), lip, M.shock, [0, -R * .08, R * .03], null, [1, 1.35, 1]); }
+    M.normal = new THREE.Group(); layer(crescent(R * .2, R * .045, R * .085), lip, M.normal);
+    M.worried = new THREE.Group(); layer(crescent(R * .16, -R * .045, -R * .08, -R * .03), lip, M.worried);
+    M.think = new THREE.Group(); { const sh = new THREE.Shape(); sh.moveTo(-R * .1, R * .01); sh.quadraticCurveTo(R * .03, R * .03, R * .15, -R * .025); sh.quadraticCurveTo(R * .03, -R * .02, -R * .1, R * .01);
+      layer(sh, lip, M.think).position.x = R * .03; }
+    M.happy = new THREE.Group(); {
+      const w = R * .27, top = R * .02, bot = R * .3;
+      const open = new THREE.Shape(); open.moveTo(-w, top); open.quadraticCurveTo(0, top - R * .05, w, top); open.quadraticCurveTo(w * .85, -bot * .9, 0, -bot); open.quadraticCurveTo(-w * .85, -bot * .9, -w, top);
+      layer(open, dark, M.happy, 0);
+      const tb = new THREE.Shape(); tb.moveTo(-w * .82, top - R * .015); tb.quadraticCurveTo(0, top - R * .06, w * .82, top - R * .015); tb.lineTo(w * .7, -R * .07); tb.quadraticCurveTo(0, -R * .1, -w * .7, -R * .07); tb.closePath();
+      layer(tb, teeth, M.happy, R * .002);
+      const tg = new THREE.Shape(); tg.absellipse(0, -bot * .72, w * .48, bot * .22, 0, Math.PI * 2); layer(tg, tongue, M.happy, R * .002);
+      layer(crescent(w * 1.04, R * .0, R * .03, top + R * .012), lip, M.happy, R * .003);           // bibir atas tipis
+      const ob = bot + R * .045, lo = new THREE.Shape(); lo.moveTo(-w, top); lo.quadraticCurveTo(-w * .85, -ob * .95, 0, -ob); lo.quadraticCurveTo(w * .85, -ob * .95, w, top);
+      lo.quadraticCurveTo(w * .85, -bot * .9, 0, -bot); lo.quadraticCurveTo(-w * .85, -bot * .9, -w, top);
+      layer(lo, lip, M.happy, R * .003);                                                             // bibir bawah tipis, meruncing ke sudut
+    }
+    M.shock = new THREE.Group(); { const o = new THREE.Shape(); o.absellipse(0, -R * .08, R * .11, R * .15, 0, Math.PI * 2); layer(o, dark, M.shock);
+      const ring = new THREE.Shape(); ring.absellipse(0, -R * .08, R * .135, R * .18, 0, Math.PI * 2); const hole = new THREE.Path(); hole.absellipse(0, -R * .08, R * .11, R * .15, 0, Math.PI * 2, true); ring.holes.push(hole);
+      layer(ring, lip, M.shock, R * .002); }
     for (const kx in M) { mouth.add(M[kx]); M[kx].visible = kx === 'normal'; }
     const blush = new THREE.MeshBasicMaterial({ color: 0xff8a80, transparent: true, opacity: .18, depthWrite: false });
     for (const sd of [-1, 1]) { const b = new THREE.Mesh(new THREE.CircleGeometry(R * .16, 20), blush); b.position.set(sd * R * .5, -R * .25, zF - R * .2); b.rotation.y = sd * .5; head.add(b); }
@@ -106,11 +128,15 @@ export function makeCast(THREE, RBG) {
 
   function setExpr(H, ex, blink, t) {
     // [buka kelopak atas (- = lebih lebar), -, angkat kelopak bawah, angkat alis]
-    const E = { normal: [0, 0, 0, 0], happy: [.15, 0, .45, .06], wink: [.15, 0, .45, .06], shock: [-.4, 0, -.1, .22],
+    const E = { normal: [.14, 0, .12, 0], happy: [.15, 0, .45, .06], wink: [.15, 0, .45, .06], shock: [-.4, 0, -.1, .22],
       worried: [.2, 0, .1, -.04], think: [.3, 0, 0, .04] }[ex] || [0, 0, 0, 0];
     H.eyes.forEach(e => { let upA = E[0] + (blink ? 1.3 : 0); if (ex === 'wink' && e.sd > 0) upA = 1.35;
-      e.up.rotation.x = -.8 + upA * 1.6; e.lo.rotation.x = .85 - E[2] * 1.1;
-      e.look.rotation.set(ex === 'think' ? -.25 : 0, ex === 'think' ? .2 : Math.sin(t * .7) * .08, 0); });
+      const closed = blink || (ex === 'wink' && e.sd > 0);
+      e.up.rotation.x = closed ? 1.52 : -.8 + upA * 1.6; e.lo.rotation.x = closed ? .25 : .85 - E[2] * 1.1;
+      e.look.visible = !closed; e.eg.children[0].visible = !closed;
+      if (ex === 'think') e.look.rotation.set(-.25, .2, 0);
+      else if (H.gazeDir) e.look.rotation.set(H.gazeDir[e.sd > 0 ? 1 : 0][0], H.gazeDir[e.sd > 0 ? 1 : 0][1], 0);
+      else e.look.rotation.set(0, Math.sin(t * .7) * .06, 0); });
     H.brows.forEach(b => { b.position.y = H.R * (.4 + E[3] * 2); const r = b.position.x > 0 ? 1 : -1;
       b.rotation.z = r * (ex === 'worried' ? .28 : ex === 'think' ? -.14 : ex === 'shock' ? -.06 : 0); });
     const key = ex === 'wink' ? 'happy' : ex; for (const kx in H.M) H.M[kx].visible = kx === (H.M[key] ? key : 'normal');
@@ -129,6 +155,13 @@ export function makeCast(THREE, RBG) {
         mk(sph(R * .45, 28, 18), hm, h, [-R * .5, R * .86, R * .36], [.4, 0, .3], [1.1, .6, 1.1]);
         mk(sph(R * .36, 24, 16), hm, h, [R * .66, R * .56, R * .5], [.7, 0, -.65], [1.25, .45, .85]);
       } else { mk(sph(R * .55, 28, 18), hm, h, [0, R * .6, R * .5], [.6, 0, 0], [1.7, .45, .85]); }
+    } else if (s.hairStyle === 'cap') {
+      for (const sd of [-1, 1]) mk(sph(R * .4, 24, 18), hm, h, [sd * R * .8, R * .18, -R * .02], [0, 0, sd * .2], [.4, .7, 1.2]);
+      mk(new THREE.SphereGeometry(R * 1.05, 40, 24, Math.PI * .2, Math.PI * .6, Math.PI * .4, Math.PI * .35), hm, h, [0, 0, -R * .05], [0, Math.PI, 0]);
+      const cm = cloth(s.capColor || 0x2c3e66, 'cotton', .85);
+      mk(new THREE.SphereGeometry(R * 1.08, 48, 24, 0, Math.PI * 2, 0, Math.PI * .5), cm, h, [0, R * .32, -R * .04], [-.12, 0, 0], [1, .82, 1.04]);
+      mk(new THREE.CylinderGeometry(R * .62, R * .62, R * .06, 32, 1, false, -Math.PI / 2, Math.PI), cm, h, [0, R * .38, R * .72], [.18, 0, 0], [1, 1, 1.25]);
+      mk(sph(R * .09, 12, 8), cm, h, [0, R * 1.18, -R * .04]);
     } else if (s.hairStyle === 'hijab') {
       const hj = cloth(s.hair, 'cotton', .92); hj.side = THREE.DoubleSide;
       const shell = new THREE.SphereGeometry(R * 1.16, 48, 32, 0, Math.PI * 2, 0, Math.PI * .8);
@@ -167,6 +200,10 @@ export function makeCast(THREE, RBG) {
         mk(taper(3.2 * k, 3.0 * k, 8.5 * k), bm, foot, [0, 2.2 * k, 0]); mk(new THREE.TorusGeometry(3.2 * k, .35 * k, 10, 28), bm, foot, [0, 6.5 * k, 0], [Math.PI / 2, 0, 0]);
         mk(new RBG(5.6 * k, 4 * k, 9.5 * k, 5, 1.9 * k), bm, foot, [0, -.8 * k, 1.6 * k]);
         mk(new RBG(6 * k, 1.3 * k, 10.2 * k, 4, .6 * k), so, foot, [0, -2.5 * k, 1.7 * k]);
+      } else if (s.shoeType === 'sneaker') { const up = cloth(s.shoe, 'cotton', .7), so = rubber(s.sole || 0xdddddd, .6);
+        mk(new RBG(5.6 * k, 4.2 * k, 10 * k, 5, 1.8 * k), up, foot, [0, -.9 * k, 1.5 * k]);
+        mk(new RBG(6 * k, 1.4 * k, 10.6 * k, 4, .6 * k), so, foot, [0, -2.6 * k, 1.6 * k]);
+        for (let i = 0; i < 3; i++) mk(new THREE.BoxGeometry(3.2 * k, .25 * k, .5 * k), plain(0x333333, .6), foot, [0, .4 * k - i * .9 * k, 3.6 * k + i * .6 * k], [-.5, 0, 0]);
       } else {
         mk(cap(1.5 * k, 2 * k), skin, foot, [0, -1 * k, 0]); mk(new RBG(4.8 * k, 2.4 * k, 8.4 * k, 4, 1.1 * k), skin, foot, [0, -1.9 * k, 1.6 * k]);
         mk(new RBG(5.6 * k, 1.1 * k, 9.6 * k, 4, .5 * k), rubber(s.sole || 0x8a6a4a, .6), foot, [0, -3.3 * k, 1.6 * k]);
@@ -219,7 +256,7 @@ export function makeCast(THREE, RBG) {
     shock: { R: [.6, 1.0, 2.0], L: [.6, 1.0, 2.0], torso: [-.12, 0, 0], head: [-.14, 0, 0] },
     celebrate: { R: [.25, 2.95, .15], L: [.4, .95, 1.75], head: [-.1, 0, -.08] },
     facepalm: { R: [1.6, .45, 2.5], L: [.06, .14, .25], head: [.3, 0, 0], torso: [.12, 0, 0] },
-    present: { R: [.65, 1.0, .4], L: [.65, 1.0, .4] },
+    present: { R: [1.0, .28, 1.05], L: [1.0, .28, 1.05] }, // kedua tangan di depan dada, telapak terbuka — BUKAN T-pose
     hold: { R: [1.3, .12, .7], L: [1.3, .12, .7] },
     crouch: { R: [.9, .2, .9], L: [.9, .2, .9], crouch: 1 },
     walk: { R: [0, .1, .3], L: [0, .1, .3], walk: 1 },
@@ -242,24 +279,36 @@ export function makeCast(THREE, RBG) {
     if (P.walk) { const w = Math.sin(u * 6.5); c.legs[0].p.rotation.x = w * .5; c.legs[1].p.rotation.x = -w * .5;
       c.legs[0].knee.rotation.x = Math.max(0, -w) * .7; c.legs[1].knee.rotation.x = Math.max(0, w) * .7;
       c.arms[0].sh.rotation.x = -w * .45; c.arms[1].sh.rotation.x = w * .45; c.body.position.y = Math.abs(Math.cos(u * 6.5)) * 1.0 * c.k; }
+    // arah tatapan: c.gaze (Vector3 dunia: benda yang dibahas) atau kamera; dibatasi agar tidak juling
+    const tgt = c.gaze || (cam ? cam.position : null); c.H.gazeDir = null;
+    if (tgt) { c.root.updateWorldMatrix(true, true); c.H.gazeDir = c.H.eyes.map(e => { const d = e.eg.worldToLocal(tgt.clone());
+        const yaw = Math.atan2(d.x, d.z), pitch = -Math.atan2(d.y, Math.hypot(d.x, d.z)); return [cl(pitch, -.3, .3), cl(yaw, -.4, .4)]; }); }
     const blink = ((u + c.k * 3) % 3.6) < .13 && ex !== 'happy' && ex !== 'wink';
     setExpr(c.H, ex || 'normal', blink, u);
   }
 
-  const mkChar = s => { const c = build(s); c.act = (name, u, ex) => apply(c, name, u, ex); c.act('idle', 0, 'normal'); return c; };
-  return {
+  const mkChar = s => { const c = build(s); c.gaze = null; c.act = (name, u, ex) => apply(c, name, u, ex); c.act('idle', 0, 'normal');
+    c.root.updateWorldMatrix(true, true); const b = new THREE.Box3().setFromObject(c.root); c.height = b.max.y - b.min.y; c.heightM = s.heightM; return c; };
+  const cast = {
     // Tokoh utama (Ari): rambut hitam belah samping, jaket varsity biru-krem + emblem ZunoLoop, kaos biru muda, celana abu, bot karet ungu sol hijau.
-    ayah: mkChar({ scale: 1, skin: 0xc68d63, hair: 0x15110e, hairStyle: 'side', top: 0x6f95cf, sleeve: 0xf1e5c6, rib: 0xf1e5c6, varsity: true,
+    ayah: mkChar({ scale: 1, heightM: 1.70, skin: 0xc68d63, hair: 0x15110e, hairStyle: 'side', top: 0x6f95cf, sleeve: 0xf1e5c6, rib: 0xf1e5c6, varsity: true,
       shirt: 0xbcd8f4, emblem: true, pants: 0x85888c, pantsKind: 'denim', shoe: 0x6a46c8, sole: 0x9bd13a, shoeType: 'boot' }),
     // Istri: hijab hitam, jaket puffer teal, atasan pink, legging hitam, bot karet merah, tas selempang krem.
-    ibu: mkChar({ scale: .88, skin: 0xe0ad8a, hair: 0x18181b, hairStyle: 'hijab', top: 0x2fbfb8, topKind: 'puffer', zip: true, shirt: 0xf3b7c6,
+    ibu: mkChar({ scale: .88, heightM: 1.55, skin: 0xe0ad8a, hair: 0x18181b, hairStyle: 'hijab', top: 0x2fbfb8, topKind: 'puffer', zip: true, shirt: 0xf3b7c6,
       pants: 0x1d1d22, shoe: 0xd6302d, sole: 0xb02421, shoeType: 'boot', bag: true }),
     // Anak besar: kaos hijau muda gambar dino, jeans, sandal biru.
-    kakak: mkChar({ scale: .7, headK: 1.18, legK: 22, torK: 17, skin: 0xb8805b, hair: 0x15110e, hairStyle: 'short', top: 0xd3e6b9, rib: 0x6f9a63,
+    kakak: mkChar({ scale: .7, heightM: 1.25, headK: 1.18, legK: 22, torK: 17, skin: 0xb8805b, hair: 0x15110e, hairStyle: 'short', top: 0xd3e6b9, rib: 0x6f9a63,
       print: dino('#5f9a5c', '#a9d39a'), pants: 0x2e5189, pantsKind: 'denim', shoe: 0x3a86d6, sole: 0x8a6a4a, shoeType: 'sandal', shortSleeve: true }),
     // Anak kecil: kaos putih kerah oranye gambar dino, celana krem, sandal biru.
-    adik: mkChar({ scale: .58, headK: 1.3, legK: 20, torK: 16, skin: 0xbe8862, hair: 0x15110e, hairStyle: 'short', top: 0xf7f5f0, rib: 0xe8892e,
+    adik: mkChar({ scale: .58, heightM: 1.0, headK: 1.3, legK: 20, torK: 16, skin: 0xbe8862, hair: 0x15110e, hairStyle: 'short', top: 0xf7f5f0, rib: 0xe8892e,
       print: dino('#c7782f', '#f1c48c'), pants: 0xcdb48c, shoe: 0x3a86d6, sole: 0x8a6a4a, shoeType: 'sandal', shortSleeve: true }),
+    // Orang dewasa generik (penerima pesan, petugas, teknisi, orang asing/penyadap): topi + hoodie abu, sneaker.
+    orang: mkChar({ scale: .98, heightM: 1.68, skin: 0xb98463, hair: 0x1a1512, hairStyle: 'cap', capColor: 0x2c3e66, top: 0x6b7280, rib: 0x4b5260,
+      pants: 0x2b3038, pantsKind: 'denim', shoe: 0xf2f2f2, sole: 0xd9d9d9, shoeType: 'sneaker' }),
     POSES: Object.keys(POSE),
   };
+  // SKALA DUNIA NYATA: cast.M = unit per 1 meter (ayah = 1,70 m). Semua benda WAJIB dimodelkan dengan ukuran asli × cast.M,
+  // mis. pintu 2,1 m → 2.1*C.M; motor tinggi 1,1 m → 1.1*C.M. Tinggi karakter: C.ayah.height (unit) / C.M = meter.
+  cast.M = cast.ayah.height / 1.70;
+  return cast;
 }
