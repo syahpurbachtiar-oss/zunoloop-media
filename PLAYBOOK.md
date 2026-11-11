@@ -63,7 +63,7 @@ Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" (P1) atau aksi sehari-hari si ay
 - **Memegang HP**: HP bertumpu di telapak (punggung HP di depan telapak, jari & ibu jari di belakang/tepi) — tidak boleh ada jari/tangan masuk ke HP. Close-up layar HP = sudut pandang mata karakter (POV) dengan tangan memegang HP terlihat; sembunyikan lengan lain yang terlalu dekat kamera.
 - **Analogi sehari-hari** minimal 1 (mis. "kayak penggaris: tidur gampang ditekuk, berdiri susah banget") dan konteks Indonesia (motor, sawah, gang, dll) bila relevan.
 - **Visual cerah & REALISTIS**: siang hari terang, tapi SEMUA objek (maskot, part, mesin, bangunan, lingkungan) 3D detail ala video mesin cuci: material PBR (logam/plastik/karet/kain/kaca/beton), bevel, baut, sambungan, tekstur. DILARANG gaya low-poly/kotak/kartun datar. Objek lingkungan di `kit-demo` (pohon kerucut, pipa polos, rumah sederhana) hanya placeholder — wajib diganti model detail sesuai topik.
-- **Ending (disepakati 11 Nov 2026)**: adegan "Selamat!" = close-up ayah selebrasi (dada ke atas, wajah utuh) + konfeti + `boom('SELAMAT!')` 1–2 detik → kamera mundur ke shot lebar yang proporsional (ayah boleh kecil di frame) → frame terakhir dibuat menyambung ke frame pembuka K1 (lokasi, angle, pose ayah sama) supaya video berulang mulus.
+- **Ending (disepakati 11 Nov 2026)**: adegan "Selamat!" = close-up ayah selebrasi (dada ke atas, wajah utuh) + konfeti + `boom('SELAMAT!')` 1–2 detik → kamera mundur ke shot lebar yang proporsional (ayah boleh kecil di frame) → frame terakhir dibuat menyambung ke frame pembuka K1 (lokasi, angle, pose ayah sama) supaya video berulang mulus. **Revisi Ari 12 Nov 2026:** urutan akhir = close-up "Selamat!" → zoom out → bidikan lebar yang SAMA PERSIS dengan frame pertama setelah sampul (scene t=0: kamera, pose, ekspresi, FOV identik; satu fungsi pose `aK()` + `camA()` dipakai K1 dan K19). Di pose awal/akhir mulut ayah HARUS terlihat jelas (senyum kecil yang terbaca di bidikan lebar), jangan terlihat seperti tak punya mulut. Cek: ambil frame di 0.4 s dan frame terakhir `final.mp4` (ffmpeg `-ss 0.4` dan `-sseof -0.05`), bandingkan dengan Read — hanya subtitle yang boleh beda.
 - Jangan menyalin aset, karakter, nama, atau kalimat khas akun itu; ambil polanya saja.
 
 **Kit maskot & efek (WAJIB dipakai, `pipeline/kit/`)** — contoh lengkap: `pipeline/examples/kit-demo/scene.html`, pratinjau: `pipeline/kit/preview-maskot.png`.
@@ -77,7 +77,7 @@ Adegan 3D: K1–K2 tampilkan "bahan jijik/awal" (P1) atau aksi sehari-hari si ay
 **Hook visual 2 detik pertama (WAJIB):** begitu sampul 0.4 s lewat, K1 langsung menampilkan momen paling aneh/kontras (mis. bubble chat terjun menyelam ke laut) dengan gerak kamera cepat (punch-in/whip), bukan wide shot diam. `hook` di data.json berupa pertanyaan/klaim kontras (mis. "KENCING JADI AIR MINUM?") dan tampil besar di layar sepanjang K1.
 
 ## 3. Suara
-**Utama: ElevenLabs** bila akun berbayar aktif (free tier diblokir sejak 10 Nov 2026 karena koneksi cloud dianggap proxy). **Cadangan: Gemini TTS** (Google AI Studio, domain `generativelanguage.googleapis.com`). API key dibaca dari variabel environment `GEMINI_API_KEY` (diset Ari SEKALI di pengaturan environment cloud, 11 Nov 2026) — JANGAN pernah ditulis ke repo/memori/log dan JANGAN minta key ke Ari lagi; kalau variabel kosong, pakai ElevenLabs dan catat di log: kuota gratis ±10 permintaan/hari PER MODEL, jadi buat SELURUH naskah dalam SATU permintaan (`gemini-2.5-flash-preview-tts`, voice `Puck`, teks = kalimat dipisah baris kosong, TANPA instruksi gaya karena ikut terbaca), lalu minta penanda waktu per kalimat ke model teks (`gemini-3.5-flash`), potong di jeda diam terdekat, verifikasi beberapa potongan dengan transkripsi. Satu video = satu suara (jangan campur model/suara).
+**Utama: ElevenLabs** bila akun berbayar aktif (free tier diblokir sejak 10 Nov 2026 karena koneksi cloud dianggap proxy). **Cadangan: Gemini TTS** (Google AI Studio, domain `generativelanguage.googleapis.com`). API key dibaca dari variabel environment `GEMINI_API_KEY` (diset Ari SEKALI di pengaturan environment cloud, 11 Nov 2026) — JANGAN pernah ditulis ke repo/memori/log dan JANGAN minta key ke Ari lagi; kalau variabel kosong, pakai ElevenLabs dan catat di log: kuota gratis ±10 permintaan/hari PER MODEL, jadi buat SELURUH naskah dalam SATU permintaan (`gemini-2.5-flash-preview-tts`, voice `Puck`, teks = kalimat dipisah baris kosong, TANPA instruksi gaya karena ikut terbaca), lalu potong audio per kalimat dengan pencarian jeda diam (DP: pilih N−1 titik diam terdekat dengan proporsi jumlah kata; jangan pakai penanda waktu dari model teks — hasilnya melebihi durasi audio, tidak bisa dipakai, terbukti 11 Nov 2026), simpan ke `$W/mp3/NN.mp3`, verifikasi semua potongan dengan transkripsi (`gemini-3.5-flash`; retry bila HTTP 429; salah dengar nama seperti "Pureit" tidak masalah selama urutan benar). Angka dan nama merek ditulis ejaan lisan di versi `tts` di data.json ("empat puluh delapan", "New Water"), teks tampil tetap angka. Tempo 1.0 bila total ≤ 115 detik. Satu video = satu suara (jangan campur model/suara).
 ### ElevenLabs
 `creative_generate_speech` per kalimat: `voice_id=xlBOShi2835jfBgaEld4` (Rafiq), `model_id=eleven_v4`, `generations_count=1`. Kirim semua sekaligus, lalu poll `creative_get_flow_run_status`. Unduh `content_url` dengan curl ke `$W/mp3/NN.mp3` (01, 02, …). Kalimat yang gagal: generate ulang SATU kali saja. Kalau masih gagal / kredit habis → berhenti, catat di log.
 Lalu: `python3 pipeline/build_audio.py $W 115` (115 = batas maksimal; tempo bicara dipercepat paling banyak 1.15×, jadi kalau total > 115 detik, PENDEKKAN naskah lalu generate ulang kalimat yang berubah, jangan dipaksa cepat). Mengisi starts/durs/total di data.json + mix.wav. **Tempo harus SAMA untuk semua kalimat** — jangan pakai `build_audio_keep.py` (mempercepat sebagian kalimat saja) kecuali darurat dan dicatat di log.
@@ -116,6 +116,8 @@ Aturan sinematografi (video harus atraktif, bukan asal):
 - **tidak ada yang tembus** — untuk setiap momen kontak (jangkar, tangan, kapal, kabel) cek 3 frame: sebelum, saat, sesudah kontak
 - teks tidak masuk safe zone, label tidak menabrak subtitle/label lain, tidak terpotong tepi layar
 - tidak ada layar kosong/terhalang dinding
+- **kamera adegan interior harus DI DALAM ruangan** (dinding bidang DoubleSide menutupi kamera di luar → layar kosong); posisi ayah dan kamera dicoba dulu di contact sheet sebelum render penuh
+- **wajah (revisi Ari 12 Nov 2026):** crop frame close-up senyum lebar (adegan "Selamat!") dan frame diam awal/akhir, perbesar: gigi putih polos tanpa bintik/goresan hitam, mulut terlihat jelas, bibir wajar
 Perbaiki sampai lulus semua (maks 5 putaran). Untuk cek gerak kamera, ambil juga 3 frame berurutan (awal, tengah, akhir) di 2–3 shot.
 
 ## 5. Render
@@ -126,6 +128,7 @@ Perbaiki sampai lulus semua (maks 5 putaran). Untuk cek gerak kamera, ambil juga
 - Baris 1 (putih, besar): objek/aksi + koma, ≤ 12 karakter, mis. "Chat WA," "Air Kencing," "GPS,".
 - Baris 2 (pill kuning): pertanyaan ≤ 18 karakter yang senada dengan hook/judul, mis. "lewat dasar laut?" "kok bisa diminum?".
 - Tanpa tagline, tanpa logo/nama akun. Objek = render 3D adegan terakhir (otomatis).
+- `cover.py` membuang piksel dengan alpha < 235 → benda transparan (kaca, air) HILANG dari sampul; di scene sampul (`window.__cover`) pakai material opak untuk gelas/air, dan susun objek di tengah frame (toilet+gelas: kamera jarak ±3.1 m, fov 36). Pastikan objek tidak terpotong tepi.
 - Read `$W/cover.png`: judul & pill tidak tertimpa objek, semua elemen di dalam y 285–1635 (aman untuk grid IG 4:5). Kalau objek terlalu tinggi, ulangi dengan scene render yang objeknya lebih kecil atau ubah `mh` di cover.py.
 
 ## 6. Publikasi
@@ -146,6 +149,13 @@ Pastikan ketiga respons `status: scheduled`.
 
 ## 8. Tutup
 Centang topik di `topics.md`, tambah baris di `log.md` (tanggal, slug, durasi, 3 post id, catatan masalah), commit + push. Kirim ringkasan singkat ke user (SendUserMessage / PushNotification): topik, jam tayang, link video.
+
+## 9. Mode draft & revisi (disepakati Ari 11–12 Nov 2026)
+- **Mode draft** (diminta di awal run atau selama formula belum pas): lakukan langkah 0–6 (push video ke repo), JANGAN centang `topics.md` dan JANGAN sentuh Buffer; log.md ditandai DRAFT. Kirim videonya ke chat (`SendUserFile`) supaya Ari menonton dulu.
+- **Revisi**: bila Ari menulis revisi, ULANGI dulu revisinya dengan kata sendiri (sebutkan tebakan yang ambigu) dan tunggu konfirmasi; baru kerjakan. Perbaiki akar masalahnya (mis. kit maskot) dengan perubahan sekecil mungkin, render ulang PENUH dengan kualitas sama (CRF 19, 1080x1920), cek frame, kirim ke chat. Jangan push video revisi sebelum Ari bilang approve.
+- **Setelah approve**: push video (ganti file lama), jadwalkan Buffer langkah 7 (jam 19:30 WIB hari yang sama bila belum lewat), centang topik, ganti baris DRAFT di log.md dengan baris final (3 post id), update memori.
+- Kit maskot (`pipeline/kit/mascot.js`) dikoreksi 12 Nov 2026: lapisan gigi/lidah/bibir mulut `happy` punya `renderOrder` eksplisit + jarak z lebih besar, mulut digeser ke depan `R*.03`, gigi `MeshBasicMaterial` polos (tanpa bintik hitam akibat z-fighting dengan rongga mulut), mulut `normal` lebih tebal & gelap supaya terlihat di bidikan lebar.
+- Bila Ari sendiri menempelkan key Gemini di chat: simpan hanya di file chmod 600 di scratchpad (bukan repo/memori/log) dan ingatkan Ari me-rotate key karena tampil di transkrip.
 
 ## Aturan gagal
 Jangan pernah posting video yang belum dicek visual. Jika langkah apa pun gagal 2x, hentikan run, catat penyebab di `log.md`, push log, kabari user. Jangan mengubah/menghapus post Buffer yang sudah ada.

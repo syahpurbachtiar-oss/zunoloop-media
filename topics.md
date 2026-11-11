@@ -7,7 +7,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] kencing-astronot — Daur ulang air kencing jadi air minum di ISS | Astronot di luar angkasa minum air kencingnya sendiri… dan airnya lebih bersih dari air keranmu.
 - [x] [P2] wa-luar-negeri — Chat WA ke luar negeri: HP → BTS → serat optik → kabel bawah laut → server | Chat WA-mu ke luar negeri… menyelam ke dasar laut dulu sebelum sampai.
 - [x] [P2] gps-einstein (manual bersama Ari, tayang 11 Nov 19:30 WIB) — GPS: satelit, jam atom, koreksi relativitas | Tanpa teori Einstein, Google Maps-mu meleset kilometer tiap hari.
-- [ ] [P1] newater-singapura — NEWater: air bekas toilet diolah jadi layak minum | Di Singapura, air bekas toilet diolah lagi… sampai layak diminum.
+- [x] [P1] newater-singapura — NEWater: air bekas toilet diolah jadi layak minum | Di Singapura, air bekas toilet diolah lagi… sampai layak diminum.
 - [ ] [P1] tinja-jadi-air — Omni Processor: tinja jadi air minum + listrik | Bill Gates pernah minum segelas air… yang beberapa menit sebelumnya masih berupa tinja.
 - [ ] [P1] air-laut-tawar — Desalinasi reverse osmosis (Dubai & Israel) | Kota di tengah gurun ini minum air laut setiap hari.
 - [ ] [P1] copenhill — CopenHill: pembakaran sampah jadi listrik + atap lintasan ski | Di Denmark, tempat bakar sampah ini… atapnya dipakai main ski.
