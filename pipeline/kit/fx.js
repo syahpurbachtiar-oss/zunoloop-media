@@ -95,7 +95,12 @@ export function makeFX(THREE, host, cam, glCanvas) {
       if (cur.length) lines.push(cur);
       const ks = keySet(key);
       const kr = yy => ({ x: 60, y: yy - sz * .75 - (lines.length - 1) * sz * .57, w: W - 120, h: sz * 1.15 * lines.length + sz * .3 });
-      for (const yy of [y, y + 110, y - 140, y + 60, y - 260]) { const r = kr(yy); if (!occ.some(o => o.hard && hit(r, o)) && r.y + r.h <= SAFE.y1 + 20) { y = yy; break; } }
+      // posisi bebas pertama; bila semua tertutup objek penting, pilih yang tumpang tindihnya paling kecil
+      const ov = r => occ.filter(o => o.hard).reduce((s_, o) => s_ + Math.max(0, Math.min(r.x + r.w, o.x + o.w) - Math.max(r.x, o.x)) * Math.max(0, Math.min(r.y + r.h, o.y + o.h) - Math.max(r.y, o.y)), 0);
+      let best = null;
+      for (const yy of [y, y + 110, y - 140, y + 60, y - 260, y - 400, y - 540, y - 680]) { const r = kr(yy); if (r.y + r.h > SAFE.y1 + 20 || r.y < SAFE.y0 + 120) continue;
+        const v = ov(r); if (!best || v < best[1] - 1) best = [yy, v]; if (v === 0) break; }
+      if (best) y = best[0];
       occ.push(kr(y));
       lines.forEach((L, r) => { const vis = L.filter(i => i < n); if (!vis.length) return;
         const tw = x.measureText(L.map(i => words[i]).join(' ')).width; let cx = W / 2 - tw / 2; const cy = y + r * (sz * 1.15) - (lines.length - 1) * sz * .57;
@@ -153,6 +158,7 @@ export function makeFX(THREE, host, cam, glCanvas) {
     label(text, at, u, dx = 120, dy = -90, dur = 99) {
       const o = fadeIO(u, dur, .25, .2); if (!o) return; const p = scr(at); if (!p.ok) return;
       if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) return; // titik part di luar layar → label tidak ditampilkan
+      occ.push({ x: p.x - 24, y: p.y - 24, w: 48, h: 48 }); // titik part dilindungi: chip/teks lain tidak boleh menutupinya
       Q(3, () => {
       const T = text.toUpperCase(); x.font = `900 34px ${FONT}`; const tw = x.measureText(T).width + 20;
       // kandidat arah: pilihan pemanggil dulu, lalu cermin & variasi; pilih yang muat di safe zone & tidak menabrak
@@ -160,7 +166,10 @@ export function makeFX(THREE, host, cam, glCanvas) {
       let pick = null;
       for (const [cx_, cy_] of cands) { const lx = p.x + cx_, ly = p.y + cy_, left = cx_ < 0;
         const r = { x: left ? lx - 10 - tw : lx, y: ly - 24, w: tw + 10, h: 48 };
-        if (free(r)) { pick = [cx_, cy_, r]; break; } }
+        // garis penunjuk juga tidak boleh melintasi chip/teks/panah lain (abaikan 30px pertama = titik part sendiri)
+        const L_ = Math.hypot(cx_, cy_), lineFree = !occ.some(o => { for (let k = 1; k <= 20; k++) { const q = k / 20; if (q * L_ < 30) continue;
+          const X = p.x + cx_ * q, Y = p.y + cy_ * q; if (X > o.x && X < o.x + o.w && Y > o.y && Y < o.y + o.h) return true; } return false; });
+        if (lineFree && free(r)) { pick = [cx_, cy_, r]; break; } }
       if (!pick) return; // tidak ada tempat aman → lebih baik tidak tampil daripada menabrak/terpotong
       occ.push(pick[2]);
       const g = eo(cl(u / .4, 0, 1)), lx = p.x + pick[0] * g, ly = p.y + pick[1] * g, left = pick[0] < 0;

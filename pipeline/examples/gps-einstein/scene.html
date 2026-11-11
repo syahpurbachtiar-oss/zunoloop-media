@@ -392,7 +392,7 @@ S(3,0,{set:'laut',cam:(u)=>{boat.position.set(0,m(.25),0);ayahAt(0,0,0);A.root.p
 // ---- K5: satelit di langit
 S(4,0,{set:'orbit',cam:(u)=>{const d=PID.clone().normalize();return[d.clone().multiplyScalar(RE*(4.6+u*.25)).add(V(RE*.9,RE*.6,0)),PID.clone().multiplyScalar(.6),42]},
  fx:(u)=>{FX.boom('ADA DI LANGIT!',{x:540,y:620},u-.5,'#2f6bff',1.6,104)}});
-S(4,.45,{set:'satD',cam:(u)=>[V(m(9-u*.6),m(2.5),m(10-u*.8)),V(0,m(-.3),0),40],fx:(u)=>{FX.chip('aku di sini, jam segini!',HSAT.localToWorld(V(0,m(-2.2),0)),u-.3,'info');FX.label('Satelit GPS',HSAT.localToWorld(V(m(.9),m(1.1),0)),u-.1,120,-90)}});
+S(4,.45,{set:'satD',av:()=>{const q=[];for(const x_ of[-1,1])for(const y_ of[-1.95,1.9])for(const z_ of[-1,1])q.push(HSAT.localToWorld(V(m(x_),m(y_),m(z_))));FX.avoidPts(q,8,true)},cam:(u)=>[V(m(9-u*.6),m(2.5),m(10-u*.8)),V(0,m(-.3),0),40],fx:(u)=>{FX.chip('aku di sini, jam segini!',HSAT.localToWorld(V(0,m(-2.2),0)),u-.3,'info');FX.label('Satelit GPS',HSAT.localToWorld(V(m(.9),m(1.1),0)),u-.1,120,-90)}});
 // ---- K6: jarak dari waktu (sinyal ke HP)
 S(5,0,{set:'satD',cam:(u)=>[V(m(-4),m(-6+u*.4),m(6)),V(0,m(-1.6),0),44],fx:(u)=>{FX.lines({x:540,y:1000},u,'speed',7);FX.chip('secepat cahaya',{x:540,y:1180},u-.4,'info')}});
 S(5,.5,{set:'desa',cam:(u)=>{ayahAt(...AY);A.act('hold',u+2,'normal');const p=phoneW();return[p.clone().add(V(m(.9),m(.15),m(1.7-u*.1))),p.clone().add(V(0,m(.25),0)),42]},
@@ -504,6 +504,7 @@ function render(t){t=cl(t,0,TOTAL-1e-3);
  FX.begin();
  if(A.root.parent===sc){const tp=[];for(const x_ of[-8,8])for(const y_ of[2,21])for(const z_ of[-5,5])tp.push(A.torso.localToWorld(V(x_,y_,z_)));FX.avoidPts(tp,6);const R_=A.H.R,pts=[];for(const x_ of[-1.15,1.15])for(const y_ of[-1.35,1.5])for(const z_ of[-1,1])pts.push(A.H.head.localToWorld(V(x_*R_,y_*R_,z_*R_)));FX.avoidPts(pts,18,true);const ep=[];for(const x_ of[-7,-1.5])for(const y_ of[13,19])ep.push(A.torso.localToWorld(V(x_,y_,5)));FX.avoidPts(ep,8,true);
   const ph=[];for(const x_ of[-1,1])for(const y_ of[-1,1])ph.push(phone.localToWorld(V(x_*m(.034),y_*m(.074),0)));FX.avoidPts(ph,4,true)}
+ if(sh.av)sh.av(u,T);
  const li=lineAt(t),lu=t-ST[li];
  FX.stage(D.problems[li],D.chips[li],D.stageKeys[li],lu,DUR[li]+.3);
  FX.karaoke(L[li],D.keys[li],cl(lu/DUR[li],0,1));
