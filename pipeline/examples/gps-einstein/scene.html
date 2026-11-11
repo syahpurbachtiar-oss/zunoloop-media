@@ -421,7 +421,7 @@ S(9,0,{set:'orbit',cam:(u)=>{const s=HERO[3].position;return[s.clone().add(V(RE*
 S(9,.5,{set:'orbit',cam:(u)=>{const d=PID.clone().normalize();return[d.clone().multiplyScalar(RE*1.9).add(V(RE*.4*u,RE*.2,0)),PID,40]},act:(u)=>{satFace(3);[0,1,2,3].forEach(k=>{distRing[k].ln.visible=true;distRing[k].r.visible=k<3});pin.visible=true},
  fx:(u)=>{FX.chip('jam HP dikoreksi',PID,u-.3,'good')}});
 // ---- K11: jam atom di dalam satelit
-S(10,0,{set:'satD',cam:(u)=>[V(m(6-u*.5),m(1.2),m(7-u*.6)),V(0,0,0),38],act:(u)=>{HSAT.userData.inside.visible=false;HSAT.userData.sides.forEach(s=>s.visible=true)}});
+S(10,0,{set:'satD',av:()=>{const q=[];for(const x_ of[-.95,.95])for(const y_ of[-1.95,-1.1])for(const z_ of[-.95,.95])q.push(HSAT.localToWorld(V(m(x_),m(y_),m(z_))));FX.avoidPts(q,8,true)},cam:(u)=>[V(m(6-u*.5),m(1.2),m(7-u*.6)),V(0,0,0),38],act:(u)=>{HSAT.userData.inside.visible=false;HSAT.userData.sides.forEach(s=>s.visible=true)}});
 S(10,.45,{set:'satD',cam:(u)=>[V(m(3.4-u*.15),m(.2),m(.9)),V(0,m(-.3),m(.2)),38],act:(u)=>{const d=HSAT.userData;d.inside.visible=true;d.sides[1].visible=false;d.body.children[0].visible=false},
  fx:(u)=>{FX.label('Jam atom',HSAT.userData.clock.localToWorld(V(0,m(.18),0)),u-.2,-140,-140);FX.chip('super tepat',{x:540,y:1180},u-.6,'good')},end:()=>{const d=HSAT.userData;d.inside.visible=false;d.sides[1].visible=true;d.body.children[0].visible=true}});
 // ---- K12-13: konstelasi
@@ -431,7 +431,7 @@ S(11,.5,{set:'orbit',cam:(u)=>[V(RE*5.6*Math.sin(1.2+u*.06),-RE*1.4,RE*5.6*Math.
 S(12,0,{set:'orbit',cam:(u)=>[V(RE*.3,RE*1.9,RE*8.6-u*20),V(0,RE*2.0,0),44],fx:(u)=>{FX.arrow(V(0,RE*1.02,RE*.15),V(0,RO*.98,RE*.15),u,'#2f6bff',22);FX.chip('20.200 km',{x:540,y:860},u-.6,'info')}});
 S(12,.5,{set:'orbit',cam:(u)=>[V(RE*6*Math.sin(2.2+u*.08),RE*2,RE*6*Math.cos(2.2+u*.08)),V(0,0,0),42],fx:(u)=>{FX.chip('2× keliling Bumi per hari',{x:540,y:1180},u-.3,'info');FX.lines({x:540,y:700},u,'speed',5)}});
 // ---- K14: Einstein
-S(13,0,{set:'satD',cam:(u)=>[V(m(-5+u*1.2),m(-3.5),m(4.5-u*.6)),V(0,m(-.2),0),40],fx:(u)=>{FX.boom('RELATIVITAS!',{x:540,y:600},u-.3,'#2f6bff',2.2,118)}});
+S(13,0,{set:'satD',av:()=>{const q=[];for(const x_ of[-.95,.95])for(const y_ of[-1.95,-1.1])for(const z_ of[-.95,.95])q.push(HSAT.localToWorld(V(m(x_),m(y_),m(z_))));FX.avoidPts(q,8,true)},cam:(u)=>[V(m(-5+u*1.2),m(-3.5),m(4.5-u*.6)),V(0,m(-.2),0),40],fx:(u)=>{FX.boom('RELATIVITAS!',{x:540,y:600},u-.3,'#2f6bff',2.2,118)}});
 // ---- K15: ngebut → melambat
 S(14,0,{set:'satD',cam:(u)=>[V(m(14),m(3),m(-2+u*1.5)),V(0,0,m(1)),36],act:(u)=>drawClk(HSAT,'−7 µs/hari','#ff6b6b'),fx:(u)=>{FX.lines({x:420,y:950},u,'speed',8);FX.chip('jam melambat 7 µs/hari',{x:540,y:1180},u-.5,'bad');FX.arrow({x:880,y:900},{x:300,y:900},u-.2,'#ff3b3b',30)}});
 // ---- K16: gravitasi lemah → kecepetan
