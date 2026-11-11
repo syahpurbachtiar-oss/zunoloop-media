@@ -91,31 +91,31 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     const surfZ = yy => { let z = -1e9; for (let i = 0; i < p.count; i++) { const px = p.getX(i), py = p.getY(i);
         if (Math.abs(px) < R * .07 && Math.abs(py - yy) < R * .07) z = Math.max(z, p.getZ(i)); } return z; };
     const MY = -R * .5, mz = surfZ(MY), slope = (surfZ(MY + R * .12) - surfZ(MY - R * .12)) / (R * .24);
-    const mouth = new THREE.Group(); mouth.position.set(0, MY, mz + R * .006); mouth.rotation.x = Math.atan(slope); head.add(mouth);
+    const mouth = new THREE.Group(); mouth.position.set(0, MY, mz + R * .03); mouth.rotation.x = Math.atan(slope); head.add(mouth);
     const RX = R * .78; // jari-jari lengkung horizontal wajah di ketinggian mulut
     const bend = g => { const q = g.attributes.position; for (let i = 0; i < q.count; i++) q.setZ(i, q.getZ(i) - q.getX(i) * q.getX(i) / (2 * RX)); q.needsUpdate = true; g.computeVertexNormals(); return g; };
     const flat = (c, r = .55) => new THREE.MeshStandardMaterial({ color: c, roughness: r, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
     const lipC = new THREE.Color(s.skin).lerp(new THREE.Color(0x9a3f36), .42).multiplyScalar(.82);
-    const lip = flat(lipC, .5), dark = flat(0x3b1714, .8), teeth = flat(0xf7f2ea, .35), tongue = flat(0xc0605d, .6);
+    const lip = flat(lipC, .5), dark = flat(0x3b1714, .8), teeth = new THREE.MeshBasicMaterial({ color: 0xf7f2ea, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }), tongue = flat(0xc0605d, .6);
     const layer = (shape, mat, parent, z = 0, seg = 24) => { const m = new THREE.Mesh(bend(new THREE.ShapeGeometry(shape, seg)), mat); m.position.z = z; m.renderOrder = 2; parent.add(m); return m; };
     // bulan sabit meruncing: tepi atas (-w,0)→(0,-d1)→(w,0), tepi bawah kembali lewat (0,-d2)
     const crescent = (w, d1, d2, y0 = 0) => { const sh = new THREE.Shape(); sh.moveTo(-w, y0); sh.quadraticCurveTo(0, y0 - d1 * 2, w, y0); sh.quadraticCurveTo(0, y0 - d2 * 2, -w, y0); return sh; };
     const M = {};
-    M.normal = new THREE.Group(); layer(crescent(R * .2, R * .045, R * .085), lip, M.normal);
+    M.normal = new THREE.Group(); layer(crescent(R * .25, R * .05, R * .16), flat(lipC.clone().multiplyScalar(.5), .5), M.normal);
     M.worried = new THREE.Group(); layer(crescent(R * .16, -R * .045, -R * .08, -R * .03), lip, M.worried);
     M.think = new THREE.Group(); { const sh = new THREE.Shape(); sh.moveTo(-R * .1, R * .01); sh.quadraticCurveTo(R * .03, R * .03, R * .15, -R * .025); sh.quadraticCurveTo(R * .03, -R * .02, -R * .1, R * .01);
       layer(sh, lip, M.think).position.x = R * .03; }
     M.happy = new THREE.Group(); {
       const w = R * .27, top = R * .02, bot = R * .3;
       const open = new THREE.Shape(); open.moveTo(-w, top); open.quadraticCurveTo(0, top - R * .05, w, top); open.quadraticCurveTo(w * .85, -bot * .9, 0, -bot); open.quadraticCurveTo(-w * .85, -bot * .9, -w, top);
-      layer(open, dark, M.happy, 0);
+      layer(open, dark, M.happy, 0).material.depthWrite = false;
       const tb = new THREE.Shape(); tb.moveTo(-w * .82, top - R * .015); tb.quadraticCurveTo(0, top - R * .06, w * .82, top - R * .015); tb.lineTo(w * .7, -R * .07); tb.quadraticCurveTo(0, -R * .1, -w * .7, -R * .07); tb.closePath();
-      layer(tb, teeth, M.happy, R * .002);
-      const tg = new THREE.Shape(); tg.absellipse(0, -bot * .72, w * .48, bot * .22, 0, Math.PI * 2); layer(tg, tongue, M.happy, R * .002);
-      layer(crescent(w * 1.04, R * .0, R * .03, top + R * .012), lip, M.happy, R * .003);           // bibir atas tipis
+      layer(tb, teeth, M.happy, R * .008).renderOrder = 4;
+      const tg = new THREE.Shape(); tg.absellipse(0, -bot * .72, w * .48, bot * .22, 0, Math.PI * 2); layer(tg, tongue, M.happy, R * .008).renderOrder = 3;
+      layer(crescent(w * 1.04, R * .0, R * .03, top + R * .012), lip, M.happy, R * .016).renderOrder = 5;           // bibir atas tipis
       const ob = bot + R * .045, lo = new THREE.Shape(); lo.moveTo(-w, top); lo.quadraticCurveTo(-w * .85, -ob * .95, 0, -ob); lo.quadraticCurveTo(w * .85, -ob * .95, w, top);
       lo.quadraticCurveTo(w * .85, -bot * .9, 0, -bot); lo.quadraticCurveTo(-w * .85, -bot * .9, -w, top);
-      layer(lo, lip, M.happy, R * .003);                                                             // bibir bawah tipis, meruncing ke sudut
+      layer(lo, lip, M.happy, R * .016).renderOrder = 5;                                                             // bibir bawah tipis, meruncing ke sudut
     }
     M.shock = new THREE.Group(); { const o = new THREE.Shape(); o.absellipse(0, -R * .08, R * .11, R * .15, 0, Math.PI * 2); layer(o, dark, M.shock);
       const ring = new THREE.Shape(); ring.absellipse(0, -R * .08, R * .135, R * .18, 0, Math.PI * 2); const hole = new THREE.Path(); hole.absellipse(0, -R * .08, R * .11, R * .15, 0, Math.PI * 2, true); ring.holes.push(hole);
