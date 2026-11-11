@@ -1,0 +1,24 @@
+{
+ "slug": "qris-2-detik",
+ "status": "DRAFT — menunggu persetujuan Ari (belum dijadwalkan di Buffer)",
+ "title": "Uangmu Belum Sampai ke Penjual, Padahal QRIS Udah \"Ting\"?! 💸",
+ "cover": [
+  "QRIS,",
+  "uangnya ke mana?"
+ ],
+ "caption": {
+  "youtube": "Uangmu belum sampai ke penjual, padahal QRIS udah \"ting\"?! 💸 Cara kerja QRIS dari scan sampai dana masuk: stiker QR, penerbit, switching, acquirer, sampai settlement. Komen alat/hal apa yang harus kita bongkar berikutnya 👇 #carakerja #animasi3d #qris #pembayarandigital #shorts",
+  "tiktok": "Uangmu belum sampai ke penjual, padahal QRIS udah \"ting\"?! 💸 Cara kerja QRIS dari scan sampai dana masuk: stiker QR, penerbit, switching, acquirer, sampai settlement. Komen alat/hal apa yang harus kita bongkar berikutnya 👇 #carakerja #animasi3d #qris #pembayarandigital",
+  "instagram": "Uangmu belum sampai ke penjual, padahal QRIS udah \"ting\"?! 💸 Cara kerja QRIS dari scan sampai dana masuk: stiker QR, penerbit, switching, acquirer, sampai settlement. Komen alat/hal apa yang harus kita bongkar berikutnya 👇 #carakerja #animasi3d #qris #pembayarandigital"
+ },
+ "sources": [
+  "https://www.bi.go.id/id/fungsi-utama/sistem-pembayaran/ritel/kanal-layanan/QRIS/default.aspx",
+  "https://www.bi.go.id/id/publikasi/ruang-media/cerita-bi/pages/mdr-qris.aspx",
+  "https://bali.antaranews.com/berita/411036/volume-transaksi-qris-tembus-1255-miliar-pada-semester-i-2026",
+  "https://developers.bri.co.id/en/product/qris"
+ ],
+ "video_url": "https://raw.githubusercontent.com/syahpurbachtiar-oss/zunoloop-media/main/videos/qris-2-detik.mp4",
+ "contact_sheet_url": "https://raw.githubusercontent.com/syahpurbachtiar-oss/zunoloop-media/main/drafts/qris-2-detik-contact.png",
+ "durasi_detik": 114.47,
+ "suara": "ElevenLabs eleven_v4, voice Rafiq (xlBOShi2835jfBgaEld4), 1 take per kalimat, tempo seragam 1.047x"
+}
