@@ -6,7 +6,7 @@ bad=0
 for i,s in enumerate(S,1):
     aud=base64.b64encode(open(f'{W}/mp3/{i:02d}.mp3','rb').read()).decode()
     body={"contents":[{"parts":[{"inline_data":{"mime_type":"audio/mp3","data":aud}},{"text":"Transkripsikan persis apa yang diucapkan (bahasa Indonesia). Balas hanya teksnya."}]}],"generationConfig":{"temperature":0}}
-    req=urllib.request.Request("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",data=json.dumps(body).encode(),headers={"Content-Type":"application/json","x-goog-api-key":key})
+    req=urllib.request.Request("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",data=json.dumps(body).encode(),headers={"Content-Type":"application/json","x-goog-api-key":key})
     r=None
     for tr in range(8):
         try: r=json.load(urllib.request.urlopen(req,timeout=120)); break
