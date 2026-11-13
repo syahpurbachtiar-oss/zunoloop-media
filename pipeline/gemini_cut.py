@@ -1,7 +1,7 @@
 import json,sys,subprocess,re,math
-W=sys.argv[1]
+W=sys.argv[1]; NOISE=sys.argv[2] if len(sys.argv)>2 else '-38dB'; MIND=sys.argv[3] if len(sys.argv)>3 else '0.12'  # jeda kurang → coba '-32dB' '0.07'
 d=json.load(open(f'{W}/data.json')); S=d['tts']; n=len(S)
-out=subprocess.run(['ffmpeg','-hide_banner','-i',f'{W}/full.wav','-af','silencedetect=noise=-38dB:d=0.12','-f','null','-'],capture_output=True,text=True).stderr
+out=subprocess.run(['ffmpeg','-hide_banner','-i',f'{W}/full.wav','-af',f'silencedetect=noise={NOISE}:d={MIND}','-f','null','-'],capture_output=True,text=True).stderr
 st=[float(x) for x in re.findall(r'silence_start: ([\d.]+)',out)]
 en=[float(x) for x in re.findall(r'silence_end: ([\d.]+)',out)]
 dur=float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','csv=p=0',f'{W}/full.wav']))
