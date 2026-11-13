@@ -45,7 +45,7 @@ export function makeFX(THREE, host, cam, glCanvas) {
 
   const FX = {
     canvas: cv, project: scr, SAFE,
-    begin() { x.clearRect(0, 0, W, H); glCanvas.style.filter = ''; occ = []; queue = []; segs = []; },
+    begin() { x.clearRect(0, 0, W, H); glCanvas.style.filter = ''; occ = []; queue = []; segs = []; window.__fxViol = []; },
     // urutan gambar: panah (0) → teks besar/boom/ULANG (1) → chip (2) → label (3); tiap elemen menghindari yang sudah ada
     end() { queue.sort((a, b) => a.pri - b.pri); for (const q of queue) q.f(); queue = []; },
     /* Daftarkan area yang TIDAK boleh tertutup teks (wajah karakter, layar HP, part penting). r = {x,y,w,h} px,
@@ -96,11 +96,12 @@ export function makeFX(THREE, host, cam, glCanvas) {
       const ks = keySet(key);
       const kr = yy => ({ x: 60, y: yy - sz * .75 - (lines.length - 1) * sz * .57, w: W - 120, h: sz * 1.15 * lines.length + sz * .3 });
       // posisi bebas pertama; bila semua tertutup objek penting, pilih yang tumpang tindihnya paling kecil
-      const ov = r => occ.filter(o => o.hard).reduce((s_, o) => s_ + Math.max(0, Math.min(r.x + r.w, o.x + o.w) - Math.max(r.x, o.x)) * Math.max(0, Math.min(r.y + r.h, o.y + o.h) - Math.max(r.y, o.y)), 0);
+      const ov = r => occ.filter(o => o.hard).reduce((s_, o) => s_ + Math.max(0, Math.min(r.x + r.w, o.x + o.w) - Math.max(r.x, o.x)) * Math.max(0, Math.min(r.y + r.h, o.y + o.h) - Math.max(r.y, o.y)), 0) + segs.filter(s_ => segHit(r, s_)).length * 1e7;
       let best = null;
       for (const yy of [y, y + 110, y - 140, y + 60, y - 260, y - 400, y - 540, y - 680]) { const r = kr(yy); if (r.y + r.h > SAFE.y1 + 20 || r.y < SAFE.y0 + 120) continue;
         const v = ov(r); if (!best || v < best[1] - 1) best = [yy, v]; if (v === 0) break; }
       if (best) y = best[0];
+      if (ov(kr(y)) > 0) window.__fxViol.push(segs.some(s_ => segHit(kr(y), s_)) ? 'panah-subtitle' : 'subtitle-wajah');
       occ.push(kr(y));
       lines.forEach((L, r) => { const vis = L.filter(i => i < n); if (!vis.length) return;
         const tw = x.measureText(L.map(i => words[i]).join(' ')).width; let cx = W / 2 - tw / 2; const cy = y + r * (sz * 1.15) - (lines.length - 1) * sz * .57;
@@ -117,7 +118,7 @@ export function makeFX(THREE, host, cam, glCanvas) {
     arrow(from, to, u, color = RED, width = 34) {
       const a0 = scr(from), b0 = scr(to); if (!a0.ok || !b0.ok) return; const g = eo(cl(u / .35, 0, 1)); if (!g) return;
       // jepit ke pita aman (di bawah label tahap, di atas subtitle) supaya tidak menimpa kotak label
-      const top = SAFE.y0 + 150, bot = SAFE.y1 - 230, clipP = (p, o) => { let X = p.x, Y = p.y;
+      const top = SAFE.y0 + 150, bot = SAFE.y1 - 330, clipP = (p, o) => { let X = p.x, Y = p.y;
         if (Y < top || Y > bot) { const ty = Y < top ? top : bot, k = (ty - o.y) / ((Y - o.y) || 1e-6); if (k > 0 && k < 1) { X = o.x + (X - o.x) * k; Y = ty; } else Y = cl(Y, top, bot); }
         return { x: cl(X, SAFE.x0, SAFE.x1 + 60), y: Y }; };
       const a = clipP(a0, b0); let b = clipP(b0, a0);

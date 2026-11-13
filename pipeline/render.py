@@ -29,10 +29,12 @@ async def worker(port, frames, outdir):
             f = f"{outdir}/{name}.png"
             if os.path.exists(f): continue
             await pg.evaluate("t=>window.__render(t)", t)
+            v = await pg.evaluate("window.__fxViol||[]")
+            if v: VIOL[name] = v
             await pg.screenshot(path=f + ".tmp.png"); os.replace(f + ".tmp.png", f)
         await b.close()
 
-port = serve()
+port = serve(); VIOL = {}
 if MODE == "shot":
     ts = [float(x) for x in sys.argv[3].split(",")]
     od = f"{W}/preview"; os.makedirs(od, exist_ok=True)
@@ -41,12 +43,14 @@ if MODE == "shot":
     ins = sum([["-i", f"{od}/s{i}.png"] for i in range(len(ts))], [])
     fl = "".join(f"[{i}]scale=240:-1[v{i}];" for i in range(len(ts))) + "".join(f"[v{i}]" for i in range(len(ts))) + f"hstack={len(ts)}" if len(ts) > 1 else "scale=240:-1"
     subprocess.run(["ffmpeg", "-v", "error", "-y", *ins, "-filter_complex", fl, f"{W}/contact.png"], check=True)
+    if VIOL: print("PELANGGARAN OVERLAY:", VIOL)
     print(f"{W}/contact.png")
 else:
     od = f"{W}/frames"; os.makedirs(od, exist_ok=True)
     allf = [(f"{i:05d}", i / FPS) for i in range(NF)]
     async def both(): await asyncio.gather(worker(port, allf[0::2], od), worker(port, allf[1::2], od))
     asyncio.run(both())
+    json.dump(VIOL, open(f"{W}/qc_fx.json", "w"))  # dibaca qc.py
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(FPS), "-pattern_type", "glob", "-i", f"{od}/[0-9]*.png",
                     "-i", f"{W}/mix.wav", "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-pix_fmt", "yuv420p",
                     "-profile:v", "high", "-level", "4.2", "-g", "60", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "192k",

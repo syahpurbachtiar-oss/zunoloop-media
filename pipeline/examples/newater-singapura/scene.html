@@ -13,6 +13,7 @@ import * as THREE from 'three';
 import {RoundedBoxGeometry as RBG} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {makeCast} from './kit/mascot.js';
 import {makeFX} from './kit/fx.js';
+import {makeLiquid,autoNear} from './kit/water.js';
 
 const D=await (await fetch("data.json?"+Date.now())).json();
 const L=D.lines,N=L.length;
@@ -428,7 +429,7 @@ function render(t){t=cl(t,0,TOTAL-1e-3);
  // reset keadaan dunia lalu biarkan shot mengatur
  A.gaze=null;tun.rotation.x=0;est.ghost.visible=false;pipeP=0;
  kam.glass.position.set(m(.88),m(.89),m(-1.98));kam.glass.userData.fill.scale.y=1;kam.stream.visible=false;
- const [pos,tg,fov]=sh.cam(u,T);cam.position.copy(pos);cam.fov=fov||40;cam.updateProjectionMatrix();cam.lookAt(tg);
+ const [pos,tg,fov]=sh.cam(u,T);cam.position.copy(pos);cam.fov=fov||40;cam.updateProjectionMatrix();cam.lookAt(tg);autoNear(cam,tg,U);
  if(sh.set==='kamar'||sh.set==='estate')sh.cam(u,T);
  // ---- animasi dunia
  kam.toilet.userData.wat.rotation.y=(t<4?t*7:t*.4);

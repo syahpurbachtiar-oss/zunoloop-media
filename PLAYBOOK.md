@@ -24,6 +24,8 @@ Ambil baris pertama yang belum dicentang di `topics.md` (format: [P1|P2] slug �
 - Kalau sumber berbeda, pakai angka yang paling konservatif/terbaru dan sebutkan secara umum ("hampir", "lebih dari"). Kalau sebuah klaim di hook/topik ternyata tidak terbukti, **perbaiki hook-nya** agar akurat (jangan dipaksakan) dan catat di log.
 - Tidak boleh ada kalimat naskah yang memuat fakta di luar tabel fakta. Penyederhanaan boleh, distorsi tidak.
 - Salin `research.md` ke repo `research/<slug>.md` saat publikasi.
+- **SATU VIDEO = SATU LOKASI (revisi Ari 14 Nov 2026, kasus Dubai/Israel):** semua angka & kejadian di naskah harus dari fasilitas/negara yang sama dengan judul. Fakta dari tempat lain DILARANG (mis. pipa hisap 1,4 km milik Sorek Israel dibacakan seperti milik pabrik Dubai). Kalau topik di topics.md menyebut dua tempat, pilih satu (yang di judul). Kolom `lokasi` WAJIB ada di tabel fakta; baris yang lokasinya beda dengan judul dicoret.
+- Warna/bentuk visual yang tidak ada di sumber (mis. "laut jadi hijau") jangan dikarang; tampilkan apa adanya.
 
 ## 2. Naskah (18–26 kalimat, total 230–320 kata → video 85–115 detik) — seri "Dibongkar" (P1 / P2)
 Durasi 85–115 detik (keputusan Ari 10 Nov 2026, patokan akun @kalbotau ±1:45 dengan 1,29 juta likes): cukup panjang supaya tiap masalah & solusi tersampaikan utuh. Panjang hanya boleh dari tahap nyata, setiap kalimat WAJIB masalah→solusi baru atau visualisasi masalahnya, bukan pengisi. Tempo cepat: ganti shot tiap 2–4 detik. Hook + masalah pertama harus selesai dalam 3 detik pertama.
@@ -104,6 +106,13 @@ Aturan sinematografi (video harus atraktif, bukan asal):
 - Gerak mekanis nyata: putaran, aliran cairan (partikel/tetesan), katup buka-tutup, getaran, lampu indikator — sesuai kalimat yang sedang dibicarakan.
 - Pencahayaan 3 titik + environment (sudah ada di template); bayangan aktif.
 
+### 4b2. Aturan teknis render (revisi Ari 14 Nov 2026 — penyebab kedap-kedip & "AI amatir")
+- **Rentang kedalaman dinamis WAJIB**: `import {makeLiquid,autoNear} from './kit/water.js'` lalu di `render(t)` tepat setelah `cam.lookAt(tg)` panggil `autoNear(cam,tg,U)`. Near tetap 5 cm + far 2,6 km membuat jalan aspal 2 cm di atas pasir hilang-muncul per frame (169 frame kedap-kedip di video Dubai, 3 di NEWater).
+- **Tidak boleh ada dua permukaan sebidang**: lapisan di atas tanah ≥ 2 cm dan materialnya `polygonOffset:true, polygonOffsetFactor:-1, polygonOffsetUnits:-4`. Ruangan dari `box(...)` BackSide alasnya menempel lantai → material lantai WAJIB polygonOffset (ruang pompa Dubai berkedip karena ini).
+- **Air = benda cair kontinu, BUKAN bola**: tuangan/aliran/semburan pakai `L.pour()` / `L.stream()`; isi bak/tangki/gelas pakai `L.body()`; panggil `L.update(t)` tiap frame (`const L=makeLiquid(THREE)`). `dots()` (bola) HANYA untuk benda yang memang butiran: mikroba, garam/ion, debu, gelembung, percikan kecil, kepulan uap.
+- **Laut biru tua**: tekstur laut `noiseTex('#14528f',['#1a5f9e','#0f4687','#2d6fb0'],5000,4,[300,150])`; pinggir pantai boleh sedikit lebih terang. Jangan ubah warna laut tanpa dasar sumber.
+- **Panah vs subtitle**: `kit/fx.js` (14 Nov) menjepit panah di atas y=1160 dan subtitle menghindari panah; tiap tabrakan dicatat render.py ke `$W/qc_fx.json` → harus kosong.
+
 ### 4c. Cek visual (QC)
 `python3 -I pipeline/render.py $W shot <satu waktu tengah tiap adegan>` lalu Read `$W/contact.png`. Ambil frame di tengah SETIAP shot (bukan hanya tiap kalimat). Checklist per frame:
 - angle sesuai shot list & beda dari shot sebelumnya; tidak ada angle yang bertahan > 4 detik
@@ -117,9 +126,17 @@ Aturan sinematografi (video harus atraktif, bukan asal):
 - **kamera adegan interior harus DI DALAM ruangan** (dinding bidang DoubleSide menutupi kamera di luar → layar kosong); posisi ayah dan kamera dicoba dulu di contact sheet sebelum render penuh
 - **wajah (revisi Ari 12 Nov 2026):** crop frame close-up senyum lebar (adegan "Selamat!") dan frame diam awal/akhir, perbesar: gigi putih polos tanpa bintik/goresan hitam, mulut terlihat jelas, bibir wajar
 Perbaiki sampai lulus semua (maks 5 putaran). Untuk cek gerak kamera, ambil juga 3 frame berurutan (awal, tengah, akhir) di 2–3 shot.
+- **Setiap kali timing berubah (suara dibuat ulang, kalimat diganti, durasi beda)**: ULANGI 4c untuk SEMUA shot sebelum render penuh (video Dubai lolos tanpa ini).
+- Untuk setiap shot dengan panah: ambil frame di 3 grup subtitle berbeda (awal/tengah/akhir kalimat), karena subtitle berganti tiap 2–4 kata.
 
 ## 5. Render
 `python3 -I pipeline/render.py $W full` (±40 menit; jalankan di background, cek berkala). Verifikasi `out.mp4`: 1080x1920, durasi = total, ada audio; ambil 6 frame dengan ffmpeg dan lihat.
+### 5a. GERBANG QC WAJIB sebelum publikasi (revisi Ari 14 Nov 2026 — "jangan lempar ke Buffer sebelum dicek")
+1. Setelah sampul (5b) jadi `final.mp4`: `python3 -I pipeline/qc.py $W` — exit code HARUS 0: kedap-kedip 0 frame, overlay bertabrakan 0 frame, 1080x1920 + audio + durasi pas, frame akhir = frame awal.
+2. Buka (Read) SEMUA `$W/qc/sheet_*.png` (1 frame/detik) satu per satu dan cek daftar 4c + 4b2 di tiap frame: air kontinu, laut biru, skala, tidak tembus, teks tidak menabrak, lokasi konsisten dengan judul.
+3. Cek fakta akhir: setiap angka/nama di naskah ada di tabel fakta dengan lokasi yang sama dengan judul.
+4. Gagal salah satu → perbaiki → render ulang → ulangi dari 1. Setelah 3 putaran masih gagal: JANGAN publikasi; catat di log & kabari Ari.
+5. Tulis hasil QC di baris log (`QC: glitch 0, overlay 0, loop x.x, lembar N/N dicek`). Tanpa baris QC lengkap = belum boleh ke Buffer.
 
 ### 5b. Sampul (WAJIB, tema Midnight)
 `python3 -I pipeline/cover.py $W "<Kata Kunci>," "<pertanyaan pendek?>"` → `$W/cover.png` + `$W/final.mp4` (sampul 0.4 s di frame pertama, audio digeser 0.4 s).
