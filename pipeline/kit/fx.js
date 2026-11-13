@@ -60,6 +60,7 @@ export function makeFX(THREE, host, cam, glCanvas) {
        key = frasa yang disorot biru: satu kata, beberapa kata berurutan ("serat optik"), atau '*' = seluruh judul.
        Tidak harus sama dengan kata kunci karaoke. u = detik sejak adegan mulai */
     stage(problem, title, key, u, dur = 99) {
+      if (!title && !problem) return; // label kosong tidak memesan ruang
       const o = fadeIO(u, dur, .2, .2); if (!o) return; x.save(); x.globalAlpha = o;
       const X = 46, Y = 318; occ.push({ x: 30, y: Y - 26, w: 900, h: 130 });
       if (key === '*') key = title;
@@ -195,7 +196,7 @@ export function makeFX(THREE, host, cam, glCanvas) {
         x.font = `italic 900 ${sz}px ${FONT}`; const tw = x.measureText(text).width * 1.05 + sz * .3, th = sz * 1.25;
         for (const [cx, cy] of cands) { const r = { x: cl(cx, SAFE.x0 + tw / 2, SAFE.x1 + 50 - tw / 2) - tw / 2, y: cy - th / 2, w: tw, h: th };
           if (free(r)) { pick = [r.x + tw / 2, cy, r]; break; } } }
-      if (!pick) return; // tidak ada tempat yang tidak menutupi apa pun → tidak ditampilkan
+      if (!pick) { if (o > .5) window.__fxViol.push('boom-hilang'); return; } // tidak ada tempat kosong → tidak tampil, dicatat untuk QC
       occ.push(pick[2]);
       const s = pop(u) * (1 + Math.max(0, u - .3) * .05), sh = u < .35 ? Math.sin(u * 90) * 8 : 0;
       x.save(); x.globalAlpha = o; x.translate(pick[0] + sh, pick[1]); x.rotate(-.08); x.scale(s, s);
