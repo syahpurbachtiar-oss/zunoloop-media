@@ -111,6 +111,8 @@ Aturan sinematografi (video harus atraktif, bukan asal):
 - **Tidak boleh ada dua permukaan sebidang**: lapisan di atas tanah ≥ 2 cm dan materialnya `polygonOffset:true, polygonOffsetFactor:-1, polygonOffsetUnits:-4`. Ruangan dari `box(...)` BackSide alasnya menempel lantai → material lantai WAJIB polygonOffset (ruang pompa Dubai berkedip karena ini).
 - **Air = benda cair kontinu, BUKAN bola**: tuangan/aliran/semburan pakai `L.pour()` / `L.stream()`; isi bak/tangki/gelas pakai `L.body()`; panggil `L.update(t)` tiap frame (`const L=makeLiquid(THREE)`). `dots()` (bola) HANYA untuk benda yang memang butiran: mikroba, garam/ion, debu, gelembung, percikan kecil, kepulan uap.
 - **Laut biru tua**: tekstur laut `noiseTex('#14528f',['#1a5f9e','#0f4687','#2d6fb0'],5000,4,[300,150])`; pinggir pantai boleh sedikit lebih terang. Jangan ubah warna laut tanpa dasar sumber.
+- **Sampul + autoNear**: `coverPose()` WAJIB mengatur ulang `cam.near` (mis. `cam.near=m(.05)` atau sesuai jarak benda sampul) sebelum `updateProjectionMatrix()`, karena near dari shot terakhir bisa sampai 5 m dan memotong benda sampul.
+- **Asap/uap/debu halus = sprite lembut** (`THREE.Points` + tekstur gradasi bulat transparan), BUKAN bola padat; bongkahan (abu, batu, sampah) = bentuk bersegi tak beraturan, BUKAN bola halus; api = sprite gradasi aditif yang naik & berkedip, BUKAN kerucut.
 - **Panah vs subtitle**: `kit/fx.js` (14 Nov) menjepit panah di atas y=1160 dan subtitle menghindari panah; tiap tabrakan dicatat render.py ke `$W/qc_fx.json` → harus kosong.
 
 ### 4c. Cek visual (QC)

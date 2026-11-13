@@ -320,7 +320,7 @@ const cov=new THREE.Scene();cov.add(new THREE.HemisphereLight(0xffffff,0xbfc6cc,
 const covT=toilet();covT.position.set(m(-.34),0,0);cov.add(covT);const covG=glassOf(.1,.3);covG.scale.setScalar(2.2);covG.position.set(m(.34),0,m(.3));cov.add(covG);
 covG.traverse(o=>{if(!o.isMesh)return;if(o.geometry.parameters&&o.geometry.parameters.openEnded){o.visible=false;return}o.material=o.material.clone();Object.assign(o.material,{transparent:false,opacity:1,depthWrite:true,color:new THREE.Color(0x7fcdf2)})});
 const covR=new THREE.Mesh(new THREE.TorusGeometry(m(.1*2.2),m(.006),8,32).rotateX(PI/2),Ms({color:0xe8f6ff,roughness:.2}));covR.position.set(m(.34),m(.3*.85*2.2),m(.3));cov.add(covR);
-function coverPose(){cam.position.set(0,m(.62),m(3.1));cam.fov=36;cam.updateProjectionMatrix();cam.lookAt(0,m(.4),0)}
+function coverPose(){cam.position.set(0,m(.62),m(3.1));cam.fov=36;cam.near=m(.05);cam.updateProjectionMatrix();cam.lookAt(0,m(.4),0)}
 est.gf=new THREE.Mesh(est.fill.geometry,new THREE.MeshBasicMaterial({color:0x2f6bff,transparent:true,opacity:.3,depthWrite:false}));est.tank.add(est.gf);
 
 /* ================= SET aktif ================= */
