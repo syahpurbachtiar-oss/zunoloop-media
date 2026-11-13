@@ -31,7 +31,7 @@ export function makeFX(THREE, host, cam, glCanvas) {
     x.lineJoin = 'round'; x.strokeStyle = stroke; x.lineWidth = size * sw; x.strokeText(s, X, Y); x.fillStyle = fill; x.fillText(s, X, Y); }
 
   const SAFE = { x0: 40, x1: 950, y0: 300, y1: 1490 };
-  let occ = [], queue = [], segs = [];
+  let occ = [], queue = [], segs = [], kR = null; // kR = kotak subtitle frame ini
   const hit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
   // segmen panah (tebal) juga dianggap terisi: label/chip/teks tidak boleh menimpa panah
   const segHit = (r, s_) => { const pad = s_.w / 2 + 6, R = { x: r.x - pad, y: r.y - pad, w: r.w + 2 * pad, h: r.h + 2 * pad };
@@ -45,9 +45,10 @@ export function makeFX(THREE, host, cam, glCanvas) {
 
   const FX = {
     canvas: cv, project: scr, SAFE,
-    begin() { x.clearRect(0, 0, W, H); glCanvas.style.filter = ''; occ = []; queue = []; segs = []; window.__fxViol = []; },
+    begin() { x.clearRect(0, 0, W, H); glCanvas.style.filter = ''; occ = []; queue = []; segs = []; kR = null; window.__fxViol = []; },
     // urutan gambar: panah (0) → teks besar/boom/ULANG (1) → chip (2) → label (3); tiap elemen menghindari yang sudah ada
-    end() { queue.sort((a, b) => a.pri - b.pri); for (const q of queue) q.f(); queue = []; },
+    end() { queue.sort((a, b) => a.pri - b.pri); for (const q of queue) q.f(); queue = [];
+      if (kR && segs.some(s_ => segHit(kR, s_))) window.__fxViol.push('panah-subtitle'); },
     /* Daftarkan area yang TIDAK boleh tertutup teks (wajah karakter, layar HP, part penting). r = {x,y,w,h} px,
        atau avoidPts([Vector3...], pad) = kotak pembatas titik-titik dunia. Panggil SETELAH begin() dan sebelum efek lain. */
     avoid(r) { occ.push(r); },
@@ -101,8 +102,8 @@ export function makeFX(THREE, host, cam, glCanvas) {
       for (const yy of [y, y + 110, y - 140, y + 60, y - 260, y - 400, y - 540, y - 680]) { const r = kr(yy); if (r.y + r.h > SAFE.y1 + 20 || r.y < SAFE.y0 + 120) continue;
         const v = ov(r); if (!best || v < best[1] - 1) best = [yy, v]; if (v === 0) break; }
       if (best) y = best[0];
-      if (ov(kr(y)) > 0) window.__fxViol.push(segs.some(s_ => segHit(kr(y), s_)) ? 'panah-subtitle' : 'subtitle-wajah');
-      occ.push(kr(y));
+      kR = kr(y); if (occ.some(o => o.hard && hit(kR, o))) window.__fxViol.push('subtitle-wajah');
+      occ.push(kR);
       lines.forEach((L, r) => { const vis = L.filter(i => i < n); if (!vis.length) return;
         const tw = x.measureText(L.map(i => words[i]).join(' ')).width; let cx = W / 2 - tw / 2; const cy = y + r * (sz * 1.15) - (lines.length - 1) * sz * .57;
         L.forEach(i => { const w = words[i], ww = x.measureText(w).width, act = i === n - 1;
@@ -121,7 +122,10 @@ export function makeFX(THREE, host, cam, glCanvas) {
       const top = SAFE.y0 + 150, bot = SAFE.y1 - 330, clipP = (p, o) => { let X = p.x, Y = p.y;
         if (Y < top || Y > bot) { const ty = Y < top ? top : bot, k = (ty - o.y) / ((Y - o.y) || 1e-6); if (k > 0 && k < 1) { X = o.x + (X - o.x) * k; Y = ty; } else Y = cl(Y, top, bot); }
         return { x: cl(X, SAFE.x0, SAFE.x1 + 60), y: Y }; };
-      const a = clipP(a0, b0); let b = clipP(b0, a0);
+      let a = clipP(a0, b0), b = clipP(b0, a0);
+      // panah TIDAK boleh menyentuh subtitle (revisi Ari 14 Nov): geser seluruh panah ke atas kotak subtitle
+      if (kR) { const lim = kR.y - width - 16; const lo = Math.max(a.y, b.y); if (lo > lim) { const dy = lo - lim;
+        if (Math.min(a.y, b.y) - dy >= top) { a = { x: a.x, y: a.y - dy }; b = { x: b.x, y: b.y - dy }; } else { a = { x: a.x, y: Math.min(a.y, lim) }; b = { x: b.x, y: Math.min(b.y, lim) }; } } }
       const inR = (P_, r) => P_.x > r.x && P_.x < r.x + r.w && P_.y > r.y && P_.y < r.y + r.h;
       const hits = (A_, B_) => occ.some(r => !inR(A_, r) && segHit(r, { a: A_, b: B_, w: width + 10 }));
       if (hits(a, b)) { let q = 1; while (q > .25 && hits(a, { x: a.x + (b.x - a.x) * q, y: a.y + (b.y - a.y) * q })) q -= .04; b = { x: a.x + (b.x - a.x) * q, y: a.y + (b.y - a.y) * q }; }
