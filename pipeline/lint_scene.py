@@ -50,6 +50,11 @@ for mm in re.finditer(r"(\w+)\.act\('(hold|idle)'", code):
 if "A.root" in code and "FX.avoidPts" not in code: F("R01", "maskot tampil tetapi wajah/emblem tidak didaftarkan ke FX.avoidPts")
 if "A.root" in code and not re.search(r"A\.torso\.localToWorld\(V\(x_,y_,5\)\)", code): C("R01", "emblem dada tidak dilindungi (lihat blok overlay di examples/copenhill)")
 
+# R24 anatomi & fisika karakter (otomatis per frame)
+if re.search(r"C\.(ayah|ibu|kakak|adik|orang)|\bA\.act\(", code) and "checkCast(" not in code:
+    F("R24", "karakter tampil tetapi render(t) tidak memanggil checkCast(THREE,C,sc,groundFn,{U}) dari kit/physics.js (kaki melayang/tembus, skala, sendi lepas)")
+if re.search(r"(ayah|ibu|kakak|adik|orang|A)\.root\.scale\.(set|setScalar)", code): F("R24", "karakter di-scale — tinggi tubuh harus ukuran asli (C.M)")
+
 # R05/R22 loop: shot terakhir = camA (frame pembuka)
 last_shot = re.findall(r"S\((\d+),[\d.]+,\{set:'(\w+)',cam:\(u[^)]*\)=>\{([^}]*)\}", code)
 if "camA()" not in code: F("R05", "tidak ada camA() (bidikan pembuka yang diulang di akhir untuk loop)")

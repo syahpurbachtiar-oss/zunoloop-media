@@ -12,6 +12,7 @@ Gerbang wajib per video, berurutan, semua harus exit 0 / lulus:
 3. `python3 -I pipeline/qc.py $W` dan `python3 -I pipeline/zfight.py $W`.
 4. Cek mata semua `$W/qc/sheet_*.png` + crop close-up + `cover.png` dengan daftar MATA di REVISI.md.
 Gagal di mana pun → perbaiki → ulangi dari gerbang yang gagal. Masalah realita/revisi diperbaiki sampai lolos (tanpa batas putaran); bila tetap tidak bisa, JANGAN publikasi, catat di log, kabari Ari.
+Karakter: `render(t)` WAJIB memanggil `checkCast(THREE,C,sc,groundFn,{U})` (`kit/physics.js`) sebelum `FX.end()` — groundFn mengembalikan tinggi permukaan di (x,z) (lantai, lereng `yAt`, atap). Kaki melayang/tembus, skala salah, sendi lepas = GAGAL otomatis. Di lereng pakai pose `ski` + `AS.skiGear`, di dinding `climb` + `AS.placeClimber`.
 Benda umum WAJIB dari `pipeline/kit/assets.js` (lihat `pipeline/examples/asset-gallery/`); bila butuh benda baru yang akan muncul lagi, tambahkan ke assets.js + uji di galeri (zfight 0) dulu.
 
 ## 0. Persiapan (±3 menit)

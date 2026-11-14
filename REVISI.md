@@ -33,3 +33,4 @@ Urutan gerbang per video: `lint_scene.py` (sebelum render penuh) → render → 
 | R21 | 10–11 Nov | Hook inti terucap ≤2 detik, tanpa nomor seri | OTOMATIS: lint kalimat 1 |
 | R22 | 11 Nov | Ada adegan "Selamat!" di penutup | OTOMATIS: lint |
 | R23 | 15 Nov | Bila kenyataan berlawanan dugaan penonton (lintasan ski hijau, bukan salju), naskah/chip WAJIB menjelaskannya | MATA (naskah) |
+| R24 | 15 Nov | Tubuh karakter tanpa cacat: mata, tangan, kaki, badan proporsional; kaki menapak (tidak melayang/tembus); ukuran tubuh asli; sendi tidak lepas; pose sesuai permukaan (lereng → pose ski, dinding → climb) | OTOMATIS: `kit/physics.js` `checkCast` per frame → qc_fx.json → `qc.py` GAGAL; lint wajib checkCast & larang scale karakter. Bila `mascot.js` diubah: render `pipeline/examples/pose-gallery` (semua tokoh × pose × sudut) dan cek mata dulu |

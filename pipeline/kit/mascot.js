@@ -211,7 +211,7 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
       const th = legLen * .5; mk(taper(3.3 * k, 2.9 * k, th), pants, p, [0, -th / 2, 0]);
       const knee = new THREE.Group(); knee.position.y = -th; p.add(knee); mk(sph(2.9 * k, 18, 14), pants, knee);
       const sh = legLen * .5 - 2.2 * k; mk(taper(2.9 * k, 2.6 * k, sh), pants, knee, [0, -sh / 2, 0]);
-      const foot = new THREE.Group(); foot.position.y = -sh; knee.add(foot);
+      const foot = new THREE.Group(); foot.position.y = -sh; knee.add(foot); foot.userData.sole = true;
       if (s.shoeType === 'boot') { const bm = rubber(s.shoe), so = rubber(s.sole || s.shoe, .5);
         mk(taper(3.2 * k, 3.0 * k, 8.5 * k), bm, foot, [0, 2.2 * k, 0]); mk(new THREE.TorusGeometry(3.2 * k, .35 * k, 10, 28), bm, foot, [0, 6.5 * k, 0], [Math.PI / 2, 0, 0]);
         mk(new RBG(5.6 * k, 4 * k, 9.5 * k, 5, 1.9 * k), bm, foot, [0, -.8 * k, 1.6 * k]);
@@ -314,7 +314,7 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     setExpr(c.H, ex || 'normal', blink, u);
   }
 
-  const mkChar = s => { const c = build(s); c.gaze = null; c.grip = (side, on) => setGrip(c.arms[side].hand, on); c.act = (name, u, ex) => apply(c, name, u, ex); c.act('idle', 0, 'normal');
+  const mkChar = s => { const c = build(s); c.gaze = null; c.grip = (side, on) => setGrip(c.arms[side].hand, on); c.act = (name, u, ex) => { c.pose = name; apply(c, name, u, ex); }; c.act('idle', 0, 'normal');
     c.root.updateWorldMatrix(true, true); const b = new THREE.Box3().setFromObject(c.root); c.height = b.max.y - b.min.y; c.heightM = s.heightM; return c; };
   const cast = {
     // Tokoh utama (Ari): rambut hitam belah samping, jaket varsity biru-krem + emblem ZunoLoop, kaos biru muda, celana abu, bot karet ungu sol hijau.
