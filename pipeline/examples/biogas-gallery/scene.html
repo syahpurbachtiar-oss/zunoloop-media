@@ -1,0 +1,20 @@
+<!doctype html><html><body style="margin:0"><div id="st" style="position:relative;width:1080px;height:1920px"><canvas id="c" width="1080" height="1920" style="width:1080px;height:1920px"></canvas></div>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';import {RoundedBoxGeometry as RBG} from 'three/addons/geometries/RoundedBoxGeometry.js';import {makeCast} from './kit/mascot.js';import {makeAssets} from './kit/assets.js';import {autoNear} from './kit/water.js';
+const R=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true,preserveDrawingBuffer:true});R.setSize(1080,1920,false);R.toneMapping=THREE.ACESFilmicToneMapping;R.shadowMap.enabled=true;
+const s=new THREE.Scene();s.background=new THREE.Color(0x9fc8ef);s.add(new THREE.HemisphereLight(0xdff0ff,0x7f8a66,1.35));
+const cam=new THREE.PerspectiveCamera(40,1080/1920,.1,1e6);const C=makeCast(THREE,RBG,cam);const U=C.M,m=v=>v*U,V=(x,y,z)=>new THREE.Vector3(m(x),m(y),m(z));
+const AS=makeAssets(THREE,U,RBG);AS.sun(s,[-40,60,40],40);AS.ground(s,400,'dirt');
+const barn=AS.barn(s,{x:0,z:-12});for(let i=0;i<8;i++)AS.cow(s,{x:-12+i*3.2,z:-10.5,ry:0,coat:[0xb07a4a,0xd9c3a0,0x8a5a3a][i%3]});
+const dg=AS.digester(s,{x:-8,z:8});const sec=new THREE.Scene();sec.background=new THREE.Color(0x1d2a38);sec.add(new THREE.HemisphereLight(0xdff0ff,0x556677,1.6));AS.sun(sec,[-10,20,20],10,2.2);const dc=AS.digester(sec,{x:0,z:0,cut:true});dc.userData.slurry.scale.y=m(1.9);
+const wb=AS.wheelbarrow(s);const WB=AS.attachBarrow(C.ayah,wb);
+AS.gasBalloon(s,{x:12,y:0,z:10});const st=AS.stove(s,{x:16,y:.8,z:8});const tb=new THREE.Mesh(new THREE.BoxGeometry(m(1),m(.8),m(.6)),AS.MAT.concrete);tb.position.set(m(16),m(.4),m(8));s.add(tb);
+AS.lpg3kg(s,{x:17.2,z:8});const lp=AS.lamp(s,{x:14,y:2.5,z:12});
+s.add(C.ayah.root);C.ayah.root.position.set(m(8),0,m(4.8));
+const SHOTS=[[V(0,8,8),V(0,1,-11)],[V(-4,1.6,-4),V(-3,1,-10.5)],[V(-8,3,14),V(-8,.8,8)],[V(2,1.6,14),V(2,0,8)],[V(10.5,1.4,6.5),V(8,.7,5.6)],[V(14,2,14),V(12,.6,10)],[V(16.6,1.3,9.2),V(16,.9,8)],[V(10,14,30),V(4,0,4)]];
+window.__render=t=>{const k=Math.min(7,Math.floor(t));const [p,tg]=SHOTS[k];st.userData.setFlame(1,t);lp.userData.setOn(1);C.ayah.act('push',t,'normal');WB.update(t*3);s.children.forEach(o=>o.userData.anim&&o.userData.anim(t));
+ const sc=k===3?sec:s;const pp=k===3?V(0,2.2,9):p,tt=k===3?V(0,-.8,0):tg;cam.position.copy(pp);cam.lookAt(tt);autoNear(cam,tt,U);R.render(sc,cam);
+ window.__grip=()=>{const w=new THREE.Vector3();wb.updateMatrixWorld(true);const g0=wb.localToWorld(wb.userData.grip[0].clone());return C.ayah.arms.map(a=>Math.min(...wb.userData.grip.map(gp=>wb.localToWorld(gp.clone()).distanceTo(a.hand.getWorldPosition(new THREE.Vector3()))))/U)}};
+window.__render(0);window.__ready=1;
+</script></body></html>
