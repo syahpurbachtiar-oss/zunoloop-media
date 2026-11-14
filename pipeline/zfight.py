@@ -1,7 +1,7 @@
 """Deteksi permukaan sebidang (z-fighting) — belang kecil yang bergeser, yang lolos dari qc.py.
 
 Pakai: python3 -I zfight.py WORKDIR [t1,t2,...]   (scene harus memakai autoNear dari kit/water.js; tanpa daftar = tiap 1 detik)
-Tiap 1 detik: render frame normal lalu render ulang dengan kamera digeser 2 mm. Permukaan normal nyaris tidak berubah;
+Tiap 1 detik: render frame normal lalu render ulang dengan kamera digeser 0,02% jarak ke target (±0,5 px). Tepi benda normal hanya bergeser setengah piksel;
 permukaan sebidang (z-fighting) berganti pola. Ubin 12×12 px (di 360×640) yang berubah besar = z-fighting.
 Hasil: WORKDIR/qc/zfight_<detik>.png (gambar + kotak merah) dan exit code 1 bila ada temuan.
 """
@@ -21,7 +21,7 @@ async def main():
         ts = [float(x) for x in sys.argv[2].split(",")] if len(sys.argv) > 2 else [k + .5 for k in range(int(TOTAL))]
         for t in ts:
             shots = []
-            for jit in (0, .002):
+            for jit in (0, .0002):
                 await pg.evaluate(f"window.__jit={jit}"); await pg.evaluate("t=>window.__render(t)", t)
                 shots.append(Image.open(io.BytesIO(await pg.screenshot())).convert("RGB"))
             await pg.evaluate("window.__jit=0")
