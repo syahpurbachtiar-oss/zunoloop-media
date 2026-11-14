@@ -18,6 +18,7 @@ async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(args=ARGS); pg = await b.new_page(viewport={"width": 1080, "height": 1920})
         await pg.goto(f"http://127.0.0.1:{srv.server_address[1]}/scene.html?capture=1"); await pg.wait_for_function("window.__ready===1", timeout=90000)
+        await pg.evaluate("document.querySelectorAll('canvas').forEach((c,i)=>{if(i>0)c.style.visibility='hidden'})")  # sembunyikan overlay teks 2D
         ts = [float(x) for x in sys.argv[2].split(",")] if len(sys.argv) > 2 else [k + .5 for k in range(int(TOTAL))]
         for t in ts:
             shots = []
@@ -26,8 +27,10 @@ async def main():
                 shots.append(Image.open(io.BytesIO(await pg.screenshot())).convert("RGB"))
             await pg.evaluate("window.__jit=0")
             a, c = (np.asarray(s_.convert("L").resize((360, 640)), dtype=np.float32) for s_ in shots)
-            d = np.abs(a - c)[:636, :360].reshape(53, 12, 30, 12).mean((1, 3))
-            ys, xs = np.where(d > 22)
+            # toleransi geser tepi ±1 px: ambil selisih minimum terhadap c yang digeser (z-fighting mengubah warna, bukan sekadar tepi)
+            pad = np.pad(c, 1, mode='edge'); dm = np.min([np.abs(a - pad[1 + dy:641 + dy, 1 + dx:361 + dx]) for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)
+            d = dm[:636, :360].reshape(53, 12, 30, 12).mean((1, 3))
+            ys, xs = np.where(d > 12)
             if len(ys) >= 2:
                 im = shots[0].copy(); dr = ImageDraw.Draw(im)
                 for y, x in zip(ys, xs): dr.rectangle([x * 36, y * 36, x * 36 + 36, y * 36 + 36], outline=(255, 0, 0), width=4)
