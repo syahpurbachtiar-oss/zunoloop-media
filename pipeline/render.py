@@ -3,6 +3,7 @@
 Pakai:
   python3 render.py WORKDIR shot 1.5,9,21,44,59.5   -> WORKDIR/preview/sN.png + contact.png (cek visual)
   python3 render.py WORKDIR full                     -> WORKDIR/out.mp4 (2 worker paralel, ~35-45 menit)
+  python3 render.py WORKDIR viol                     -> cek overlay semua frame tanpa render ulang (bila render full terputus)
 WORKDIR harus berisi scene.html, data.json, mix.wav, dan symlink node_modules (three@0.170.0).
 """
 import asyncio, json, os, subprocess, sys, http.server, threading, functools, glob
@@ -16,6 +17,16 @@ def serve():
     h.log_message = lambda *a, **k: None
     s = http.server.ThreadingHTTPServer(("127.0.0.1", 0), h)
     threading.Thread(target=s.serve_forever, daemon=True).start(); return s.server_address[1]
+
+async def vworker(port, frames):  # cek overlay saja (tanpa screenshot) — dipakai bila render terputus
+    from playwright.async_api import async_playwright
+    async with async_playwright() as p:
+        b = await p.chromium.launch(args=ARGS); pg = await b.new_page(viewport={"width": 1080, "height": 1920}, device_scale_factor=1)
+        await pg.goto(f"http://127.0.0.1:{port}/scene.html?capture=1"); await pg.wait_for_function("window.__ready===1", timeout=90000)
+        for name, t in frames:
+            v = await pg.evaluate("t=>{window.__render(t);return window.__fxViol||[]}", t)
+            if v: VIOL[name] = v
+        await b.close()
 
 async def worker(port, frames, outdir):
     from playwright.async_api import async_playwright
@@ -35,6 +46,10 @@ async def worker(port, frames, outdir):
         await b.close()
 
 port = serve(); VIOL = {}
+if MODE == "viol":
+    allf = [(f"{i:05d}", i / FPS) for i in range(NF)]
+    async def both(): await asyncio.gather(vworker(port, allf[0::2]), vworker(port, allf[1::2]))
+    asyncio.run(both()); json.dump(VIOL, open(f"{W}/qc_fx.json", "w")); print("pelanggaran overlay:", len(VIOL), "frame"); sys.exit(0)
 if MODE == "shot":
     ts = [float(x) for x in sys.argv[3].split(",")]
     od = f"{W}/preview"; os.makedirs(od, exist_ok=True)
