@@ -72,13 +72,15 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     for (const sd of [-1, 1]) mk(sph(R * .085, 14, 10), skin, head, [sd * R * .11, -R * .2, zF + R * .02]);
     for (const sd of [-1, 1]) mk(sph(R * .22, 18, 14), skin, head, [sd * R * .93, -R * .02, -R * .05], [0, sd * .5, 0], [.45, 1, .8]);
     const eyes = [], white = plain(0xf7f4ef, .12), iris = plain(s.iris || 0x3b2416, .2), pup = plain(0x0a0605, .1), gl = plain(0xffffff, .05);
+    const PoM = (mt, f) => Object.assign(mt, { polygonOffset: true, polygonOffsetFactor: f, polygonOffsetUnits: f }), irisM = PoM(iris, -2), pupM = PoM(pup, -4), glM = PoM(gl, -6);
     for (const sd of [-1, 1]) {
       const eg = new THREE.Group(); eg.position.set(sd * R * .36, R * .08, zF - R * .12); head.add(eg);
       const er = R * .2; mk(sph(er, 28, 20), white, eg);
       const look = new THREE.Group(); eg.add(look);
-      mk(new THREE.CircleGeometry(er * .62, 28), iris, look, [0, 0, er * .985]);
-      mk(new THREE.CircleGeometry(er * .32, 24), pup, look, [0, 0, er * .99]);
-      mk(sph(er * .13, 10, 8), gl, look, [-er * .22, er * .25, er * .97]);
+      // iris/pupil/kilau = tudung bola (bukan cakram datar): saat melirik tepinya tetap di dalam kelopak (r 1,06) → tidak menembus/berkedip (zfight 15 Nov 2026)
+      const capG = (rr, a) => new THREE.SphereGeometry(er * rr, 28, 6, 0, Math.PI * 2, 0, a).rotateX(Math.PI / 2);
+      mk(capG(1.006, Math.asin(.62)), irisM, look); mk(capG(1.012, Math.asin(.32)), pupM, look);
+      const gm = mk(capG(1.018, .14), glM, look); gm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(-.22, .25, .97).normalize());
       const up = new THREE.Group(); eg.add(up); mk(new THREE.SphereGeometry(er * 1.07, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), skin, up);
       mk(new THREE.TorusGeometry(er * 1.07, er * .07, 6, 28, Math.PI), plain(0x15100d, .6), up);
       const lo = new THREE.Group(); eg.add(lo); mk(new THREE.SphereGeometry(er * 1.06, 28, 14, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), skin, lo);
