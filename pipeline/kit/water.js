@@ -57,5 +57,6 @@ export function makeLiquid(THREE) {
 /** Rentang kedalaman kamera dinamis — WAJIB dipanggil tiap frame setelah cam.lookAt(tg).
  * Near tetap 5 cm + far 2,6 km membuat lapisan tipis (jalan 2 cm di atas pasir) hilang-muncul (bug kedap-kedip 13 Nov 2026). */
 export function autoNear(cam, target, U) {
-  cam.near = Math.max(.05 * U, Math.min(5 * U, cam.position.distanceTo(target) * .02)); cam.updateProjectionMatrix();
+  cam.near = Math.max(.05 * U, Math.min(5 * U, cam.position.distanceTo(target) * .02)) ; cam.updateProjectionMatrix();
+  if (window.__jit) { cam.position.x += window.__jit * U; cam.position.y += window.__jit * U * .7; cam.updateMatrixWorld(); } // geser kamera 2 mm: dipakai zfight.py
 }

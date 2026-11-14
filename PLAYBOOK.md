@@ -136,6 +136,7 @@ Perbaiki sampai lulus semua (maks 5 putaran). Untuk cek gerak kamera, ambil juga
 `python3 -I pipeline/render.py $W full` (±40 menit; jalankan di background, cek berkala). Verifikasi `out.mp4`: 1080x1920, durasi = total, ada audio; ambil 6 frame dengan ffmpeg dan lihat.
 ### 5a. GERBANG QC WAJIB sebelum publikasi (revisi Ari 14 Nov 2026 — "jangan lempar ke Buffer sebelum dicek")
 1. Setelah sampul (5b) jadi `final.mp4`: `python3 -I pipeline/qc.py $W` — exit code HARUS 0: kedap-kedip 0 frame, overlay bertabrakan 0 frame, 1080x1920 + audio + durasi pas, frame akhir = frame awal.
+1b. `python3 -I pipeline/zfight.py $W` — exit code HARUS 0: tiap detik frame dirender ulang dengan kamera digeser 2 mm; ubin yang berganti pola = permukaan sebidang (z-fighting, mis. ujung atap rumah copenhill 14 Nov). Temuan disimpan di `$W/qc/zfight_<detik>.png` (kotak merah) — perbaiki geometrinya (menjorok/offset ≥2 cm + polygonOffset), render ulang.
 2. Buka (Read) SEMUA `$W/qc/sheet_*.png` (1 frame/detik) satu per satu dan cek daftar 4c + 4b2 di tiap frame: air kontinu, laut biru, skala, tidak tembus, teks tidak menabrak, lokasi konsisten dengan judul.
 3. Cek fakta akhir: setiap angka/nama di naskah ada di tabel fakta dengan lokasi yang sama dengan judul.
 4. Gagal salah satu → perbaiki → render ulang → ulangi dari 1. Setelah 3 putaran masih gagal: JANGAN publikasi; catat di log & kabari Ari.
