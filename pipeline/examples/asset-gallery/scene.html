@@ -1,0 +1,27 @@
+<!doctype html><html><body style="margin:0"><div id="st" style="position:relative;width:1080px;height:1920px"><canvas id="c" width="1080" height="1920" style="width:1080px;height:1920px"></canvas></div>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';import {RoundedBoxGeometry as RBG} from 'three/addons/geometries/RoundedBoxGeometry.js';import {makeCast} from './kit/mascot.js';import {makeAssets} from './kit/assets.js';import {autoNear} from './kit/water.js';
+const R=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true,preserveDrawingBuffer:true});R.setSize(1080,1920,false);R.toneMapping=THREE.ACESFilmicToneMapping;R.shadowMap.enabled=true;
+const s=new THREE.Scene();s.background=new THREE.Color(0x9fc8ef);s.fog=new THREE.Fog(0xdfe9f2,300*40,2600*40);s.add(new THREE.HemisphereLight(0xdff0ff,0x7f8a66,1.35));
+const cam=new THREE.PerspectiveCamera(40,1080/1920,.1,1e6);const C=makeCast(THREE,RBG,cam);const U=C.M,m=v=>v*U,V=(x,y,z)=>new THREE.Vector3(m(x),m(y),m(z));
+
+const AS=makeAssets(THREE,U,RBG);AS.sun(s);
+AS.ground(s,3000);const SE=AS.sea(s,-1200,0,2000,3000);AS.road(s,-100,40,200,40);AS.paving(s,0,60,60,30);
+AS.houseRow(s,{x0:20,z:80,n:8});
+// gedung atap miring + cerobong
+const roof=new THREE.Mesh(new THREE.BoxGeometry(m(40),m(1),m(60)),AS.MAT.concrete);roof.rotation.x=.3;roof.position.set(m(-60),m(20),m(0));s.add(roof);
+const bl=new THREE.Mesh(new THREE.BoxGeometry(m(40),m(20),m(56)),AS.MAT.concrete);bl.position.set(m(-60),m(10),0);s.add(bl);
+AS.chimney(s,{x:-60,y0:20+.5,z:0,r:2.5,h:30,roofAngle:.3});
+AS.pipe(s,[[10,1,10],[25,1,10],[25,6,10],[40,6,10]],.6);
+const tr=AS.garbageTruck(s);tr.position.set(m(0),0,m(30));
+for(let i=0;i<6;i++)AS.tree(s,-20+i*8,55,1.1);
+const sk=AS.skiSlope(s,{x:60,z0:-60,y0:20,z1:0,y1:2,wM:30,real:'synthetic'});const sk2=AS.skiSlope(s,{x:100,z0:-60,y0:20,z1:0,y1:2,wM:30,real:'snow'});
+const wall=AS.climbingWall(s,{x:140,z:0,w:10,h:20});const cl_=AS.placeClimber(wall,C.orang,0,6);wall.userData.rope(0,20,7.6);
+const kids=C.kakak;s.add(kids.root);const SG=AS.skiGear(kids);
+AS.pylons(s,[[-20,-40],[30,-40],[80,-40]]);
+const y_=z=>sk2.userData.yAt(z);const SHOTS=[[V(-25,32,40),V(-60,30,0)],[V(30,12,60),V(30,4,10)],[V(70,30,40),V(80,10,-30)],[V(141.5,7.6,4.2),V(140,6.8,0)],[V(46,14,104),V(52,7,80)],[V(-6,4,40),V(0,2,30)],[V(-200,120,200),V(0,0,0)],[V(101.6,y_(-11)+1.4,-9),V(100,y_(-14)+.6,-14)]];
+window.__render=t=>{const k=Math.min(7,Math.floor(t));const [p,tg]=SHOTS[k];kids.act('ski',t,'happy');const zz=-14,y=sk2.userData.yAt(zz);kids.root.position.set(m(100),m(y),m(zz));kids.root.rotation.set(sk2.userData.angle,0,0);SG.update();
+ C.orang.act('climb',t,'normal');SE.tex.offset.set(t*.004,t*.002);cam.position.copy(p);cam.lookAt(tg);autoNear(cam,tg,U);R.render(s,cam)};
+window.__render(0);window.__ready=1;
+</script></body></html>

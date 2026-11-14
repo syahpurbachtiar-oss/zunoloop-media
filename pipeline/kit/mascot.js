@@ -276,6 +276,10 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     hold: { R: [1.3, .12, .7], L: [1.3, .12, .7] },
     crouch: { R: [.9, .2, .9], L: [.9, .2, .9], crouch: 1 },
     walk: { R: [0, .1, .3], L: [0, .1, .3], walk: 1 },
+    // pose aktivitas (evaluasi Ari 15 Nov 2026: pose harus sesuai kegiatan, bukan 'hold'/'idle')
+    climb: { R: [2.75, .35, .35], L: [2.1, .4, .75], torso: [.12, 0, 0], head: [-.35, 0, 0], climb: 1 }, // menghadap dinding (punggung ke kamera), tangan bergantian naik
+    ski: { R: [.55, .3, .7], L: [.55, .3, .7], torso: [.38, 0, 0], head: [-.25, 0, 0], ski: 1 },          // lutut menekuk, condong ke depan, tangan memegang tongkat
+    work: { R: [1.05, .15, 1.35], L: [.95, .2, 1.25], torso: [.18, 0, 0], head: [.25, 0, 0] },            // memegang/menggunakan alat di depan perut
   };
   const lerp = (a, b, p) => a + (b - a) * p, cl = (v, a, b) => v < a ? a : v > b ? b : v, eo = x => 1 - Math.pow(1 - x, 3);
 
@@ -292,6 +296,13 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     if (name === 'shock') c.body.position.y = Math.max(0, Math.sin(cl(u / .25, 0, 1) * Math.PI)) * 2.5 * c.k;
     if (name === 'crouch') { c.hips.position.y = c.legLen * .55; c.legs.forEach(l => { l.p.rotation.x = -1.25; l.knee.rotation.x = 2.1; l.foot.rotation.x = -.85; });
       c.torso.rotation.x += .4; c.head.rotation.x -= .35; }
+    if (P.climb) { const ph = Math.sin(u * 2.2), sw = ph > 0 ? 1 : -1, k_ = Math.abs(ph);
+      c.arms[0].sh.rotation.x = -(2.1 + .65 * (ph > 0 ? 1 : 0)); c.arms[1].sh.rotation.x = -(2.1 + .65 * (ph > 0 ? 0 : 1));
+      c.legs[0].p.rotation.x = -(.35 + .75 * (ph > 0 ? k_ : 0)); c.legs[0].knee.rotation.x = .5 + 1.1 * (ph > 0 ? k_ : 0);
+      c.legs[1].p.rotation.x = -(.35 + .75 * (ph < 0 ? k_ : 0)); c.legs[1].knee.rotation.x = .5 + 1.1 * (ph < 0 ? k_ : 0);
+      c.legs.forEach(l => l.foot.rotation.x = -.3); c.body.position.y = k_ * 1.2 * c.k * sw * 0; }
+    if (P.ski) { c.hips.position.y = c.legLen * .86; c.legs.forEach((l, j) => { l.p.rotation.x = -.62; l.knee.rotation.x = 1.05; l.foot.rotation.x = -.43; l.p.rotation.z = (j ? -1 : 1) * .06; });
+      c.body.position.y = Math.sin(u * 3) * .4 * c.k; }
     if (P.walk) { const w = Math.sin(u * 6.5); c.legs[0].p.rotation.x = w * .5; c.legs[1].p.rotation.x = -w * .5;
       c.legs[0].knee.rotation.x = Math.max(0, -w) * .7; c.legs[1].knee.rotation.x = Math.max(0, w) * .7;
       c.arms[0].sh.rotation.x = -w * .45; c.arms[1].sh.rotation.x = w * .45; c.body.position.y = Math.abs(Math.cos(u * 6.5)) * 1.0 * c.k; }
