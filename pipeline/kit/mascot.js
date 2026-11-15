@@ -201,6 +201,14 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     if (grip) { tb.position.x = sd * -1.95 * g.userData.k; tb.rotation.set(-.55, 0, sd * .12); tt.rotation.set(-.5, 0, sd * .28); }
     else { tb.position.x = sd * -1.55 * g.userData.k; tb.rotation.set(0, 0, sd * .7); tt.rotation.set(0, 0, sd * .25); } }
 
+  // genggam (revisi Ari 16 Nov 2026: benda yang dipegang harus benar-benar digenggam, bukan melayang di antara tangan)
+  // jari melengkung ±90° ke arah -z (sisi telapak), ibu jari menutup dari depan → membentuk lubang genggam di (0, -4,0k, -1,25k)
+  function setFist(g, on) { const { fingers, tb, tt, sd, k } = g.userData;
+    if (!on) return setGrip(g, false);
+    fingers.forEach(f => { f.base.rotation.set(1.45, 0, 0); f.tip.rotation.set(1.35, 0, 0); });
+    tb.position.x = sd * -1.7 * k; tb.rotation.set(1.05, 0, sd * .55); tt.rotation.set(.6, 0, sd * .5); }
+  const GRIP = k => [0, -4.0 * k, -1.25 * k]; // pusat lubang genggam (lokal tangan); sumbu genggam = sumbu X tangan
+
   /* ---------- builder karakter ---------- */
   function build(s) {
     const k = s.scale, root = new THREE.Group(), body = new THREE.Group(); root.add(body);
@@ -283,6 +291,9 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     ski: { R: [.55, .3, .7], L: [.55, .3, .7], torso: [.38, 0, 0], head: [-.25, 0, 0], ski: 1 },          // lutut menekuk, condong ke depan, tangan memegang tongkat
     push: { R: [.42, .12, .12], L: [.42, .12, .12], torso: [.12, 0, 0], walk: 1, armFix: 1 },                         // mendorong gerobak (tangan rendah di gagang, berjalan)
     work: { R: [1.05, .15, 1.35], L: [.95, .2, 1.25], torso: [.18, 0, 0], head: [.25, 0, 0] },            // memegang/menggunakan alat di depan perut
+    carry: { R: [.04, .2, .06], L: [0, .1, .3], walk: 1, armFix: 1 },                                         // menjinjing (jerigen/ember) di tangan kanan sambil berjalan; c.hold(1, benda)
+    show: { R: [1.0, .22, 1.35], L: [.06, .12, .2], head: [.08, 0, 0] },                                    // memperlihatkan benda di tangan kanan setinggi dada
+    pour: { R: [1.15, .15, .45], L: [.06, .12, .2], torso: [.14, 0, 0], head: [.22, 0, 0] },                    // menuang dengan tangan kanan; miringkan lewat c.wrist(1, ...)
   };
   const lerp = (a, b, p) => a + (b - a) * p, cl = (v, a, b) => v < a ? a : v > b ? b : v, eo = x => 1 - Math.pow(1 - x, 3);
 
@@ -317,7 +328,26 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     setExpr(c.H, ex || 'normal', blink, u);
   }
 
-  const mkChar = s => { const c = build(s); c.gaze = null; c.grip = (side, on) => setGrip(c.arms[side].hand, on); c.act = (name, u, ex) => { c.pose = name; apply(c, name, u, ex); }; c.act('idle', 0, 'normal');
+  const mkChar = s => { const c = build(s); c.gaze = null; c.grip = (side, on) => setGrip(c.arms[side].hand, on); c.act = (name, u, ex) => { c.pose = name; c.arms.forEach(q => q.wr.rotation.set(0, 0, 0)); apply(c, name, u, ex); }; c.held = {};
+    // c.hold(sisi, benda): sisi +1 = tangan kanan, -1 = kiri. Benda dibuat dengan TITIK GENGGAM di origin dan sumbu pegangan sepanjang X lokal
+    // (botol: badan botol sepanjang X; jerigen: gagang sepanjang X, badan di -Y). Benda jadi anak tangan → ikut tangan persis (tidak melayang).
+    // c.hold(sisi, null) melepas. Tuang/miring: putar pergelangan lewat c.wrist(sisi, rx, ry, rz) SETELAH c.act().
+    c.hold = (side, obj) => { const a = c.arms.find(q => q.sd === side), h = a.hand, prev = c.held[side];
+      if (prev && prev !== obj) h.remove(prev); c.held[side] = obj || null; if (!obj) { setFist(h, false); return; }
+      setFist(h, true); if (obj.parent !== h) h.add(obj); obj.position.set(...GRIP(c.k)); };
+    c.wrist = (side, rx = 0, ry = 0, rz = 0) => { c.arms.find(q => q.sd === side).wr.rotation.set(rx, ry, rz); };
+    // c.aim(sisi, arahLokal, arahDunia): putar pergelangan (batas ±1,6 rad, sendi wajar) supaya arahLokal benda yang digenggam
+    // menghadap arahDunia — mis. mulut botol ke depan-bawah saat menuang, atau badan jerigen tegak lurus ke bawah saat dijinjing.
+    // Dipanggil SETELAH c.act() dan setelah posisi/rotasi root diatur (pakai kuaternion dunia lengan saat ini).
+    c.aim = (side, localDir, worldDir) => { const a = c.arms.find(q => q.sd === side), obj = c.held[side]; if (!obj) return;
+      c.root.updateMatrixWorld(true); const qp = new THREE.Quaternion(); a.wr.parent.getWorldQuaternion(qp);
+      const qh = a.hand.quaternion.clone().multiply(obj.quaternion), tgt = worldDir.clone().normalize(), e = new THREE.Euler(), q = new THREE.Quaternion(), d = new THREE.Vector3();
+      const score = (x, y, z) => { e.set(x, y, z); q.copy(qp).multiply(new THREE.Quaternion().setFromEuler(e)).multiply(qh); d.copy(localDir).applyQuaternion(q);
+        return -d.dot(tgt) + .03 * (Math.abs(x) + Math.abs(y) + Math.abs(z)); };
+      let best = [0, 0, 0], bs = score(0, 0, 0);
+      for (let x = -1.6; x <= 1.61; x += .2) for (let y = -1.6; y <= 1.61; y += .2) for (let z = -1.6; z <= 1.61; z += .2) { const v = score(x, y, z); if (v < bs) { bs = v; best = [x, y, z]; } }
+      for (let st = .1; st > .01; st /= 2) for (let it = 0; it < 6; it++) for (let i = 0; i < 3; i++) for (const sg of [-1, 1]) { const b = best.slice(); b[i] = Math.max(-1.6, Math.min(1.6, b[i] + sg * st)); const v = score(...b); if (v < bs) { bs = v; best = b; } }
+      a.wr.rotation.set(...best); c.root.updateMatrixWorld(true); return 1 + bs; }; c.act('idle', 0, 'normal');
     c.root.updateWorldMatrix(true, true); const b = new THREE.Box3().setFromObject(c.root); c.height = b.max.y - b.min.y; c.heightM = s.heightM; return c; };
   const cast = {
     // Tokoh utama (Ari): rambut hitam belah samping, jaket varsity biru-krem + emblem ZunoLoop, kaos biru muda, celana abu, bot karet ungu sol hijau.

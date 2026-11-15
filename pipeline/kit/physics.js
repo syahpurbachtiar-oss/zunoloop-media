@@ -21,6 +21,16 @@ export function checkCast(THREE, C, scene, groundFn, opt = {}) {
       if (lo < Infinity) { const g = groundFn(fx, fz); const gap = (lo - g) / U;
         if (gap > .04) viol.push(`kaki-melayang-${k}`); if (gap < -.05) viol.push(`kaki-tembus-${k}`); }
     }
+    // 2b) arah jalan (revisi Ari 16 Nov 2026: "kok jalannya mundur"): pose berjalan harus bergerak MAJU searah hadapan badan;
+    //     pose diam tidak boleh meluncur. Butuh opt.t (detik video) agar kecepatan antar-frame bisa dihitung.
+    if (opt.t !== undefined) { const P = (window.__castPrev || (window.__castPrev = {})), wp = c.root.getWorldPosition(new THREE.Vector3()), pr = P[k];
+      const qw = c.root.getWorldQuaternion(new THREE.Quaternion()), fw = new THREE.Vector3(0, 0, 1).applyQuaternion(qw);
+      if (pr && opt.t > pr.t && opt.t - pr.t < .2) { const dt = opt.t - pr.t, vx = (wp.x - pr.x) / dt / U, vz = (wp.z - pr.z) / dt / U, sp = Math.hypot(vx, vz);
+        const walking = /^(walk|push|carry)$/.test(c.pose);
+        if (walking && sp > .15 && (vx * fw.x + vz * fw.z) / sp < .5) viol.push(`jalan-mundur-${k}`);
+        if (walking && sp < .15) viol.push(`jalan-di-tempat-${k}`);
+        if (!walking && !/^(ski|climb)$/.test(c.pose) && sp > .4) viol.push(`meluncur-${k}`); }
+      P[k] = { t: opt.t, x: wp.x, z: wp.z }; }
     // 3) anatomi: tidak ada NaN / sendi lepas (tangan & kepala harus dekat badan)
     const t = c.torso.getWorldPosition(new THREE.Vector3()), h = c.head.getWorldPosition(new THREE.Vector3());
     if (![t.x, t.y, t.z, h.x, h.y, h.z].every(Number.isFinite)) { viol.push(`anatomi-nan-${k}`); continue; }

@@ -383,15 +383,31 @@ export function makeAssets(THREE, U, RBG) {
     mk(box(.8, h, .1), MAT.steel, g, [0, h / 2, r + .15]);
     return g;
   }
-  // Jerigen plastik 5 L (putih susu) — isi cokelat terlihat samar
-  function jerrycan(parent, { x = 0, y = 0, z = 0, ry = 0, fill = .7 } = {}) {
-    const g = new THREE.Group(); g.position.set(m(x), m(y), m(z)); g.rotation.y = ry; parent.add(g);
-    mk(box(.19, .27, .13, .03), Ms({ color: 0xf1efe6, roughness: .55, transparent: true, opacity: .82 }), g, [0, .135, 0]);
-    mk(box(.17, .25 * fill, .11, .02), Ms({ color: 0x5a3a14, roughness: .3 }), g, [0, .01 + .125 * fill, 0]);
-    mk(cyl(.025, .025, .04, 12), Ms({ color: 0x2f6bd6, roughness: .5 }), g, [.06, .29, 0]);
-    mk(new THREE.TorusGeometry(m(.045), m(.012), 6, 12, PI), Ms({ color: 0xf1efe6, roughness: .55 }), g, [-.03, .27, 0]);
+  // Jerigen plastik 5 L (putih susu, isi cokelat samar) — ±19×13×27 cm, gagang di atas sepanjang X, mulut tutup biru.
+  // grip:true → origin = pusat gagang (untuk c.hold), badan di -Y. userData.mouth = mulut (lokal) untuk aliran tuang.
+  function jerrycan(parent, { x = 0, y = 0, z = 0, ry = 0, fill = .7, grip = false } = {}) {
+    const g = new THREE.Group(); g.position.set(m(x), m(y), m(z)); g.rotation.y = ry; if (parent) parent.add(g);
+    const b = new THREE.Group(); g.add(b); const plast = Ms({ color: 0xf1efe6, roughness: .55, transparent: true, opacity: .85 });
+    mk(box(.19, .25, .13, .03), plast, b, [0, .125, 0]);
+    mk(box(.17, .23 * fill, .11, .02), Ms({ color: 0x5a3a14, roughness: .3 }), b, [0, .012 + .115 * fill, 0]);
+    mk(cyl(.035, .042, .03, 16), plast, b, [.06, .262, 0]); mk(cyl(.022, .022, .03, 12), Ms({ color: 0x2f6bd6, roughness: .5 }), b, [.06, .29, 0]);
+    for (const xx of [-.075, .015]) mk(box(.02, .055, .03, .008), plast, b, [xx, .275, 0]);
+    mk(cyl(.011, .011, .11, 12), plast, b, [-.03, .3, 0], [0, 0, PI / 2]);
+    if (grip) b.position.set(m(.03), -m(.3), 0);
+    g.userData.mouth = new THREE.Vector3(m(.06) + b.position.x, m(.305) + b.position.y, 0);
     return g;
   }
-
-  return { MAT, airliner, tankTruck, storageTank, jerrycan, cow, barn, digester, wheelbarrow, attachBarrow, gasBalloon, stove, lpg3kg, lamp, sun, ground, road, paving, sea, house, houseRow, chimney, pipe, garbageTruck, tree, skiSlope, skiGear, climbingWall, placeClimber, pylons, PO };
+  // Botol plastik bening 600 mL berisi jelantah (cokelat) — tinggi 22 cm, Ø 6,4 cm (muat di genggaman). Untuk c.hold: badan botol sepanjang X lokal,
+  // origin = titik genggam (tengah badan), mulut di +X. userData.mouth = ujung mulut (lokal).
+  function oilBottle({ fill = .7, cap = false } = {}) {
+    const g = new THREE.Group(), b = new THREE.Group(); g.add(b); b.rotation.z = -PI / 2; // sumbu botol (Y) → +X
+    const pet = Ms({ color: 0xd9c9a6, roughness: .08, transparent: true, opacity: .42, depthWrite: false });
+    mk(cyl(.032, .032, .15, 24), pet, b, [0, -.005, 0]); mk(new THREE.SphereGeometry(m(.032), 24, 10, 0, PI * 2, 0, PI / 2), pet, b, [0, .07, 0], null, [1, 1.1, 1]);
+    mk(cyl(.012, .012, .03, 16), pet, b, [0, .115, 0]);
+    if (cap) mk(cyl(.014, .014, .018, 16), Ms({ color: 0xd23a2a }), b, [0, .135, 0]);
+    g.userData.oil = mk(cyl(.029, .029, .14 * fill, 24), Ms({ color: 0x6a4212, roughness: .2 }), b, [0, -.075 + .07 * fill, 0]);
+    g.userData.mouth = new THREE.Vector3(m(.13), 0, 0);
+    return g;
+  }
+  return { MAT, airliner, tankTruck, storageTank, jerrycan, oilBottle, cow, barn, digester, wheelbarrow, attachBarrow, gasBalloon, stove, lpg3kg, lamp, sun, ground, road, paving, sea, house, houseRow, chimney, pipe, garbageTruck, tree, skiSlope, skiGear, climbingWall, placeClimber, pylons, PO };
 }

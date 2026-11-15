@@ -78,6 +78,12 @@ for i, l in enumerate(L):
     if re.search(r"\b(sejak|sampai sekarang|belum .{0,20}lagi|nggak .{0,20}lagi|tidak .{0,20}lagi)\b", l, re.I) and re.search(r"\b(beli|bayar|pakai|pernah|lagi)\b", l, re.I) and not re.search(r"\b(19|20)\d\d\b", l):
         F("R25", f"kalimat {i+1} klaim berwaktu ('sejak…/…lagi') tanpa tahun sumber — tambahkan 'sampai <bulan> <tahun>'")
 
+# R27 benda dipegang wajib digenggam (kasus wajan melayang di antara dua tangan, 16 Nov)
+if re.search(r"hand\w*\(\)\.add\(\s*hand\w*\(\)\s*\)\.multiplyScalar\(\s*\.5\s*\)", code) or re.search(r"\.copy\(\s*hand[RL]?\(\)\s*\)\.add\(", code):
+    F("R27", "benda ditempatkan di titik tangan (melayang) — pakai c.hold(sisi, benda) + c.aim(...) dari kit/mascot.js supaya benar-benar digenggam")
+if re.search(r"checkCast\(", code) and not re.search(r"checkCast\([^;]*\bt\s*[,}]", code):
+    F("R26", "checkCast dipanggil tanpa {t} — arah jalan (mundur/di tempat/meluncur) tidak bisa dicek")
+
 # R12/R16 riset
 if not rs: F("R12", "research.md tidak ada")
 else:
