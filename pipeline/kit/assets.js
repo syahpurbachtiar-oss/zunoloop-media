@@ -300,5 +300,98 @@ export function makeAssets(THREE, U, RBG) {
     return g;
   }
 
-  return { MAT, cow, barn, digester, wheelbarrow, attachBarrow, gasBalloon, stove, lpg3kg, lamp, sun, ground, road, paving, sea, house, houseRow, chimney, pipe, garbageTruck, tree, skiSlope, skiGear, climbingWall, placeClimber, pylons, PO };
+
+  /* ---------- PENERBANGAN & KILANG (16 Nov 2026, video jelantah-pesawat) ---------- */
+  // Pesawat lorong tunggal kelas A320 (generik, TANPA logo/livery maskapai): panjang 37,6 m, bentang 35,8 m, tinggi 11,8 m.
+  // Hidung menghadap +z, roda di y=0. userData.fuelPort = titik isi bahan bakar di bawah sayap kanan (lokal, unit scene).
+  function airliner(parent, { x = 0, z = 0, ry = 0, body = 0xf4f6f8, accent = 0x2f6bd6 } = {}) {
+    const g = new THREE.Group(); g.position.set(m(x), 0, m(z)); g.rotation.y = ry; parent.add(g);
+    const skin = Ms({ color: body, roughness: .35, metalness: .25 }), grey = Ms({ color: 0xb9bfc6, roughness: .4, metalness: .5 }), acc = Ms({ color: accent, roughness: .4, metalness: .2 });
+    const win = Ms({ color: 0x1c2733, roughness: .2, metalness: .4 });
+    const R = 1.98, CY = 3.75; // jari-jari & tinggi sumbu badan
+    // badan: profil lathe (z = sepanjang badan), hidung bulat, ekor mengecil
+    const prof = [[0, -18.8], [.55, -18.6], [1.0, -17.6], [1.45, -15.6], [1.85, -12.6], [R, -10], [R, 13.2], [1.9, 15.2], [1.62, 16.8], [1.15, 18.0], [.6, 18.6], [0, 18.85]];
+    const lg = new THREE.LatheGeometry(prof.map(([r, zz]) => new THREE.Vector2(m(r), m(zz))), 40); lg.rotateX(PI / 2); // sumbu lathe (y) → z, hidung ke +z
+    const fus = mk(lg, skin, g, [0, CY, 0]); fus.scale.set(1, 1.04, 1);
+    // ekor naik: bagian belakang dibentuk ulang (titik z<-10 diangkat sebanding jarak)
+    { const q = lg.attributes.position; for (let i = 0; i < q.count; i++) { const zz = q.getZ(i) / U; if (zz < -10) { const k = (-10 - zz) / 8.8; q.setY(i, q.getY(i) * (1 - .55 * k) + m(1.3 * k * k)); } } q.needsUpdate = true; lg.computeVertexNormals(); }
+    // garis aksen tipis di kedua sisi (bukan logo)
+    for (const sx of [-1, 1]) { const st = mk(box(.02, .22, 23), acc, g, [sx * (R * 1.0 + .005), CY - .55, 0]); st.castShadow = false; }
+    // jendela penumpang
+    for (const sx of [-1, 1]) for (let i = 0; i < 30; i++) { const w = mk(box(.04, .32, .22, .05), win, g, [sx * (R + .01), CY + .32, -10.2 + i * .79]); w.castShadow = false; }
+    // pintu
+    for (const sx of [-1, 1]) for (const zz of [11.6, -11.2]) { const d = mk(box(.03, 1.85, .82), Ms({ color: 0xdfe3e7, roughness: .4 }), g, [sx * (R + .012), CY - .1, zz]); d.castShadow = false; }
+    // kaca kokpit
+    // kaca kokpit = pita tipis mengikuti lengkung hidung (lathe sebagian, r +0,8%) — menempel, tidak menonjol
+    const rAt = zz => { for (let i = 1; i < prof.length; i++) if (zz <= prof[i][1]) { const [r0, z0] = prof[i - 1], [r1, z1] = prof[i]; return r0 + (r1 - r0) * (zz - z0) / (z1 - z0); } return 0; };
+    const band = (z0, z1, a0, al) => { const pts = []; for (let k = 0; k <= 6; k++) { const zz = z0 + (z1 - z0) * k / 6; pts.push(new THREE.Vector2(m(rAt(zz) * 1.008), m(zz))); }
+      const bg = new THREE.LatheGeometry(pts, 24, a0, al); bg.rotateX(PI / 2); const o = mk(bg, Ms({ color: 0x1c2733, roughness: .2, metalness: .4, side: THREE.DoubleSide }), g, [0, CY, 0]); o.scale.y = 1.04; o.castShadow = false; return o; };
+    band(16.05, 16.75, PI - .62, 1.24); band(15.55, 16.35, PI - 1.08, .38); band(15.55, 16.35, PI + .70, .38);
+    // sayap rendah: denah trapesium sapuan 25°, dihedral 5°
+    const wingShape = new THREE.Shape([[0, 0], [17, -7.6], [17, -9.0], [0, -6.1]].map(([a, b]) => new THREE.Vector2(m(a), m(b))));
+    for (const sx of [-1, 1]) {
+      const wg = new THREE.ExtrudeGeometry(wingShape, { depth: m(.34), bevelEnabled: true, bevelThickness: m(.06), bevelSize: m(.06), bevelSegments: 2 }); wg.rotateX(PI / 2);
+      const w = mk(wg, skin, g, [sx * 1.4, CY - 1.15, 2.6]); w.scale.x = sx; w.rotation.z = sx * .087;
+      mk(box(.12, 2.4, 1.2), skin, g, [sx * 18.3, CY - 1.15 + 1.6 + 1.0, -5.9], [0, 0, sx * -.1]); // sharklet
+      // mesin turbofan + pylon
+      const ex = sx * 5.75, ey = 1.55, ez = 4.3;
+      const nac = mk(new THREE.CylinderGeometry(m(1.0), m(.86), m(4.4), 32, 1, true), skin, g, [ex, ey, ez], [PI / 2, 0, 0]); nac.material = Ms({ color: body, roughness: .35, metalness: .3, side: THREE.DoubleSide });
+      mk(new THREE.TorusGeometry(m(.97), m(.07), 10, 32), grey, g, [ex, ey, ez + 2.2]);
+      mk(new THREE.CircleGeometry(m(.92), 32), Ms({ color: 0x3a3f46, roughness: .5, metalness: .6 }), g, [ex, ey, ez + 1.85]);
+      mk(new THREE.ConeGeometry(m(.28), m(.5), 16), grey, g, [ex, ey, ez + 2.05], [PI / 2, 0, 0]);
+      mk(new THREE.CylinderGeometry(m(.55), m(.38), m(1.2), 24), grey, g, [ex, ey, ez - 2.7], [PI / 2, 0, 0]);
+      mk(box(.35, .6, 4.0), skin, g, [ex, ey + .95, ez - 2.7]);
+    }
+    // ekor tegak & horizontal
+    const fin = new THREE.Shape([[0, 0], [5.6, 0], [7.6, 6.2], [5.4, 6.2]].map(([a, b]) => new THREE.Vector2(m(a), m(b))));
+    const fg = new THREE.ExtrudeGeometry(fin, { depth: m(.3), bevelEnabled: false }); fg.translate(0, 0, -m(.15)); fg.rotateY(PI / 2);
+    mk(fg, acc, g, [0, CY + 1.3, -12.4]);
+    const hs = new THREE.Shape([[0, 0], [6.2, -2.6], [6.2, -3.6], [0, -3.9]].map(([a, b]) => new THREE.Vector2(m(a), m(b))));
+    for (const sx of [-1, 1]) { const hg = new THREE.ExtrudeGeometry(hs, { depth: m(.18), bevelEnabled: false }); hg.rotateX(PI / 2); const h = mk(hg, skin, g, [sx * .6, CY + .75, -13.3]); h.scale.x = sx; h.rotation.z = sx * .1; }
+    // roda pendarat (ban menyentuh y=0)
+    const tire = MAT.rubber, gear = []; g.userData.gear = gear;
+    gear.push(mk(cyl(.1, .1, 2.6, 10), grey, g, [0, 1.45, 13.6]));
+    for (const sx of [-1, 1]) gear.push(mk(cyl(.37, .37, .24, 20), tire, g, [sx * .2, .37, 13.6], [0, 0, PI / 2]));
+    for (const sx of [-1, 1]) { gear.push(mk(cyl(.15, .15, 2.4, 10), grey, g, [sx * 3.8, 1.65, .3]));
+      for (const dz of [-.55, .55]) gear.push(mk(cyl(.58, .58, .38, 24), tire, g, [sx * 3.8, .58, .3 + dz], [0, 0, PI / 2])); }
+    g.userData.fuelPort = new THREE.Vector3(m(8.5), m(CY - .93), m(-1.2)); // panel isi bahan bakar di bawah sayap kanan
+    g.userData.CY = CY;
+    return g;
+  }
+  // Truk tangki pengisi avtur (refueler) generik, panjang ±10 m, menghadap +z. userData.hoseOut = ujung selang (lokal).
+  function tankTruck(parent, { x = 0, z = 0, ry = 0, tank = 0xeef1f3, stripe = 0xd23a2a, cab = 0xf2f4f5 } = {}) {
+    const g = new THREE.Group(); g.position.set(m(x), 0, m(z)); g.rotation.y = ry; parent.add(g);
+    mk(box(2.4, .4, 9.4), MAT.dark, g, [0, .9, 0]);
+    mk(box(2.45, 2.5, 2.2, .25), Ms({ color: cab, roughness: .4 }), g, [0, 2.15, 3.6]);
+    mk(box(2.2, .9, .06), MAT.glass, g, [0, 2.75, 4.72]);
+    for (const sx of [-1, 1]) mk(box(.06, .8, 1.1), MAT.glass, g, [sx * 1.23, 2.7, 3.8]);
+    const tk = mk(new THREE.CapsuleGeometry(m(1.15), m(5.4), 8, 24), Ms({ color: tank, roughness: .3, metalness: .5 }), g, [0, 2.3, -1.6], [PI / 2, 0, 0]); tk.scale.set(1.05, 1, .92);
+    for (const sx of [-1, 1]) mk(box(.02, .3, 7.2), Ms({ color: stripe, roughness: .5 }), g, [sx * 1.215, 2.2, -1.6]);
+    for (const zz of [3.4, -1.0, -2.4, -3.8]) for (const sx of [-1, 1]) mk(cyl(.5, .5, .38, 20), MAT.rubber, g, [sx * 1.1, .5, zz], [0, 0, PI / 2]);
+    mk(box(1.6, 1.4, .9), MAT.steel, g, [0, 1.6, -4.9]); // lemari pompa & gulungan selang di belakang
+    mk(cyl(.45, .45, .6, 20), MAT.dark, g, [0, 1.6, -5.45], [0, 0, PI / 2]);
+    g.userData.hoseOut = new THREE.Vector3(m(1.25), m(1.5), m(-4.6));
+    return g;
+  }
+  // Tangki timbun kilang (atap kerucut, tangga putar disederhanakan jadi tangga lurus + pagar atap)
+  function storageTank(parent, { x = 0, z = 0, r = 12, h = 14, color = 0xf1f2ee } = {}) {
+    const g = new THREE.Group(); g.position.set(m(x), 0, m(z)); parent.add(g);
+    mk(cyl(r, r, h, 48), Ms({ color, roughness: .45, metalness: .35 }), g, [0, h / 2, 0]);
+    mk(new THREE.ConeGeometry(m(r * 1.01), m(r * .18), 48), Ms({ color, roughness: .45, metalness: .35 }), g, [0, h + r * .09, 0]);
+    mk(cyl(r + .4, r + .5, .3, 48), MAT.concrete, g, [0, .15, 0]);
+    for (let i = 0; i < 3; i++) mk(new THREE.TorusGeometry(m(r + .02), m(.06), 6, 48), Ms({ color: 0xc9ccc6, roughness: .5, metalness: .4 }), g, [0, h * (i + 1) / 4, 0], [PI / 2, 0, 0]);
+    mk(box(.8, h, .1), MAT.steel, g, [0, h / 2, r + .15]);
+    return g;
+  }
+  // Jerigen plastik 5 L (putih susu) — isi cokelat terlihat samar
+  function jerrycan(parent, { x = 0, y = 0, z = 0, ry = 0, fill = .7 } = {}) {
+    const g = new THREE.Group(); g.position.set(m(x), m(y), m(z)); g.rotation.y = ry; parent.add(g);
+    mk(box(.19, .27, .13, .03), Ms({ color: 0xf1efe6, roughness: .55, transparent: true, opacity: .82 }), g, [0, .135, 0]);
+    mk(box(.17, .25 * fill, .11, .02), Ms({ color: 0x5a3a14, roughness: .3 }), g, [0, .01 + .125 * fill, 0]);
+    mk(cyl(.025, .025, .04, 12), Ms({ color: 0x2f6bd6, roughness: .5 }), g, [.06, .29, 0]);
+    mk(new THREE.TorusGeometry(m(.045), m(.012), 6, 12, PI), Ms({ color: 0xf1efe6, roughness: .55 }), g, [-.03, .27, 0]);
+    return g;
+  }
+
+  return { MAT, airliner, tankTruck, storageTank, jerrycan, cow, barn, digester, wheelbarrow, attachBarrow, gasBalloon, stove, lpg3kg, lamp, sun, ground, road, paving, sea, house, houseRow, chimney, pipe, garbageTruck, tree, skiSlope, skiGear, climbingWall, placeClimber, pylons, PO };
 }
