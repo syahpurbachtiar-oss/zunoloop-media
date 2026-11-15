@@ -70,6 +70,14 @@ if L:
         for i, t in enumerate(d["tts"]):
             if re.search(r"\d", t): F("R07", f"tts kalimat {i+1} masih memuat angka — tulis ejaan lisan")
 
+# R25 tokoh nyata & klaim berwaktu wajib dikenalkan lengkap (kasus "Ketuanya dulu habis… belum beli lagi", 15 Nov)
+ROLE = r"\b(ketua|kepala|pemilik|pengelola|pendiri|direktur|petani|peternak|warga|ibu rumah tangga|pengurus)(nya)?\b"
+for i, l in enumerate(L):
+    if re.search(ROLE, l, re.I) and not re.search(r"\b(Pak|Bu|Bapak|Ibu|Mbak|Mas)\s+[A-Z]\w+|\b[A-Z]\w+,\s*(ketua|kepala|pemilik|pengelola|pendiri|direktur)", l) and re.search(r"(ketua|kepala|pemilik|pengelola|pendiri|direktur|pengurus)nya\b", l, re.I):
+        F("R25", f"kalimat {i+1} menyebut tokoh ('...nya') tanpa nama + peran — tulis 'Pak <Nama>, ketua koperasinya, ...'")
+    if re.search(r"\b(sejak|sampai sekarang|belum .{0,20}lagi|nggak .{0,20}lagi|tidak .{0,20}lagi)\b", l, re.I) and re.search(r"\b(beli|bayar|pakai|pernah|lagi)\b", l, re.I) and not re.search(r"\b(19|20)\d\d\b", l):
+        F("R25", f"kalimat {i+1} klaim berwaktu ('sejak…/…lagi') tanpa tahun sumber — tambahkan 'sampai <bulan> <tahun>'")
+
 # R12/R16 riset
 if not rs: F("R12", "research.md tidak ada")
 else:
