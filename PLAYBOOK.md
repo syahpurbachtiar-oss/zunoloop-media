@@ -183,7 +183,7 @@ git add -A && git commit -m "Video: $SLUG" && git push
 - Instagram `6ae9be9de29c69a17148c2fc`: metadata.instagram `{type:"reel", shouldShareToFeed:true, isAiGenerated:true}`.
 Caption (SEO, bukan hashtag generik): kalimat pertama = judul/hook; kalimat kedua memuat kata kunci yang dicari orang ("Cara kerja <benda/proses> …" / "Cara <bahan> diubah jadi <hasil> …"), lalu CTA TEBAKAN yang gampang dijawab dan nyambung isi video (pilihan/biner, jawabannya ada di video), mis. "Tebak dulu: HP-mu butuh sinyal dari berapa satelit biar tahu posisimu? 1 / 2 / 4 👇" — BUKAN "Komen alat apa yang harus kita bongkar" (0 komentar di 6 video; keputusan Ari 11 Nov 2026). Kalimat kedua = pemancing penasaran, JANGAN membocorkan jawaban. Lalu 3–5 hashtag niche: #carakerja #animasi3d + 1–3 spesifik topik (mis. #daurulangair #iss). DILARANG #fyp, #reels, #viral, #edukasi dan hashtag generik lain.
 Judul = HOOK K1 persis (atau versi yang sama-sama menohok), TANPA "Dibongkar #N", ≤ 70 karakter, boleh 1 emoji, memuat kata kunci topik, mis. "Chat WA-mu Nyelam ke Dasar Laut Dulu?! 🌊". Kalimat pertama caption = judul yang sama.
-Pastikan ketiga respons `status: scheduled`.
+Pastikan ketiga respons `status: scheduled`. Audio video WAJIB ≤48 kHz (Instagram menolak 96 kHz: 'issue with media', 14–15 Nov 2026); qc.py menolak otomatis.
 
 ## 8. Tutup
 Centang topik di `topics.md`, tambah baris di `log.md` (tanggal, slug, durasi, 3 post id, catatan masalah), commit + push. Kirim ringkasan singkat ke user (SendUserMessage / PushNotification): topik, jam tayang, link video.
