@@ -81,8 +81,8 @@ for i, l in enumerate(L):
 # R27 benda dipegang wajib digenggam (kasus wajan melayang di antara dua tangan, 16 Nov)
 if re.search(r"hand\w*\(\)\.add\(\s*hand\w*\(\)\s*\)\.multiplyScalar\(\s*\.5\s*\)", code) or re.search(r"\.copy\(\s*hand[RL]?\(\)\s*\)\.add\(", code):
     F("R27", "benda ditempatkan di titik tangan (melayang) — pakai c.hold(sisi, benda) + c.aim(...) dari kit/mascot.js supaya benar-benar digenggam")
-if re.search(r"checkCast\(", code) and not re.search(r"checkCast\([^;]*\bt\s*[,}]", code):
-    F("R26", "checkCast dipanggil tanpa {t} — arah jalan (mundur/di tempat/meluncur) tidak bisa dicek")
+if re.search(r"checkCast\(", code) and not (re.search(r"checkCast\([^;]*\bt\s*[,}]", code) and re.search(r"checkCast\([^;]*\bshot\s*:", code)):
+    F("R26", "checkCast dipanggil tanpa {t, shot:k} — arah jalan (mundur/di tempat/meluncur) tidak bisa dicek per shot")
 
 # R12/R16 riset
 if not rs: F("R12", "research.md tidak ada")
