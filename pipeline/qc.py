@@ -37,12 +37,13 @@ if os.path.exists(qf):
 else: fail.append("qc_fx.json tidak ada — render.py lama?")
 
 # 3. video
-pr = json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,width,height:format=duration", "-of", "json", V]))
+pr = json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,width,height,sample_rate:format=duration", "-of", "json", V]))
 vs = [s for s in pr["streams"] if s["codec_type"] == "video"]; au = [s for s in pr["streams"] if s["codec_type"] == "audio"]
 dur = float(pr["format"]["duration"]); want = json.load(open(f"{W}/data.json"))["total"] + 0.4
 print(f"[3] video {vs[0]['width']}x{vs[0]['height']} audio={bool(au)} durasi {dur:.2f}/{want:.2f}")
 if (vs[0]["width"], vs[0]["height"]) != (1080, 1920): fail.append("resolusi bukan 1080x1920")
 if not au: fail.append("tanpa audio")
+if au and int(au[0].get("sample_rate", 0)) > 48000: fail.append(f"audio {au[0]['sample_rate']} Hz — Instagram menolak (>48 kHz); encode ulang -ar 48000")
 if abs(dur - want) > 0.15: fail.append(f"durasi {dur:.2f} != {want:.2f}")
 
 # 4. loop

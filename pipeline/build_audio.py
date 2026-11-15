@@ -57,5 +57,5 @@ run("ffmpeg", "-v", "error", "-y", "-i", f"{W}/vo.wav", "-i", f"{W}/music.wav", 
     "[m][key]sidechaincompress=threshold=0.035:ratio=9:attack=8:release=320:makeup=1[md];"
     "[v1][md]amix=inputs=2:normalize=0:dropout_transition=0,highpass=f=55,"
     "acompressor=threshold=-14dB:ratio=3:attack=12:release=220,loudnorm=I=-14:TP=-1.5:LRA=11,"
-    "aformat=sample_fmts=fltp:channel_layouts=stereo[a]", "-map", "[a]", "-c:a", "pcm_s16le", f"{W}/mix.wav")
+    "aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a]", "-map", "[a]", "-c:a", "pcm_s16le", f"{W}/mix.wav")
 print(f"total {total}s, {n} kalimat, mix.wav siap")

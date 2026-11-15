@@ -43,5 +43,5 @@ subprocess.run(["ffmpeg", "-v", "error", "-y", "-loop", "1", "-framerate", "30",
     "-filter_complex", f"[0:v]scale=1080:1920,setsar=1,fps=30,format=yuv420p[c];[1:v]fps=30,setsar=1,format=yuv420p[v];"
     f"[c][v]concat=n=2:v=1:a=0[vo];[1:a]adelay={ms}|{ms}[ao]",
     "-map", "[vo]", "-map", "[ao]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-profile:v", "high", "-level", "4.2",
-    "-g", "60", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "192k", "-ac", "2", VOUT], check=True)
+    "-g", "60", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", VOUT], check=True)
 print(f"{W}/cover.png\n{VOUT}")

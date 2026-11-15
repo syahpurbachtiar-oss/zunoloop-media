@@ -68,6 +68,6 @@ else:
     json.dump(VIOL, open(f"{W}/qc_fx.json", "w"))  # dibaca qc.py
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(FPS), "-pattern_type", "glob", "-i", f"{od}/[0-9]*.png",
                     "-i", f"{W}/mix.wav", "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-pix_fmt", "yuv420p",
-                    "-profile:v", "high", "-level", "4.2", "-g", "60", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "192k",
+                    "-profile:v", "high", "-level", "4.2", "-g", "60", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
                     "-ac", "2", "-shortest", f"{W}/out.mp4"], check=True)
     print(f"{W}/out.mp4")
