@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><title>Biogas sapi</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#9fd0ff}
+#st{position:relative;width:1080px;height:1920px;overflow:hidden;background:#9fd0ff}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><div id="st"><canvas id="c" width="1080" height="1920"></canvas></div>
+<script type="module">
+import * as THREE from 'three';
+import {RoundedBoxGeometry as RBG} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {makeCast} from './kit/mascot.js';
+import {makeFX} from './kit/fx.js';
+import {makeLiquid,autoNear} from './kit/water.js';
+import {makeAssets} from './kit/assets.js';
+import {checkCast} from './kit/physics.js';
+
+const D=await (await fetch("data.json?"+Date.now())).json();
+const L=D.lines,N=L.length;
+const ST=D.starts,DUR=D.durs,TOTAL=D.total;
+const PI=Math.PI,cl=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,p)=>a+(b-a)*p,e3=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,eo=x=>1-Math.pow(1-x,3);
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const hash=q=>{const x=Math.sin(q*127.1)*43758.5453;return x-Math.floor(x)};
+
+/* ================= renderer ================= */
+const W=1080,H=1920,canvas=document.getElementById('c');
+const R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
+R.setPixelRatio(1);R.setSize(W,H,false);R.setClearColor(0,0);R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;
+R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+const cam=new THREE.PerspectiveCamera(40,W/H,.1,1e5);
+const C=makeCast(THREE,RBG,cam);const A=C.ayah;const U=C.M;const m=v=>v*U;
+cam.near=m(.05);cam.far=m(2000);cam.updateProjectionMatrix();
+const FX=makeFX(THREE,document.getElementById('st'),cam,canvas);
+const LQ=makeLiquid(THREE);
+const AS=makeAssets(THREE,U,RBG);
+const Cm=(x,y,z)=>V(m(x),m(y),m(z));
+
+/* ================= helper ================= */
+const ctex=(w,h,draw,rep=[1,1])=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);
+ t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...rep);return t};
+const Ms=o=>new THREE.MeshStandardMaterial(o);
+const PO={polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-4};
+const mk=(g,mat,p,pos,rot,sc)=>{const o=new THREE.Mesh(g,mat);o.castShadow=o.receiveShadow=true;if(pos)o.position.set(...pos.map(m));if(rot)o.rotation.set(...rot);if(sc)o.scale.set(...sc);if(p)p.add(o);return o};
+const box=(w,h,d)=>new THREE.BoxGeometry(m(w),m(h),m(d));
+const cyl=(rt,rb,h,s=24,open=false)=>new THREE.CylinderGeometry(m(rt),m(rb),m(h),s,1,open);
+const PVC=Ms({color:0xe9e9e4,roughness:.5});
+function sky(top,bot){return ctex(4,256,(c,w,h)=>{const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,top);g.addColorStop(.62,bot);g.addColorStop(1,bot);c.fillStyle=g;c.fillRect(0,0,w,h)})}
+function outdoor(top,bot,fn,ff){const s=new THREE.Scene();s.background=sky(top,bot);s.fog=new THREE.Fog(new THREE.Color(bot),m(fn),m(ff));s.add(new THREE.HemisphereLight(0xdff0ff,0x7f8a66,1.35));return s}
+// dots = HANYA butiran (mikroba, gelembung gas, molekul gas, lalat) — BUKAN air
+function dots(sc,n,r,col,mat){const im=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(m(r),1),mat||new THREE.MeshBasicMaterial({color:col}),n);im.frustumCulled=false;sc.add(im);const o=new THREE.Object3D();
+ return {im,set(fn){for(let k=0;k<n;k++){const p=fn(k);o.position.copy(p);const s_=p.s===undefined?1:p.s;o.scale.setScalar(Math.max(1e-4,s_));o.updateMatrix();im.setMatrixAt(k,o.matrix);if(p.c)im.setColorAt(k,p.c)}im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true}}}
+const puffT=ctex(64,64,(c,w,h)=>{const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(.45,'rgba(255,255,255,.5)');g.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(0,0,w,h)});
+function puffs(sc,n,size,col=0xffffff,op=.8){const g=new THREE.BufferGeometry();const pos=new Float32Array(n*3);g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+ const mt=new THREE.PointsMaterial({size:m(size),map:puffT,transparent:true,opacity:op,depthWrite:false,sizeAttenuation:true,color:col});const pt=new THREE.Points(g,mt);pt.frustumCulled=false;sc.add(pt);
+ return {im:pt,set(fn){for(let k=0;k<n;k++){const q=fn(k);pos[k*3]=q.x;pos[k*3+1]=q.s===0?-1e7:q.y;pos[k*3+2]=q.z}g.attributes.position.needsUpdate=true}}}
+// tongkat/sutil di antara dua titik dunia (dipegang tangan)
+function stick(sc,r,len,mat){const o=mk(new THREE.CylinderGeometry(m(r),m(r),1,8),mat,sc);o.userData.len=len;return {o,set(a,b){const d=b.clone().sub(a);o.position.copy(a).addScaledVector(d,.5);o.scale.set(1,d.length(),1);o.quaternion.setFromUnitVectors(V(0,1,0),d.normalize())}}}
+// tumpukan bongkahan bersegi (kotoran/kompos)
+function heap(sc,cx,cz,rad,ht,n,cols,sz=.16){const im=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(m(sz),0),Ms({color:0xffffff,roughness:.95}),n);im.castShadow=im.receiveShadow=true;sc.add(im);
+ const o=new THREE.Object3D(),c=new THREE.Color();for(let k=0;k<n;k++){const a=hash(k)*PI*2,r=Math.sqrt(hash(k+3))*rad,y=Math.max(0,(1-r/rad))*ht*(.55+hash(k+7)*.45);
+  o.position.set(m(cx+Math.cos(a)*r),m(y*.92),m(cz+Math.sin(a)*r));o.rotation.set(k,k*2.3,k*.7);const s=.8+hash(k+9)*.7;o.scale.set(s,s*.7,s*1.1);o.updateMatrix();im.setMatrixAt(k,o.matrix);c.setHex(cols[k%cols.length]);im.setColorAt(k,c)}
+ return im}
+const DUNG=[0x4a3522,0x3d2b1c,0x5a4129,0x6b4e30];
+// rumah desa satu lantai (tekstur aset bawaan = rumah 2 lantai): dua jendela + pintu kayu
+const villageTex=col=>ctex(256,256,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='rgba(0,0,0,.08)';c.fillRect(0,236,w,20);
+ for(const x0 of[26,170]){c.fillStyle='#6b4f3a';c.fillRect(x0-5,85,70,82);c.fillStyle='#41556b';c.fillRect(x0,90,60,72);c.fillStyle='#6b4f3a';c.fillRect(x0+28,90,4,72);c.fillRect(x0,124,60,4)}
+ c.fillStyle='#5a3a2a';c.fillRect(104,110,48,146);c.fillStyle='#d9b26a';c.fillRect(142,180,5,5)});
+
+
+/* ================= SET 1: PETERNAKAN KPT Maju Sejahtera (Desa Wawasan) ================= */
+const farm=outdoor('#7fb6ea','#cfe3f2',120,420);const fSun=AS.sun(farm,[-40,60,40],45);AS.ground(farm,900,'dirt');
+const barn=AS.barn(farm,{x:0,z:-16,w:30,d:14});const cows=[];
+for(let row=0;row<2;row++)for(let i=0;i<14;i++){const c=AS.cow(farm,{x:-13+i*2,z:row?-17.5:-12,ry:0,coat:[0xb07a4a,0xd9c3a0,0x8a5a3a,0xc49a6c][(i+row*2)%4]});c.position.y=m(.15);cows.push(c)}
+for(const [x,z,k] of [[-30,-30,1.3],[-36,-8,1.1],[30,-28,1.2],[36,-4,1],[-34,20,1.2],[34,22,1.1],[-26,40,1],[28,44,1.3],[-6,-36,1.2],[12,-38,1]])AS.tree(farm,x,z,k);
+// tumpukan kotoran di samping kandang (sebelum ada digester)
+heap(farm,19.5,-5.5,2.2,1.1,220,DUNG);
+const flies=dots(farm,26,.012,0x111111);/*butiran: lalat (memang butiran)*/
+const stink=puffs(farm,40,1.1,0xc9d2b8,.45);
+// 5 kubah digester biru langit + inlet/outlet; pipa paralon ke rumah warga
+const DX=[-20,-10,0,10,20],digs=DX.map(x=>AS.digester(farm,{x,z:8}));const DG=digs[2];
+for(const x of DX){const pts=[0,.6,1.2,1.6].map(d=>[x,-.5+Math.sqrt(3.61-d*d)+.12,8+d]);pts.unshift([x,1.62,8]);pts.push([x,.25,10.3],[x,.12,11.5]);AS.pipe(farm,pts,.03,PVC,false)}
+AS.pipe(farm,[[-20,.12,11.5],[20,.12,11.5]],.03,PVC);AS.pipe(farm,[[0,.12,11.5],[0,.12,26]],.035,PVC);AS.pipe(farm,[[-16,.12,26],[16,.12,26]],.03,PVC);
+const HX=[-16,-8,0,8,16],HC=['#e9dcc0','#cfe0c3','#f2d3b3','#d8e2ea','#efe3a8'],houses=HX.map((x,i)=>{const h=AS.house(farm,{x,z:30,w:6,d:7,h:3.2,wall:HC[i],roof:0x9a4a32});h.userData.wallMat.map=villageTex(HC[i]);return h});
+for(const x of HX)AS.pipe(farm,[[x+1.2,.12,26],[x+1.2,.9,26.4]],.025,PVC,false);
+// keran air + bak pencampur (inlet digester tengah di x=-3.2)
+const tap=new THREE.Group();tap.position.set(m(-4.3),0,m(8));farm.add(tap);mk(cyl(.03,.03,1.25,10),AS.MAT.steel,tap,[0,.62,0]);mk(cyl(.025,.025,.5,10),AS.MAT.steel,tap,[.24,1.22,0],[0,0,PI/2]);mk(box(.06,.06,.06),Ms({color:0xd23a2a}),tap,[.1,1.3,0]);
+const pourW=LQ.pour(Cm(-3.8,1.2,8),Cm(-3.45,.57,8),m(.025));farm.add(pourW.mesh);
+const mixTop=DG.userData.inlet.children[1];const mixMat=mixTop.material;const MIX0=new THREE.Color(0x3d2b1c),MIX1=new THREE.Color(0x6e5638);
+// kompos dari ampas (samping outlet)
+heap(farm,5.6,4.2,1.3,.7,120,[0x5b4630,0x6f583c,0x4c3a28,0x7d6648],.13);
+// gerobak angkong
+const wb=AS.wheelbarrow(farm);const WB=AS.attachBarrow(A,wb);
+for(let k=0;k<26;k++)mk(new THREE.IcosahedronGeometry(m(.06+hash(k)*.04),0),Ms({color:DUNG[k%4],roughness:.95}),wb,[(hash(k+1)-.5)*.4,.68+hash(k+2)*.07,(hash(k+3)-.5)*.62],[k,k*2,k*3]);
+const stir=stick(farm,.018,1.6,Ms({color:0x8a6a44,roughness:.8}));
+
+/* ================= SET 2: PENAMPANG DIGESTER (benda dibelah) ================= */
+const sec=new THREE.Scene();sec.background=new THREE.Color(0x1d2a38);sec.add(new THREE.HemisphereLight(0xdff0ff,0x556677,1.6));AS.sun(sec,[-10,20,20],10,2.2);
+const dc=AS.digester(sec,{x:0,z:0,cut:true});const SL=dc.userData.slurry;SL.scale.y=m(1.9);const SLT=-.8;
+const lid=dc.children.find(o=>o.geometry&&o.geometry.parameters&&o.geometry.parameters.radiusTop===m(.32));const lidY0=lid.position.y;
+const valveS=dc.children.find(o=>o.isGroup&&o.children.length===2);
+AS.pipe(sec,[[0,1.98,0],[0,2.25,0],[3.6,2.25,0],[3.6,.12,0],[7,.12,0]],.05,Ms({color:0xe9e9e4,roughness:.3,transparent:true,opacity:.45,depthWrite:false}),true);
+const gasPath=new THREE.CatmullRomCurve3([Cm(0,1.9,0),Cm(0,2.25,0),Cm(3.6,2.25,0),Cm(3.6,.12,0),Cm(7,.12,0)],false,'catmullrom',.02);
+const gasFill=mk(new THREE.SphereGeometry(m(1.86),40,20,PI,PI,0,PI/2),new THREE.MeshBasicMaterial({color:0xcfe9ff,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}),sec,[0,-.5,0]);
+const BC=[new THREE.Color(0x7fe36b),new THREE.Color(0xffa23a),new THREE.Color(0xe36bff)];
+const bact=dots(sec,220,.04,0xffffff,new THREE.MeshBasicMaterial({color:0xffffff}));/*butiran: mikroba (bakteri)*/
+const bub=dots(sec,40,.05,0xdff3ff,new THREE.MeshBasicMaterial({color:0xdff3ff,transparent:true,opacity:.85}));/*butiran: gelembung gas*/
+const mol=dots(sec,90,.035,0xffffff,new THREE.MeshBasicMaterial({color:0xffffff}));/*butiran: molekul gas*/
+const flow=dots(sec,24,.04,0xbfe6ff,new THREE.MeshBasicMaterial({color:0xbfe6ff}));/*butiran: gas di pipa*/
+const airIn=puffs(sec,24,.5,0xffffff,.55);
+const crust=mk(new THREE.CylinderGeometry(m(1.86),m(1.86),m(.22),40,1,false,PI/2,PI),Ms({color:0x2c2117,roughness:1}),sec,[0,SLT-.02,0]);
+mk(new THREE.PlaneGeometry(m(3.72),m(.22)),Ms({color:0x231a12,roughness:1,side:THREE.DoubleSide}),crust,[0,0,.005]);
+const clog=heap(sec,-2.75,0.05,.18,.12,14,[0x2c2117,0x3a2b1c],.07);
+const paddle=new THREE.Group();paddle.position.set(0,m(.3),m(-.6));sec.add(paddle);mk(cyl(.03,.03,2.6,8),AS.MAT.steel,paddle,[0,0,0]);mk(box(1.2,.06,.3),AS.MAT.steel,paddle,[0,-.9,0]);
+
+/* ================= SET 3: RUMAH WARGA ±2 km (dapur teras) ================= */
+const home=outdoor('#86bdf0','#d6e8f4',60,300);AS.sun(home,[-20,30,25],18);AS.ground(home,600,'grass');
+AS.house(home,{x:0,z:-4,w:7,d:7,h:3.2,wall:'#efe3c8',roof:0x9a4a32}).userData.wallMat.map=villageTex('#efe3c8');
+AS.paving(home,0,1.6,6.4,4.2,'#bdb7aa');
+for(const x of[-3,3])mk(box(.1,2.55,.1),Ms({color:0x6b4f3a,roughness:.9}),home,[x,1.3,3.55]);
+{const r=mk(box(6.6,.04,4.5),Ms({color:0xb8bfc5,roughness:.45,metalness:.55}),home,[0,2.7,1.5]);r.rotation.x=.09}
+const tableG=new THREE.Group();tableG.position.set(m(1.5),0,m(1.2));home.add(tableG);
+mk(box(1.4,.06,.7),Ms({color:0x8a6a44,roughness:.8}),tableG,[0,.8,0]);for(const x of[-.62,.62])for(const z of[-.28,.28])mk(box(.06,.77,.06),Ms({color:0x6b4f3a}),tableG,[x,.4,z]);
+const stv=AS.stove(tableG,{x:0,y:.83,z:0});
+const wok=mk(new THREE.SphereGeometry(m(.17),24,10,0,PI*2,PI*.62,PI*.38),Ms({color:0x2a2a2c,roughness:.4,metalness:.6,side:THREE.DoubleSide}),tableG,[0,1.16,0]);
+const oil=mk(new THREE.CircleGeometry(m(.09),20).rotateX(-PI/2),Ms({color:0xe0a43a,roughness:.2}),tableG,[0,1.026,0]);
+const spat=stick(home,.012,.4,AS.MAT.steel);
+const lpg=AS.lpg3kg(home,{x:-2.3,y:.03,z:.3});
+const lampH=AS.lamp(home,{x:-.6,y:2.25,z:2.6});
+// balon gas di rak bambu samping rumah + saringan H2S di jalur pipa
+const bal=AS.gasBalloon(home,{x:5.2,y:.9,z:-3.2,vol:1});bal.rotation.y=PI/2;
+for(const z of[-4.6,-1.8])mk(cyl(.04,.04,1,8),Ms({color:0xc9b47a,roughness:.9}),home,[5.2,.5,z]);mk(cyl(.03,.03,3,8),Ms({color:0xc9b47a,roughness:.9}),home,[5.2,.95,-3.2],[PI/2,0,0]);
+AS.pipe(home,[[5.2,.12,-14],[5.2,.12,-4.8],[5.2,1.05,-4.6]],.03,PVC);
+AS.pipe(home,[[5.2,1.05,-1.9],[5.2,.6,-1.2],[4.2,.6,.6]],.025,PVC);
+const filt=new THREE.Group();filt.position.set(m(4.2),0,m(.6));home.add(filt);
+mk(cyl(.09,.09,.5,20),Ms({color:0xe8eef2,roughness:.1,transparent:true,opacity:.35,depthWrite:false}),filt,[0,.6,0]);mk(cyl(.08,.08,.36,18),Ms({color:0xb5562a,roughness:.95}),filt,[0,.58,0]);
+for(const y of[.34,.86])mk(cyl(.1,.1,.04,20),AS.MAT.dark,filt,[0,y,0]);mk(box(.06,.3,.06),AS.MAT.dark,filt,[0,.17,0]);
+AS.pipe(home,[[4.2,.88,.6],[4.2,.95,.6],[3.3,.72,.8],[2.4,.9,1.0],[2.15,.865,1.1],[1.72,.865,1.15]],.022,PVC,false);
+const steam=puffs(home,14,.25,0xffffff,.5);const SKY_N=home.background,SKY_D=sky('#3b4f86','#e3a77a');
+AS.tree(home,-7,-8,1.2);AS.tree(home,8,-10,1.1);AS.tree(home,-8,6,1);
+
+/* ================= SAMPUL: kotoran sapi → kubah → api ================= */
+const cov=new THREE.Scene();cov.add(new THREE.HemisphereLight(0xffffff,0xbfc6cc,1.7));{const l=new THREE.DirectionalLight(0xffffff,2.3);l.position.set(m(-6),m(10),m(10));cov.add(l)}
+AS.cow(cov,{x:-2.6,z:.6,ry:.5,coat:0xb07a4a});const cd=AS.digester(cov,{x:1.4,z:-.6});AS.pipe(cov,[[1.4,1.62,-.6],[1.4,1.8,-.6],[3.6,1.8,-.6],[3.6,1.0,.4]],.05,PVC,false);
+const cst=AS.stove(cov,{x:3.6,y:.8,z:.6});mk(box(.7,.8,.6),AS.MAT.concrete,cov,[3.6,.4,.6]);cst.userData.setFlame(1,1);
+mk(new THREE.CylinderGeometry(m(5.6),m(5.8),m(.5),48),Ms({color:0x9c8b5a,roughness:1}),cov,[.6,-.26,0]);
+function coverPose(){cam.position.copy(Cm(.6,15,40));cam.fov=34;cam.near=m(1);cam.far=m(200);cam.updateProjectionMatrix();cam.lookAt(Cm(.6,.5,0))}
+
+/* ================= SET aktif ================= */
+const SETS={farm,sec,home};
+function useSet(name,withA){const s=SETS[name];if(withA&&A.root.parent!==s)s.add(A.root);if(!withA&&A.root.parent)A.root.parent.remove(A.root);return s}
+const aY=(x,z,ry,y=0)=>{A.root.position.set(m(x),m(y),m(z));A.root.rotation.y=ry};
+const headW=()=>{A.root.updateMatrixWorld(true);return A.head.localToWorld(V(0,m(.32),0))};
+const gw=(g,x,y,z)=>{g.updateMatrixWorld(true);return g.localToWorld(Cm(x,y,z))};
+const handW=i=>A.arms[i].hand.getWorldPosition(new THREE.Vector3());
+// pembuka/penutup: ayah di dapur teras, kompor biogas menyala biru
+const aStove=()=>aY(.55,1.35,.35,.03);const aCook=()=>aY(1.45,1.78,PI-.3,.03);
+const camA=()=>[Cm(-.2,1.55,4.3),Cm(1.0,1.15,1.3),46];
+const faceCU=()=>{const h=headW(),ry=A.root.rotation.y,f=V(Math.sin(ry),0,Math.cos(ry)),r=V(Math.cos(ry),0,-Math.sin(ry));return[h.clone().addScaledVector(f,m(2.8)).addScaledVector(r,m(.3)).add(V(0,-m(.2),0)),V(h.x,h.y-m(.22),h.z),42]};
+const SH=[];const S=(i,f,o)=>SH.push(Object.assign({i,f},o));let TT=0;
+const wbX=u=>11-u*1.05;// gerobak didorong ke arah -x di z=-2.5
+
+// ---- K1 hook: kompor biogas menyala biru (frame pembuka)
+S(0,0,{set:'home',a:1,cook:1,cam:(u)=>{aStove();A.act(u<.3?'idle':'shock',u<.3?u:u-.3,u<.3?'normal':'shock');A.gaze=gw(tableG,0,1.05,0);const k=eo(cl((u-.2)/1.3,0,1)),[p1,t1,f1]=camA();return[p1.clone().lerp(Cm(.0,1.5,3.9),k),t1.clone().lerp(Cm(.8,1.2,1.3),k),lerp(f1,42,k)]},
+ fx:(u)=>{FX.emote('!',headW(),u-.4);FX.boom('KOTORAN SAPI?!',{x:540,y:560},u-.25,'#ff3b3b',1.6,100)}});
+S(0,.55,{set:'home',a:1,cook:1,lamp:1,cam:(u)=>{aStove();A.act('present',u,'happy');A.gaze=gw(lampH,0,-.1,0);return[Cm(-1.9+u*.2,1.2,5.8),Cm(.3,1.45,1.4),44]},
+ fx:(u)=>{FX.label('Lampu',gw(lampH,0,-.12,0),u-.2,-150,-100);FX.label('Kompor',gw(tableG,0,1.0,0),u-.4,150,-90)}});
+// ---- K2 kotoran ditumpuk: bau, lalat, gas kabur
+S(1,0,{set:'farm',a:1,heapOn:1,cam:(u)=>{aY(16.2,-3.2,.9);A.act('facepalm',u,'worried');A.gaze=Cm(19.5,.6,-5.5);return[Cm(13.4-u*.15,1.35,2.6),Cm(17.6,.8,-4.4),42]},
+ fx:(u)=>{FX.emote('sweat',headW(),u-.3);FX.label('Kotoran sapi',Cm(19.8,1.2,-5.5),u-.3,150,-100)}});
+S(1,.5,{set:'farm',a:0,heapOn:1,cam:(u)=>[Cm(23.5,1.2+u*.9,1.5),Cm(19.5,1.6+u*.9,-5.5),44],
+ fx:(u)=>{FX.label('Gas kabur ke udara',Cm(19.5,3.2,-5.5),u-.3,-150,-100)}});
+// ---- K3 kandang koperasi 228 sapi
+S(2,0,{set:'farm',a:0,cam:(u)=>[Cm(-9+u*.7,3.4,1.2),Cm(-1+u*.4,1.0,-14),42],
+ fx:(u)=>{FX.label('Kandang koperasi',Cm(-6,3.9,-9.5),u-.3,150,-110)}});
+S(2,.5,{set:'farm',a:1,cam:(u)=>{aY(3.2,-6.2,.2);A.act('present',u,'happy');A.gaze=Cm(0,1,-12);return[Cm(5.4-u*.25,1.6,-1.5),Cm(1.5,1.2,-10),44]},
+ fx:(u)=>{FX.emote('!',headW(),u-.2);FX.label('Sapi',Cm(-1,1.6,-12),u-.4,-150,-90)}});
+// ---- K4 gerobak angkong + kotoran kental
+S(3,0,{set:'farm',a:1,wb:1,cam:(u)=>{aY(wbX(u),-2.5,-PI/2);A.act('push',u,'normal');const x=wbX(u);return[Cm(x-.8,1.25,3.6),Cm(x-.6,.75,-2.5),42]},
+ fx:(u)=>{FX.label('Gerobak kotoran',gw(wb,0,.8,0),u-.3,150,-110)}});
+S(3,.55,{set:'farm',a:1,wb:1,cam:(u)=>{aY(wbX(u+3.2),-2.5,-PI/2);A.act('push',u+3.2,'worried');const p=gw(wb,0,.62,0);return[p.clone().add(Cm(-.6,.75,.95-u*.08)),p,36]},
+ fx:(u)=>{FX.boom('BLUK!',{x:540,y:640},u-.3,'#7a5230',1.1,110);FX.label('Kental',gw(wb,0,.7,0),u-.5,-150,-90)}});
+// ---- K5 dicampur air 1:1 di bak inlet
+S(4,0,{set:'farm',a:1,mix:1,cam:(u)=>{aY(-4.9,9.4,PI*.78);A.act('point',u,'happy');A.gaze=Cm(-3.2,.5,8);return[Cm(-1.9,2.9-u*.2,10.9),Cm(-3.7,.7,8.3),42]},
+ fx:(u)=>{FX.label('Air',Cm(-3.85,1.0,8),u-.4,-150,-90);FX.label('Kotoran',Cm(-3.1,.58,8.3),u-.7,150,-80)}});
+// ---- K6 digester kubah biru langit + penampang
+S(5,0,{set:'farm',a:1,cam:(u)=>{aY(-2.7,11.6,PI*.9);A.act('present',u,'happy');A.gaze=Cm(0,1,8);const a=.55-u*.07;return[Cm(Math.sin(a)*9,2.6,8+Math.cos(a)*9),Cm(0,.8,8),42]},
+ fx:(u)=>{FX.label('Digester',Cm(0,1.6,8),u-.2,150,-110);FX.label('Lubang masuk',Cm(-3.2,.6,8),u-.5,-150,-80)}});
+S(5,.5,{set:'sec',cam:(u)=>{const k=eo(cl(u/2.2,0,1));return[Cm(0,lerp(.4,1.2,k),lerp(7.5,16,k)),Cm(0,lerp(-.6,-.7,k),0),42]},
+ fx:(u)=>{FX.label('Ruang gas',Cm(-.6,.6,-.5),u-.4,-150,-100);FX.label('Kotoran + air',Cm(.4,-1.7,.05),u-.7,150,90)}});
+// ---- K7 harus rapat: tanpa udara
+S(6,0,{set:'sec',air:1,cam:(u)=>[Cm(.5,.6,8.6-u*.15),Cm(0,-.1,0),42],
+ fx:(u)=>{FX.label(u<2?'Tutup dibuka':'Tutup rapat',Cm(0,1.55,0),u-.2,150,-100);FX.label(u<2?'Bakteri berhenti':'Bakteri kerja',Cm(-.4,-1.4,.05),u-.4,-150,90)}});
+// ---- K8 tiga tahap bakteri
+S(7,0,{set:'sec',bstage:1,cam:(u)=>{const x=lerp(-1.1,1.1,e3(cl(u/6.2,0,1)));return[Cm(x*.5,-1.3,7.2),Cm(x*.5,-1.7,0),40]},
+ fx:(u)=>{FX.label('1. Pengurai',Cm(-1.2,-1.0,.05),u-.2,-150,-120);FX.label('2. Pembuat asam',Cm(0,-1.0,.05),u-2.2,0,-140);FX.label('3. Pembuat metana',Cm(1.2,-1.0,.05),u-4.4,150,-120)}});
+// ---- K9 nggak instan: 3 hari → seminggu
+S(8,0,{set:'sec',days:1,cam:(u)=>[Cm(0,.2,9.5),Cm(0,-.6,0),42],
+ fx:(u)=>{const d=Math.min(7,1+Math.floor(u/.75));FX.label('Hari ke-'+d,Cm(0,1.4,0),u-.1,150,-110)}});
+// ---- K10 gas ngumpul di kubah → paralon → rumah
+S(9,0,{set:'sec',gas:1,cam:(u)=>[Cm(1.9,.9,11-u*.2),Cm(1.9,.5,0),42],
+ fx:(u)=>{FX.label('Gas ngumpul',Cm(-.6,.7,-.4),u-.2,-150,-110);FX.label('Pipa paralon',Cm(3.6,1.3,0),u-.6,150,-80)}});
+S(9,.5,{set:'farm',a:0,cam:(u)=>[Cm(-3,34-u*.6,3+u*.5),Cm(0,0,18),40],
+ fx:(u)=>{FX.label('Pipa paralon',Cm(0,.15,18),u-.2,150,-90);FX.label('Rumah warga',Cm(-8,3.5,30),u-.5,-150,-100)}});
+// ---- K11 rumah jauh: balon gas 1 m³
+S(10,0,{set:'home',a:1,cam:(u)=>{aY(3.9,-1.2,.42,0);A.act('present',u,'worried');A.gaze=Cm(5.2,1.2,-3.2);return[Cm(6.4-u*.1,1.5,5.0),Cm(4.6,1.0,-1.6),42]},
+ fx:(u)=>{FX.label('Rumah ±2 km',Cm(-1.5,3.4,-4),u-.2,-150,-100)}});
+S(10,.45,{set:'home',a:0,cam:(u)=>[Cm(8.4,1.6,1.2-u*.12),Cm(5.2,1.0,-3.2),42],
+ fx:(u)=>{FX.label('Balon gas 1 m³',Cm(5.2,1.6,-3.2),u-.2,-150,-110)}});
+// ---- K12 gas mentah: metana + CO2 + gas bau
+S(11,0,{set:'sec',gas:1,mix3:1,cam:(u)=>[Cm(-.1,.7,6.4-u*.12),Cm(0,.3,-.6),42],
+ fx:(u)=>{FX.label('Metana',Cm(-.8,.9,-.6),u-.2,-150,-110);FX.label('Karbon dioksida',Cm(.7,.2,-.6),u-1.4,150,-90);FX.label('Gas bau busuk',Cm(.2,1.1,-.6),u-2.6,150,-140)}});
+// ---- K13 saringan gas
+S(12,0,{set:'home',a:0,cam:(u)=>[Cm(4.9-u*.05,1.1,2.2),Cm(4.2,.62,.6),38],
+ fx:(u)=>{FX.label('Saringan',gw(filt,0,.7,0),u-.2,-150,-110);FX.chip('H₂S + uap air dibuang',{x:540,y:1110},u-.6,'good')}});
+// ---- K14 api biru, masak
+S(13,0,{set:'home',a:1,cook:1,cooking:1,cam:(u)=>{aCook();A.act('work',u,'happy');A.gaze=gw(tableG,0,1.05,0);return[Cm(3.0,1.5,.6+u*.05),Cm(1.4,1.1,1.6),40]},
+ fx:(u)=>{FX.boom('WUSSH!',{x:540,y:640},u-.2,'#2f6bff',1.1,110);FX.label('Api biru',gw(tableG,0,.98,0),u-.4,150,-100)}});
+S(13,.55,{set:'home',a:1,cook:1,cooking:1,cam:(u)=>{aCook();A.act('work',u+2.4,'happy');A.gaze=gw(tableG,0,1.05,0);return[Cm(2.3,2.15,3.2),Cm(1.5,.95,1.2),40]}});
+// ---- K15 lampu
+S(14,0,{set:'home',a:1,lamp:1,cook:1,dusk:1,cam:(u)=>{aStove();A.act('present',u,'happy');A.gaze=gw(lampH,0,-.1,0);return[Cm(-1.6,1.15,5.6),Cm(-.3,1.7,2.0),44]},
+ fx:(u)=>{FX.label('Lampu biogas',gw(lampH,0,-.12,0),u-.2,150,-100);FX.chip('3–8 jam per m³',{x:540,y:1110},u-.6,'info')}});
+// ---- K16 tabung elpiji nganggur
+S(15,0,{set:'home',a:1,cook:1,cam:(u)=>{aY(-1.2,1.4,-PI*.75,.03);A.act('think',u,'happy');A.gaze=gw(lpg,0,.3,0);return[Cm(-1.6,.75,2.0+u*.15),Cm(-2.3,.35,.3),38]},
+ fx:(u)=>{FX.label('Elpiji 3 kg nganggur',gw(lpg,0,.5,0),u-.3,150,-110)}});
+// ---- K17 ampas → pupuk kompos
+S(16,0,{set:'farm',a:1,cam:(u)=>{aY(6.8,3.0,-PI*.7);A.act('present',u,'happy');A.gaze=Cm(5.6,.3,4.2);return[Cm(8.8-u*.2,1.7,-.4),Cm(5.0,.4,5.2),42]},
+ fx:(u)=>{FX.label('Ampas digester',Cm(3.4,.5,8),u-.2,-150,-100);FX.label('Pupuk kompos',Cm(5.6,.7,4.2),u-.6,150,-90)}});
+// ---- K18 kerak & saluran tersumbat → diaduk
+S(17,0,{set:'sec',crust:1,cam:(u)=>[Cm(-.9,-.3,8.2-u*.25),Cm(-.9,-1.0,0),40],
+ fx:(u)=>{FX.boom('KRAK!',{x:540,y:640},u-.3,'#ff3b3b',1.1,110);FX.label('Kerak keras',Cm(.6,-.75,.05),u-.4,150,-100);FX.label('Saluran tersumbat',Cm(-2.75,-.2,0),u-.8,-150,-90)}});
+S(17,.5,{set:'farm',a:1,stir:1,cam:(u)=>{aY(-3.2,9.4,PI);A.act('work',u,'happy');A.gaze=Cm(-3.2,.5,8);return[Cm(-2.0,1.5,5.6+u*.08),Cm(-3.2,1.0,8.8),40]},
+ fx:(u)=>{FX.label('Diaduk rutin',Cm(-3.2,.6,8),u-.3,150,-90)}});
+// ---- K19 SELAMAT → zoom out ke frame pembuka
+S(18,0,{set:'home',a:1,cook:1,cam:(u)=>{aStove();A.act('celebrate',u,'happy');A.gaze=null;return faceCU()},fx:(u)=>{FX.confetti(u);FX.boom('SELAMAT!',{x:540,y:620},u-.2,'#2f6bff',2.4,140)}});
+S(18,.5,{set:'home',a:1,cook:1,cam:(u,T)=>{aStove();A.act('celebrate',u+1.9,'happy');A.gaze=null;const k=e3(cl(u/Math.min(1.8,T),0,1)),[p0,t0,f0]=faceCU(),[p1,t1,f1]=camA();return[p0.lerp(p1,k),t0.lerp(t1,k),lerp(f0,f1,k)]},fx:(u)=>{FX.confetti(u+1.9)}});
+// ---- K20 CTA = frame pembuka (loop)
+S(19,0,{set:'home',a:1,cook:1,cam:(u)=>{aStove();A.act('idle',u,u<1.4?'happy':'normal');A.gaze=gw(tableG,0,1.05,0);return camA()}});
+
+/* ================= render(t) ================= */
+SH.forEach(s=>{s.t0=s.f?ST[s.i]+s.f*DUR[s.i]:(s.i===0?0:ST[s.i])});SH.forEach((s,k)=>{s.t1=k<SH.length-1?SH[k+1].t0:TOTAL});
+const lineAt=t=>{for(let i=N-1;i>=0;i--)if(t>=ST[i]-.03)return i;return 0};
+const ground={farm:()=>0,sec:()=>0,home:(x,z)=>{const X=x/U,Z=z/U;return Math.abs(X)<3.2&&Math.abs(Z-1.6)<2.1?m(.03):0}};
+function render(t){t=cl(t,0,TOTAL-1e-3);
+ let k=SH.findIndex(s=>t>=s.t0&&t<s.t1);if(k<0)k=SH.length-1;const sh=SH[k],u=t-sh.t0,T=sh.t1-sh.t0;
+ const sc=useSet(sh.set,!!sh.a);A.gaze=null;TT=t;
+ const [pos,tg,fov]=sh.cam(u,T);cam.position.copy(pos);cam.fov=fov||40;cam.updateProjectionMatrix();cam.lookAt(tg);autoNear(cam,tg,U);
+ sh.cam(u,T);// ulang: pose/tatapan memakai kamera & gaze frame INI (bukan frame sebelumnya)
+ LQ.update(t);
+ // ---- peternakan
+ cows.forEach((c,j)=>c.userData.anim&&c.userData.anim(t+j*.37));
+ wb.visible=!!sh.wb;if(sh.wb)WB.update(t*4);
+ flies.set(q=>{const a=t*(2.2+hash(q)*2)+q*2.1,r=.4+hash(q+1)*1.4;return Cm(19.5+Math.cos(a)*r,1.1+Math.sin(t*3+q)*.35+hash(q+2)*.6,-5.5+Math.sin(a*1.3)*r)});
+ stink.set(q=>{const ph=(t*.18+q/40)%1;const p=Cm(19.5+(hash(q)-.5)*3+ph*1.5,.8+ph*5,-5.5+(hash(q+4)-.5)*3);return p});
+ {const mix=sh.mix?e3(cl((u-.4)/3,0,1)):1;pourW.set(sh.mix?cl((u-.2)/.5,0,1):0,t);mixMat.color.lerpColors(MIX0,MIX1,mix)}
+ if(sh.stir){const h=A.arms.find(a_=>a_.sd>0).hand.getWorldPosition(new THREE.Vector3());const b=Cm(-3.2+Math.sin(t*3)*.25,.45,8+Math.cos(t*3)*.25);const d=h.clone().sub(b).normalize();stir.o.visible=true;stir.set(b,h.clone().addScaledVector(d,m(.18)))}else stir.o.visible=false;
+ // ---- penampang
+ {const air=!!sh.air,open=air?1-e3(cl((u-1.6)/.5,0,1)):0;lid.position.y=lidY0+m(.45*open);
+  airIn.set(q=>{const ph=(t*.6+q/24)%1;const p=Cm((hash(q)-.5)*.5,1.9+.6-ph*1.6,(hash(q+3)-.5)*.3);p.s=air&&open>.5?1:0;return p});
+  const active=air?(open<.2?1:.15):1;const st=sh.bstage;
+  bact.set(q=>{const g=q%3,gx=st?(-1.2+g*1.2+(hash(q)-.5)*1.0):(hash(q)-.5)*3.4;const sp=active*(.4+hash(q+2));const x=gx+Math.sin(t*sp*1.3+q)*.08;const y=-2.55+hash(q+5)*1.6+Math.cos(t*sp+q)*.06;
+   const p=Cm(x,y,.05);p.c=BC[g].clone().multiplyScalar(air?lerp(.35,1,active):1);p.s=.8+hash(q+7)*.5;return p});
+  const days=sh.days?cl(u/5.2,0,1):1,bubOn=sh.days?cl((days-.28)/.1,0,1):(active>.5?1:0);
+  bub.set(q=>{const ph=(t*.35+q/40)%1;const p=Cm((hash(q)-.5)*3.2,-2.6+ph*1.85,.06);p.s=ph<.98?bubOn*(sh.crust?.0:1):0;return p});
+  const gk=sh.gas?e3(cl(u/1.6,0,1)):(sh.days?days*.7:.35);gasFill.material.opacity=.22*gk;
+  mol.set(q=>{const g=q<54?0:q<84?1:2;const a=hash(q)*PI,r=Math.sqrt(hash(q+1))*1.6;const p=Cm(Math.cos(a)*r*.95+Math.sin(t*.8+q)*.08,-.55+Math.sin(a)*1.6*(.25+hash(q+2)*.75)+Math.cos(t+q)*.05,-.15-hash(q+3)*1.2);
+   p.c=g===0?new THREE.Color(0xbfe6ff):g===1?new THREE.Color(0x9a9a9a):new THREE.Color(0xf2d23a);p.s=sh.mix3?1:0;return p});
+  flow.set(q=>{const ph=(t*.25+q/24)%1;const p=gasPath.getPointAt(ph);p.s=sh.gas&&!sh.mix3?1:0;return p});
+  crust.visible=!!sh.crust;crust.scale.y=sh.crust?Math.max(.05,e3(cl(u/1.2,0,1))):1;clog.visible=!!sh.crust;paddle.visible=false}
+ // ---- rumah
+ {stv.userData.setFlame(sh.cook?1:0,t);wok.visible=oil.visible=!!sh.cooking;lampH.userData.setOn(sh.lamp?1:0);bal.userData.setFill(sh.i===10&&sh.f>0?lerp(.35,1,e3(cl(u/2.2,0,1))):.9);
+  home.background=sh.dusk?SKY_D:SKY_N;
+  if(sh.cooking){const w=gw(tableG,Math.sin(t*5)*.06,1.06,Math.cos(t*5)*.05);const h0=handW(0),h1=handW(1),h=h0.distanceTo(w)<h1.distanceTo(w)?h0:h1;spat.o.visible=true;spat.set(w,h.clone().add(h.clone().sub(w).normalize().multiplyScalar(m(.08))))}else spat.o.visible=false;
+  steam.set(q=>{const ph=(t*.4+q/14)%1;const p=gw(tableG,(hash(q)-.5)*.15,1.1+ph*.6,(hash(q+1)-.5)*.15);p.s=sh.cooking?1:0;return p})}
+ if(window.__cover){coverPose();R.setClearColor(0,0);R.render(cov,cam);FX.begin();FX.end();return}
+ R.render(sc,cam);
+ // ---- overlay
+ FX.begin();
+ checkCast(THREE,C,sc,ground[sh.set],{U});
+ if(A.root.parent===sc){const tp=[];for(const x_ of[-8,8])for(const y_ of[2,21])for(const z_ of[-5,5])tp.push(A.torso.localToWorld(V(x_,y_,z_)));FX.avoidPts(tp,6);
+ const hc=A.H.head.localToWorld(V(0,0,0)),Rw=A.H.head.localToWorld(V(A.H.R,0,0)).distanceTo(hc),cr=V(1,0,0).applyQuaternion(cam.quaternion),cu=V(0,1,0).applyQuaternion(cam.quaternion);
+ FX.avoidPts([hc.clone().addScaledVector(cr,-1.2*Rw),hc.clone().addScaledVector(cr,1.2*Rw),hc.clone().addScaledVector(cu,1.45*Rw),hc.clone().addScaledVector(cu,-1.3*Rw)],18,true);const ep=[];for(const x_ of[-7,-1.5])for(const y_ of[13,19])ep.push(A.torso.localToWorld(V(x_,y_,5)));FX.avoidPts(ep,8,true)}
+ const li=lineAt(t),lu=t-ST[li];
+ FX.stage(D.problems[li],li===0?D.hook:D.chips[li],li===0?'*':D.stageKeys[li],lu,DUR[li]+.3);
+ FX.karaoke(L[li],D.keys[li],cl(lu/DUR[li],0,1));
+ if(sh.fx)sh.fx(u,T);
+ FX.flash(u,k>0?.18:0);FX.end()}
+window.__C=C;window.__SH=SH.map(s=>[s.t0,s.t1,s.i,s.set]);window.__render=render;window.__TOTAL=TOTAL;render(0);window.__ready=1;
+</script></body></html>
