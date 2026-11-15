@@ -12,7 +12,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P1] air-laut-tawar — Desalinasi reverse osmosis (Dubai & Israel) | Kota di tengah gurun ini minum air laut setiap hari.
 - [x] [P1] copenhill — CopenHill: pembakaran sampah jadi listrik + atap lintasan ski | Di Denmark, tempat bakar sampah ini… atapnya dipakai main ski.
 - [x] [P1] biogas-sapi — Biogas digester: kotoran sapi jadi gas & listrik | Kotoran sapi ini bisa nyalain kompor dan lampu rumah.
-- [ ] [P1] jelantah-pesawat — Minyak jelantah jadi bahan bakar pesawat (SAF) | Pesawat ini terbang pakai minyak bekas gorengan.
+- [x] [P1] jelantah-pesawat — Minyak jelantah jadi bahan bakar pesawat (SAF) | Pesawat ini terbang pakai minyak bekas gorengan.
 - [ ] [P1] botol-jadi-kaos — Botol plastik bekas jadi kaos (rPET) | Jersey yang dipakai pemain bola dunia… dibuat dari botol plastik bekas.
 - [ ] [P1] udara-jadi-air — Atmospheric water generator: udara jadi air minum | Di gurun tanpa sumur, mesin ini bikin air minum dari udara.
 - [ ] [P1] co2-jadi-batu — Climeworks + Carbfix Islandia: CO₂ jadi batu | Di Islandia, polusi udara disedot… lalu diubah jadi batu.
