@@ -84,6 +84,17 @@ if re.search(r"hand\w*\(\)\.add\(\s*hand\w*\(\)\s*\)\.multiplyScalar\(\s*\.5\s*\
 if re.search(r"checkCast\(", code) and not (re.search(r"checkCast\([^;]*\bt\s*[,}]", code) and re.search(r"checkCast\([^;]*\bshot\s*:", code)):
     F("R26", "checkCast dipanggil tanpa {t, shot:k} — arah jalan (mundur/di tempat/meluncur) tidak bisa dicek per shot")
 
+# R28 benda tidak boleh tembus benda (kasus botol menembus tong sampah, 17 Nov) — kit/collide.js wajib
+if "makeCollide" not in code or not re.search(r"COL\.check\([^;]*\bt\b[^;]*shot\s*:", code):
+    F("R28", "scene tidak memakai kit/collide.js: COL=makeCollide(THREE,U) + COL.check(sc,cam,{t,shot:k,ground}) tiap frame (tembus benda/lantai, lenyap/muncul tidak dicek)")
+elif "COL.solid(" not in code or not re.search(r"COL\.item\(|regB\(", code):
+    F("R28", "COL dipakai tapi tidak ada COL.solid(...) (wadah/mesin/lantai kerja) atau COL.item(...) (benda lepas) yang didaftarkan")
+# R29 benda masuk mesin lewat bukaan nyata; mesin berkomponen nyata (kasus botol masuk mesin cacah tanpa lubang, 17 Nov)
+if re.search(r"FX\.label\('(Mesin|Ekstruder|Konveyor)", code) and "COL.intake(" not in code:
+    F("R29", "ada mesin berlabel tetapi tidak ada COL.intake(...) — benda yang masuk mesin harus lenyap di dalam bukaan nyata (corong/hopper), bukan menembus dinding")
+if re.search(r"\.visible\s*=\s*false", re.sub(r"function render[\s\S]*", "", code)) is None and re.search(r"function render[\s\S]*\.visible\s*=\s*false", code) and "COL.intake(" not in code:
+    C("R29", "benda disembunyikan di render(t) tanpa COL.intake — pastikan lenyapnya di dalam wadah/mesin, bukan di udara")
+
 # R12/R16 riset
 if not rs: F("R12", "research.md tidak ada")
 else:

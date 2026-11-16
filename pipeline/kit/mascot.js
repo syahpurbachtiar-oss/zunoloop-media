@@ -294,6 +294,7 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     carry: { R: [.04, .2, .06], L: [0, .1, .3], walk: 1, armFix: 1 },                                         // menjinjing (jerigen/ember) di tangan kanan sambil berjalan; c.hold(1, benda)
     show: { R: [1.0, .22, 1.35], L: [.06, .12, .2], head: [.08, 0, 0] },                                    // memperlihatkan benda di tangan kanan setinggi dada
     pour: { R: [1.15, .15, .45], L: [.06, .12, .2], torso: [.14, 0, 0], head: [.22, 0, 0] },                    // menuang dengan tangan kanan; miringkan lewat c.wrist(1, ...)
+    drop: { R: [1.85, .08, .1], L: [.06, .12, .2], torso: [.06, 0, 0], head: [.3, 0, 0] },                      // menjulurkan benda di tangan kanan ke atas wadah lalu melepasnya (buang ke tong)
   };
   const lerp = (a, b, p) => a + (b - a) * p, cl = (v, a, b) => v < a ? a : v > b ? b : v, eo = x => 1 - Math.pow(1 - x, 3);
 
