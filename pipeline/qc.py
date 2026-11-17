@@ -35,6 +35,19 @@ except Exception: det = {"ok": False, "beda": "qc_det.json tidak ada — render 
 print("[1b] determinisme 2 browser:", "OK" if det["ok"] else det["beda"])
 if not det["ok"]: fail.append(f"render tidak deterministik (R30): {det['beda']}")
 
+# 1c. R30 kedap-kedip lokal: ubin 8×16 px (di 360×640) yang berosilasi A-B-A-B dan kembali ke nilai semula ≥6 frame berturut
+#     = tekstur beda antar-frame, z-fighting, atau efek strobo (rotor terlalu cepat). Partikel bergerak tidak kembali ke nilai semula → tidak terhitung.
+raw = subprocess.run(["ffmpeg", "-v", "error", "-i", V, "-vf", "scale=360:640,format=gray", "-f", "rawvideo", "-"], capture_output=True).stdout
+G = np.frombuffer(raw, np.uint8).reshape(-1, 640, 360).astype(np.float32); run = np.zeros((39, 45), int); kedip = {}
+for i in range(1, len(G) - 2):
+    d1, d2, d3 = G[i] - G[i - 1], G[i + 1] - G[i], G[i + 2] - G[i + 1]
+    if max(abs(d1).mean(), abs(d2).mean(), abs(d3).mean()) > 12: run[:] = 0; continue
+    o = (d1 * d2 < 0) & (d2 * d3 < 0) & (abs(d1) > 10) & (abs(d2) > 10) & (abs(d3) > 10) & (abs(G[i + 1] - G[i - 1]) < 5) & (abs(G[i + 2] - G[i]) < 5)
+    run = np.where(o[:624].reshape(39, 16, 45, 8).mean(axis=(1, 3)) > .08, run + 1, 0)
+    if (run >= 6).any(): kedip[int(i / 30)] = max(kedip.get(int(i / 30), 0), int((run >= 6).sum()))
+print("[1c] kedap-kedip lokal (detik: jumlah ubin):", sorted(kedip.items())[:20])
+if kedip: fail.append(f"kedap-kedip lokal di detik {sorted(kedip)[:15]} (R30: tekstur acak/z-fighting/strobo)")
+
 # 2. pelanggaran overlay
 qf = f"{W}/qc_fx.json"
 if os.path.exists(qf):
