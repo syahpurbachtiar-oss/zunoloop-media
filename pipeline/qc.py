@@ -29,6 +29,12 @@ for i in range(1, len(im) - 1):
 print(f"[1] kedap-kedip: {len(glitch)} frame", glitch[:20])
 if glitch: fail.append(f"{len(glitch)} frame kedap-kedip (detik: {[g[0] for g in glitch[:10]]}...)")
 
+# 1b. R30 determinisme (dari render.py full): 2 browser harus identik, kalau tidak frame genap/ganjil kedap-kedip (kasus lantai pabrik 17 Nov)
+try: det = json.load(open(f"{W}/qc_det.json"))
+except Exception: det = {"ok": False, "beda": "qc_det.json tidak ada — render ulang dengan render.py full"}
+print("[1b] determinisme 2 browser:", "OK" if det["ok"] else det["beda"])
+if not det["ok"]: fail.append(f"render tidak deterministik (R30): {det['beda']}")
+
 # 2. pelanggaran overlay
 qf = f"{W}/qc_fx.json"
 if os.path.exists(qf):

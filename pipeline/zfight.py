@@ -16,7 +16,7 @@ os.makedirs(f"{W}/qc", exist_ok=True); found = []
 async def main():
     from playwright.async_api import async_playwright
     async with async_playwright() as p:
-        b = await p.chromium.launch(args=ARGS); pg = await b.new_page(viewport={"width": 1080, "height": 1920})
+        b = await p.chromium.launch(args=ARGS); pg = await b.new_page(viewport={"width": 1080, "height": 1920}); await pg.add_init_script("(()=>{let a=0x2545F491;Math.random=function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}})()")  # R30 seed
         await pg.goto(f"http://127.0.0.1:{srv.server_address[1]}/scene.html?capture=1"); await pg.wait_for_function("window.__ready===1", timeout=90000)
         await pg.evaluate("document.querySelectorAll('canvas').forEach((c,i)=>{if(i>0)c.style.visibility='hidden'})")  # sembunyikan overlay teks 2D
         ts = [float(x) for x in sys.argv[2].split(",")] if len(sys.argv) > 2 else [k + .5 for k in range(int(TOTAL))]

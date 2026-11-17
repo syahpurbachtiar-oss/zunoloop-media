@@ -84,6 +84,9 @@ if re.search(r"hand\w*\(\)\.add\(\s*hand\w*\(\)\s*\)\.multiplyScalar\(\s*\.5\s*\
 if re.search(r"checkCast\(", code) and not (re.search(r"checkCast\([^;]*\bt\s*[,}]", code) and re.search(r"checkCast\([^;]*\bshot\s*:", code)):
     F("R26", "checkCast dipanggil tanpa {t, shot:k} — arah jalan (mundur/di tempat/meluncur) tidak bisa dicek per shot")
 
+# R30 tidak ada acak/waktu di scene (17 Nov: lantai pabrik & bal kedap-kedip — 2 worker render punya tekstur acak berbeda)
+for kw in ("Math.random", "Date.now", "performance.now", "new Date("):
+    if kw in code.replace('fetch("data.json?"+Date.now())', ''): F("R30", f"scene memakai {kw} — hasil render beda antar-worker (kedap-kedip). Pakai hash(k) deterministik")
 # R28 benda tidak boleh tembus benda (kasus botol menembus tong sampah, 17 Nov) — kit/collide.js wajib
 if "makeCollide" not in code or not re.search(r"COL\.check\([^;]*\bt\b[^;]*shot\s*:", code):
     F("R28", "scene tidak memakai kit/collide.js: COL=makeCollide(THREE,U) + COL.check(sc,cam,{t,shot:k,ground}) tiap frame (tembus benda/lantai, lenyap/muncul tidak dicek)")
