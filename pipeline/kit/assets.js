@@ -18,7 +18,8 @@ export function makeAssets(THREE, U, RBG) {
   const ctex = (w, h, draw, rep = [1, 1]) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); t.anisotropy = 4; return t; };
   const noise = (base, vr, n = 6000, sz = 3, rep = [1, 1]) => ctex(256, 256, (x, w, h) => { x.fillStyle = base; x.fillRect(0, 0, w, h);
-    for (let i = 0; i < n; i++) { x.fillStyle = vr[i % vr.length]; x.fillRect(rnd() * w, rnd() * h, 1 + rnd() * sz, 1 + rnd() * sz); } }, rep);
+    for (let i = 0; i < n; i++) { x.fillStyle = vr[i % vr.length]; x.fillRect(rnd() * w, rnd() * h, 1 + rnd() * sz, 1 + rnd() * sz); }
+    x.filter = 'blur(1.4px)'; x.drawImage(x.canvas, 0, 0); x.filter = 'none'; }, rep); /* R30: bintik 1–3 px tajam berkilau (kedap-kedip) saat kamera bergerak → dihaluskan */
   const MAT = {
     steel: Ms({ color: 0xcfd6dd, roughness: .35, metalness: .6 }), dark: Ms({ color: 0x2a2f36, roughness: .5, metalness: .4 }),
     rubber: Ms({ color: 0x1b1d20, roughness: .85 }), concrete: Ms({ color: 0xffffff, roughness: .95, map: noise('#c9c5bd', ['#b9b5ad', '#d6d2ca', '#a9a59e'], 7000, 3, [4, 4]) }),
