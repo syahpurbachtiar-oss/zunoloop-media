@@ -38,3 +38,8 @@ Hook topics.md ("jersey pemain bola dunia") TIDAK dipakai: tidak ada sumber yang
 | Chip/pellet | butiran putih susu | ±3–4 mm | 3, 4 |
 | Spinneret & filamen | pelat logam berlubang; filamen putih tipis | — | 7 |
 | Benang REPREVE | gulungan benang putih pada bobin | bobin ±25 cm | 1 |
+| Mesin cacah (granulator) PET | rangka baja + rumah pisau, rotor berpisau + pisau diam, saringan berlubang di bawah rotor, corong atas dengan semprotan air (pencucian saat dicacah), motor + sabuk V + roda gila | ruang pisau ±0,9 × 1,6 m (SG-90160E-PET), poros ±375 rpm (di video diperlambat agar terlihat), kapasitas ±4,5 t/jam; tinggi total dengan corong ±3,5 m | Shini SG-PET (shini.com, 21 Mei 2025) |
+| Konveyor umpan ke mesin cacah/pres | sabuk karet bersekat (cleat) + dinding samping, miring ±18–25°, rol kepala di atas corong sehingga botol jatuh ke dalam bukaan | lebar sabuk 0,8–1,0 m | umum (konveyor MRF) |
+| Mesin pres bal horizontal (PET) | badan baja kuning, ram hidrolik di belakang, corong umpan di atas diisi konveyor, saluran bal di depan + pengikat kawat otomatis, unit hidrolik | bukaan umpan 2,0 × 1,2 m; penampang bal ±1,1 × 1,25 m (model NK) — di video dipakai bal ±1,2 × 1 × 0,8 m | NK Baler PET Bottle Horizontal Baler (nkbaler.com) |
+| Ekstruder | motor + gearbox, laras dengan pita pemanas (logam abu), corong + pemuat vakum, kepala die → untai → bak air → pemotong | laras ±6 m | umum |
+
