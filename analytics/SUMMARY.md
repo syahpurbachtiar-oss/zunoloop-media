@@ -1,6 +1,6 @@
 # Ringkasan analitik kumulatif — ZunoLoop
 
-_Terakhir diperbarui: 17 Nov 2026 (harian; review mingguan #1 = 16 Nov)._
+_Terakhir diperbarui: 18 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 Nov)._
 
 ## Baseline
 - Format lama (tips gaya hidup kota, 24 Okt–6 Nov, 60 s): rata-rata views TT 52 · YT 136 · IG 36; retensi TT ±12% (avg 7 s).
@@ -18,9 +18,11 @@ _Terakhir diperbarui: 17 Nov 2026 (harian; review mingguan #1 = 16 Nov)._
 | 14 Nov | copenhill | maskot 3D, 104 s, topik netral, CTA biner Kotor/Bersih | 658 / **30,1%** (13 jam), **5 komen** | 1.361, 2 komen | IG error 14 Nov → kirim ulang 15 Nov 07:50: **2.181 / 53% (rekor)**, 97 like, 7 save |
 | 15 Nov | biogas-sapi | maskot 3D, 115 s, P1, CTA 3 pilihan | 445 / 19,4%, 0 komen | 1.267 | IG error 19:30 (audio 96 kHz) → ulang 20:45: 618 / **55,1%** |
 | 16 Nov | jelantah-pesawat | maskot 3D, 105 s, P1, CTA 3 pilihan | 177 (11 jam) / 15,6% | belum terupdate | **1.399 (8,5 jam, start IG tercepat)** / 36%; IG pertama tanpa error sejak fix 48 kHz |
-| 17 Nov | botol-jadi-kaos | maskot 3D, **88,6 s (terpendek)**, P1, CTA biner "7 atau 27" | terjadwal 19:30 | | |
+| 17 Nov | botol-jadi-kaos v3 | maskot 3D, **88,6 s (terpendek)**, P1, topik umum tanpa tempat nyata, CTA biner "7 atau 27" | 83 (10 jam) / **13,4%**, 0 komen | belum terupdate | **194 (7,5 jam) = start IG terlemah** / 22% |
+| 18 Nov | udara-jadi-air | maskot 3D, 84,7 s, P1, baris 1 = tempat nyata (gurun Arizona), CTA biner "3 atau 30" | terjadwal 19:30 | | |
 
 ## Topik pemenang / kalah
+- **18 Nov: botol-jadi-kaos = start terlemah** (IG 194 vs jelantah 1.399 di umur sama; TT ret. 13,4%) walau terpendek → topik "sudah umum" tanpa tempat nyata kalah; durasi bukan tuas utama. jelantah TT 177→636 (telat panas). air-laut-tawar YT 2.253 (masih naik).
 - **17 Nov: copenhill = rekor TT (987, retensi 32,9%) & IG share 4→20 dalam sehari**; air-laut-tawar = rekor YT (2.025). biogas TT lemah (445 / 19,4%) walau IG retensi 55%.
 - **16 Nov (review #1): copenhill = video terbaik** (IG 2.181/53%, TT retensi 30,1% = pertama ≥30%, 7 komentar TT+YT). Pola pemenang terkonfirmasi: "tempat nyata + kontras absurd", tanpa jijik. Terburuk: wa-luar-negeri (caption deskriptif, 115 s, tayang 20:00).
 - 16 Nov: CTA biner (2 pilihan) = satu-satunya yang memancing komentar TT; CTA 3 pilihan angka → 0 komentar TT di 4 video.
@@ -32,6 +34,7 @@ _Terakhir diperbarui: 17 Nov 2026 (harian; review mingguan #1 = 16 Nov)._
 - Kalah: tips gaya hidup kota (cuci tangan, minum air, rutinitas malam): IG sering < 15 views, TT retensi 5–12%.
 
 ## Platform
+- 18 Nov: rata-rata maskot (7 video ≥24 jam) TT 553 (10,6×) · YT 1.272 (9,4×) · IG 1.044 (29,0×); retensi TT 21,6% (5 terakhir 23,8%), IG 39,1%. YT = lantai stabil (±1.300); IG = barometer hook tercepat (terbaca ≤8 jam); TT baru bisa dinilai di 48 jam.
 - 17 Nov: rata-rata maskot (6 video ≥24 jam) TT 537 (10,3×) · YT 1.229 (9,0×) · IG 981 (27,2×); retensi TT 22,5% (5 terakhir 24,4%), retensi IG 39,7%. TT melemah di video 105–115 s (biogas 19,4%, jelantah 15,6% awal) sementara IG tetap kuat → kebocoran di detik awal TT. Komentar TT hanya muncul di video ber-CTA biner (copenhill, 5).
 - 16 Nov: rata-rata maskot (5 video ≥24 jam) TT 486 (9,3×) · YT 1.182 (8,7×) · IG 1.041 (28,9×); retensi TT 22,9% (3 terakhir 27,0%), retensi IG 36,0% (2 terakhir 50–53%). Minggu 9–15 Nov vs 2–8 Nov: total views 16.725 vs 3.263 (5,1×); TT 4,4× · YT 3,1× · IG 17,1×.
 - 16 Nov: IG error 2 hari beruntun (14 & 15 Nov) karena audio 96 kHz → pipeline diperbaiki (48 kHz) 15 Nov; jelantah 16 Nov = tes pertama.
@@ -65,8 +68,11 @@ _Terakhir diperbarui: 17 Nov 2026 (harian; review mingguan #1 = 16 Nov)._
 | 16 Nov | Stabilkan produksi: GEMINI_API_KEY di environment task + cek status post setelah 19:30 (usulan) | 7 run otomatis beruntun tanpa tertahan + 0 post error s.d. 23 Nov | usulan |
 | 16 Nov | Part 2: air-laut-tawar (Indonesia/Israel) & copenhill (abu & asap ke mana) (usulan) | Part 2 ≥ 80% views Part 1 di IG & YT | usulan |
 | 17 Nov | Pin komentar CTA biner + balas komentar pertama ≤1 jam di TT botol-jadi-kaos (usulan) | botol TT ≥ 3 komentar & ≥ 500 views dlm 48 jam | usulan, cek 19 Nov |
-| 17 Nov | Uji durasi: botol-jadi-kaos 88,6 s vs video 104–115 s (alami, tanpa ubah pipeline) | retensi TT ≥ 28% & avg tonton ≥ 25 s | berjalan, cek 19 Nov |
+| 17 Nov | Uji durasi: botol-jadi-kaos 88,6 s vs video 104–115 s (alami, tanpa ubah pipeline) | retensi TT ≥ 28% & avg tonton ≥ 25 s | data awal 18 Nov: 13,4% / 11,8 s → kemungkinan gagal; final 19 Nov |
 | 17 Nov | Prioritaskan Part 2 copenhill (usulan, penguatan 16 Nov) | Part 2 ≥ 80% views Part 1 IG & YT, TT ≥ 600 | usulan |
+| 18 Nov | Uji pola "tempat nyata + mustahil" di baris 1: udara-jadi-air vs botol (alami) | IG ≥ 1.000 dlm 24 jam & ret. TT ≥ 20% | berjalan, cek 19–20 Nov |
+| 18 Nov | Cek TikTok Studio botol: kurva retensi 0–5 dtk & % For You (usulan, manual Ari) | titik keluar teridentifikasi | usulan |
+| 18 Nov | Dahulukan topik bertempat nyata: co2-jadi-batu → panas-tubuh-stockholm → hp-jadi-medali → asap-jadi-cincin (usulan) | 3 video berikutnya IG ≥ 1.000, TT ≥ 600, ret. TT ≥ 25% | usulan, cek 23 Nov |
 
 ## Syarat naik ke 2 video/hari (dicek tiap Senin)
 (a) views format baru ≥ 2× baseline di ≥ 2 platform · (b) retensi TT rata-rata ≥ 30% · (c) tidak ada run produksi gagal/QC dilewati.
@@ -77,3 +83,4 @@ Status 14 Nov: (a) format maskot (3 video ≥24 jam): TT 4,6×, YT 4,4×, IG 14,
 Status 15 Nov: (a) format maskot (4 video ≥24 jam): TT 8,2×, YT 7,4×, IG 20,9× → terpenuhi; (b) retensi TT maskot rata-rata 21,1% (tren naik, 2 video terakhir 24–26%) → belum; (c) run otomatis 15 Nov tertahan lagi (GEMINI_API_KEY kosong) + post IG copenhill error → catatan negatif.
 **Review Senin 16 Nov → TETAP 1 video/hari.** (a) ✔ TT 9,3×, YT 8,7×, IG 28,9× · (b) ✘ retensi TT 22,9% (3 terakhir 27,0%, copenhill 30,1%) · (c) ✘ run otomatis tertahan 10, 13, 15 Nov + IG error 14 & 15 Nov. Syarat untuk naik: 7 hari run otomatis tanpa intervensi, 0 post error, retensi TT rata-rata 5 video terakhir ≥ 30%. Review berikutnya: Senin 23 Nov.
 Status 17 Nov: (a) ✔ TT 10,3×, YT 9,0×, IG 27,2× · (b) ✘ retensi TT 5 terakhir 24,4% · (c) 0 post error 16 Nov (IG fix 48 kHz berhasil); produksi 16 & 17 Nov via chat Ari (bukan run otomatis) → tetap 1/hari.
+Status 18 Nov: (a) ✔ TT 10,6×, YT 9,4×, IG 29,0× · (b) ✘ retensi TT 5 terakhir 23,8% · (c) 0 post error 3 hari beruntun; produksi 16–18 Nov via chat Ari (bukan run otomatis) → tetap 1/hari.
