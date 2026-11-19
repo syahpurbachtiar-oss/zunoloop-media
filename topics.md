@@ -16,7 +16,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P1] botol-jadi-kaos — Botol plastik bekas jadi kaos (rPET) | Jersey yang dipakai pemain bola dunia… dibuat dari botol plastik bekas.
 - [x] [P1] udara-jadi-air — Atmospheric water generator: udara jadi air minum | Di gurun tanpa sumur, mesin ini bikin air minum dari udara.
 - [x] [P1] co2-jadi-batu — Climeworks + Carbfix Islandia: CO₂ jadi batu | Di Islandia, polusi udara disedot… lalu diubah jadi batu.
-- [ ] [P1] panas-tubuh-stockholm — Panas tubuh penumpang Stasiun Stockholm menghangatkan gedung | Di Swedia, gedung ini dipanaskan pakai panas tubuh ribuan orang yang lewat tiap hari.
+- [x] [P1] panas-tubuh-stockholm — Panas tubuh penumpang Stasiun Stockholm menghangatkan gedung | Di Swedia, gedung ini dipanaskan pakai panas tubuh ribuan orang yang lewat tiap hari.
 - [ ] [P1] hp-jadi-medali — Medali Olimpiade Tokyo 2020 dari HP bekas | Medali emas Olimpiade Tokyo dibuat dari… HP bekas yang dibuang orang.
 - [ ] [P1] asap-jadi-cincin — Smog Free Tower: polusi udara jadi cincin | Di Belanda, ada menara yang menyedot polusi udara… lalu dijadikan cincin.
 - [ ] [P1] bio-bus — Bio-Bus Bristol: bahan bakar dari kotoran manusia | Bus ini jalan pakai bahan bakar dari kotoran manusia.
