@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><title>Polusi jadi cincin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#9fd0ff}
+#st{position:relative;width:1080px;height:1920px;overflow:hidden;background:#9fd0ff}
+#c{position:absolute;left:0;top:0;width:1080px;height:1920px}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><div id="st"><canvas id="c" width="1080" height="1920"></canvas></div>
+<script type="module">
+import * as THREE from 'three';
+import {RoundedBoxGeometry as RBG} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {makeCast} from './kit/mascot.js';
+import {makeFX} from './kit/fx.js';
+import {makeLiquid,autoNear} from './kit/water.js';
+import {makeAssets} from './kit/assets.js';
+import {checkCast} from './kit/physics.js';
+import {makeCollide} from './kit/collide.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+const D=await (await fetch("data.json?"+Date.now())).json();
+const L=D.lines,N=L.length;
+const ST=D.starts,DUR=D.durs,TOTAL=D.total;
+const PI=Math.PI,cl=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,p)=>a+(b-a)*p,e3=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,eo=x=>1-Math.pow(1-x,3);
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const hash=q=>{const x=Math.sin(q*127.1)*43758.5453;return x-Math.floor(x)};
+
+/* ================= renderer ================= */
+const W=1080,H=1920,canvas=document.getElementById('c');
+const R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
+R.setPixelRatio(1);R.setSize(W,H,false);R.setClearColor(0,0);R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;
+R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+const cam=new THREE.PerspectiveCamera(40,W/H,.1,1e5);
+const C=makeCast(THREE,RBG,cam);const A=C.ayah;const U=C.M;const m=v=>v*U;
+cam.near=m(.05);cam.far=m(2000);cam.updateProjectionMatrix();
+const FX=makeFX(THREE,document.getElementById('st'),cam,canvas);
+const LQ=makeLiquid(THREE);
+const AS=makeAssets(THREE,U,RBG);
+const Cm=(x,y,z)=>V(m(x),m(y),m(z));
+const COL=makeCollide(THREE,U);/* R28: benda tidak boleh tembus benda */
+
+/* ================= helper ================= */
+const ctex=(w,h,draw,rep=[1,1])=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);
+ t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...rep);t.anisotropy=R.capabilities.getMaxAnisotropy();return t};/* anisotropi: tekstur di sudut miring tidak berkilau */
+const Ms=o=>new THREE.MeshStandardMaterial(o);
+const PO={polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-4};
+const mk=(g,mat,p,pos,rot,sc)=>{const o=new THREE.Mesh(g,mat);o.castShadow=o.receiveShadow=true;if(pos)o.position.set(...pos.map(m));if(rot)o.rotation.set(...rot);if(sc)o.scale.set(...sc);if(p)p.add(o);return o};
+const box=(w,h,d,r=0)=>r?new RBG(m(w),m(h),m(d),3,m(r)):new THREE.BoxGeometry(m(w),m(h),m(d));
+const cyl=(rt,rb,h,s=24,open=false)=>new THREE.CylinderGeometry(m(rt),m(rb),m(h),s,1,open);
+function sky(top,bot){return ctex(4,256,(c,w,h)=>{const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,top);g.addColorStop(.62,bot);g.addColorStop(1,bot);c.fillStyle=g;c.fillRect(0,0,w,h)})}
+function outdoor(top,bot,fn,ff){const s=new THREE.Scene();s.background=sky(top,bot);s.fog=new THREE.Fog(new THREE.Color(bot),m(fn),m(ff));s.add(new THREE.HemisphereLight(0xdff0ff,0x7f8a66,1.35));return s}
+// aula pabrik: dinding BackSide + lantai beton polygonOffset (tidak sebidang), lampu atap
+function hall(w,d,h,wallCol,line=true){const s=new THREE.Scene();s.background=new THREE.Color(0xdfe4e8);s.add(new THREE.HemisphereLight(0xffffff,0x9aa3ab,1.25));
+ mk(box(w,h,d),Ms({color:wallCol,roughness:.85,side:THREE.BackSide}),s,[0,h/2,0]).castShadow=false;
+ mk(new THREE.PlaneGeometry(m(w-.2),m(d-.2)).rotateX(-PI/2),Ms({...PO,color:0xffffff,roughness:.9,map:ctex(256,256,(c,W_,H_)=>{c.fillStyle='#a9aaa6';c.fillRect(0,0,W_,H_);for(let i=0;i<5000;i++){c.fillStyle=['#9c9d99','#b4b5b1','#a2a39f'][i%3];c.fillRect(hash(i*2+.5)*W_,hash(i*2+1.5)*H_,2,2)}if(line){c.fillStyle='rgba(242,194,48,.9)';c.fillRect(0,120,W_,6)}},[w/8,d/8])}),s,[0,.02,0]);
+ for(let x=-w/2+6;x<w/2;x+=10)for(let z=-d/2+6;z<d/2;z+=10){mk(box(1.6,.12,.5),Ms({color:0xffffff,emissive:0xffffff,emissiveIntensity:.9}),s,[x,h-.3,z])}
+ AS.sun(s,[-10,h-1,8],Math.max(w,d)*.6,1.7);return s}
+// dots = HANYA butiran padat (serpihan plastik, tutup botol, butiran chip, molekul) — BUKAN cairan
+function dots(sc,n,geo,mat){const im=new THREE.InstancedMesh(geo,mat,n);im.frustumCulled=false;im.castShadow=true;sc.add(im);const o=new THREE.Object3D();
+ return {im,set(fn){for(let k=0;k<n;k++){const p=fn(k);o.position.copy(p);const s_=p.s===undefined?1:p.s;o.scale.setScalar(Math.max(1e-4,s_));o.rotation.set(k*1.3+(p.r||0),k*2.1,k*.7);o.updateMatrix();im.setMatrixAt(k,o.matrix);if(p.c)im.setColorAt(k,p.c)}im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true}}}
+const _unusedVT=col=>ctex(256,256,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='rgba(0,0,0,.08)';c.fillRect(0,236,w,20);
+ for(const x0 of[26,170]){c.fillStyle='#f4f4f0';c.fillRect(x0-5,85,70,82);c.fillStyle='#41556b';c.fillRect(x0,90,60,72);c.fillStyle='#f4f4f0';c.fillRect(x0+28,90,4,72);c.fillRect(x0,124,60,4)}
+ c.fillStyle='#7a2f2a';c.fillRect(104,110,48,146);c.fillStyle='#d9b26a';c.fillRect(142,180,5,5)});
+function frustum(x0,z0,x1,z1,y0,y1){/* corong persegi terbuka 4 sisi miring (meter) */const P=[[-x0,y0,-z0],[x0,y0,-z0],[x0,y0,z0],[-x0,y0,z0],[-x1,y1,-z1],[x1,y1,-z1],[x1,y1,z1],[-x1,y1,z1]].map(q=>q.map(m));
+ const pos=[];for(const [a,b,c,d] of[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]])pos.push(...P[a],...P[b],...P[c],...P[a],...P[c],...P[d]);
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();return g}
+
+
+
+/* ---------- sprite lembut aditif (udara bersih) — urutan gambar tidak berpengaruh → tidak kedip ---------- */
+const coolTex=ctex(64,64,(c,w,h)=>{const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(170,215,255,1)');g.addColorStop(.5,'rgba(140,200,255,.4)');g.addColorStop(1,'rgba(120,190,255,0)');c.fillStyle=g;c.fillRect(0,0,w,h)});
+function puffs(parent,n,tex,size,op=.35){const arr=[];const mat=new THREE.SpriteMaterial({map:tex,transparent:true,opacity:op,depthWrite:false,blending:THREE.AdditiveBlending});for(let i=0;i<n;i++){const s=new THREE.Sprite(mat);s.scale.setScalar(m(size));if(parent)parent.add(s);arr.push(s)}return {arr,mat}}
+const ENV=new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(),.04).texture;const MET=o=>Ms({envMap:ENV,envMapIntensity:1,...o});
+const ALU=MET({color:0xc9ced3,roughness:.32,metalness:.85}),ALUD=MET({color:0x8d939a,roughness:.4,metalness:.7}),SILV=MET({color:0xe6e8ea,roughness:.22,metalness:1});
+const DUSTC=[0x6b5a46,0x4a4f55,0x7a6a55,0x3a3f46];
+
+/* ---------- Smog Free Tower: tinggi 7 m, alas ±3,5 m, sirip aluminium horizontal, puncak bertingkat ---------- */
+function tower(parent,cut=false){const g=new THREE.Group();parent.add(g);const o=new THREE.Object3D();
+ COL.solid(mk(box(3.6,.3,3.6),AS.MAT.concrete,g,[0,.15,0]),null,'alas-menara');
+ const tiers=[[3.2,.3,5.5],[2.4,5.5,6.4],[1.4,6.4,7.0]];
+ tiers.forEach(([w,y0,y1],ti)=>{const h=y1-y0;if(!cut)COL.solid(mk(box(w,h,w),Ms({color:0x2a2f36,roughness:.7}),g,[0,(y0+y1)/2,0]),null,'menara');
+  const n=Math.floor(h/.12),sides=cut?[[0,-1]]:[[0,1],[0,-1],[1,0],[-1,0]];const im=new THREE.InstancedMesh(box(1,.04,.18),ALU,n*sides.length*1);im.castShadow=true;im.receiveShadow=true;g.add(im);let c=0;
+  for(const [sx,sz] of sides)for(let i=0;i<n;i++){const y=y0+.06+i*.12;if(sz){o.position.set(0,m(y),m(sz*(w/2+.09)));o.rotation.set(0,0,0);o.scale.set(w+.36,1,1)}else{o.position.set(m(sx*(w/2+.09)),m(y),0);o.rotation.set(0,PI/2,0);o.scale.set(w,1,1)}o.updateMatrix();im.setMatrixAt(c++,o.matrix)}
+  im.count=c;
+  });
+ if(!cut){mk(box(1.5,.08,1.5),ALUD,g,[0,7.04,0]);for(let i=0;i<4;i++){const a=i*PI/2;mk(box(.9,.3,.02),Ms({color:0x0b0d10,roughness:.9}),g,[Math.sin(a)*.71,6.7,Math.cos(a)*.71],[0,a,0])}}/* kisi hisap gelap di tingkat puncak */
+ return g}
+function dutchTree(p,x,z,k){AS.tree(p,x,z,k)}
+
+/* ================= SET 1: TAMAN DI ROTTERDAM ================= */
+const park=outdoor('#a9c3d6','#d9d6cc',60,420);AS.sun(park,[-40,60,40],45,2.3);AS.ground(park,1200,'grass');
+AS.paving(park,0,0,16,16,'#bdb8ad');AS.road(park,-160,30,160,30,9,true);
+const twr=tower(park);
+AS.houseRow(park,{x0:-70,z:48,n:16,w:8.6,d:10,palette:['#8a4b3a','#a85a3c','#6b3a2e','#c9b79c','#7a5a46']});AS.houseRow(park,{x0:-70,z:-60,n:16,w:8.6,d:10,ry:PI,palette:['#8a4b3a','#c9b79c','#6b3a2e','#a85a3c']});
+for(const [x,z] of[[-14,-12],[-17,6],[14,-14],[17,8],[-9,16],[10,17],[-22,-4],[22,-2]])AS.tree(park,x,z,1.1);
+for(const [x,z] of[[-30,-26],[30,-26],[-40,10],[40,12],[-60,-30],[60,-30],[-80,8],[80,6]])mk(box(14,24+Math.abs(x)%17,14),Ms({color:[0xb9b4a8,0x8d939a,0xc9c4b8][Math.abs(x)%3],roughness:.8}),park,[x,(24+Math.abs(x)%17)/2,z-30]);
+// zona udara bersih (lingkaran >20 m) — bidang transparan di atas paving (polygonOffset, tidak sebidang)
+const zone=mk(new THREE.CircleGeometry(m(11),64).rotateX(-PI/2),Ms({...PO,polygonOffsetUnits:-8,color:0x7fd0ff,transparent:true,opacity:.0,depthWrite:false,roughness:1}),park,[0,.04,0]);zone.castShadow=false;
+const zRing=mk(new THREE.TorusGeometry(m(11),m(.06),6,96).rotateX(PI/2),Ms({color:0x2f8fd6,emissive:0x2f8fd6,emissiveIntensity:.4}),park,[0,.06,0]);zRing.visible=false;
+// debu halus (diperbesar agar terlihat) — butiran padat (dots), ditarik ke kisi hisap di puncak
+const NDU=420,dust=dots(park,NDU,new THREE.IcosahedronGeometry(m(.03),0),Ms({color:0xffffff,roughness:.9}));
+const dustP=[];for(let i=0;i<NDU;i++){const a=hash(i+3)*PI*2,r=2.5+Math.sqrt(hash(i+4))*30,y=.5+hash(i+5)*12;dustP.push({a,r,y,c:new THREE.Color(DUSTC[i%4])})}
+const clean=puffs(park,36,coolTex,1.6,.5);
+const walkers=[[C.ibu,-.6,4.3],[C.kakak,.2,4.9],[C.adik,.7,4.4]];
+const ringH=new THREE.Group();
+
+/* ================= SET 2: PENAMPANG MENARA (gelap): kipas, elektroda (+), pelat pengumpul (−) ================= */
+const sec=new THREE.Scene();sec.background=new THREE.Color(0x1b2633);sec.add(new THREE.HemisphereLight(0xdff0ff,0x556677,1.5));AS.sun(sec,[-6,14,10],10,1.8);
+mk(new THREE.PlaneGeometry(m(30),m(30)).rotateX(-PI/2),Ms({...PO,color:0x2a3542,roughness:.9}),sec,[0,0,0]).castShadow=false;
+const twC=tower(sec,true);
+{const IN=Ms({color:0x3a4249,roughness:.7,side:THREE.DoubleSide});mk(box(3.2,5.2,.03),IN,sec,[0,2.9,-1.57]);for(const sd of[-1,1])mk(box(.03,5.2,1.6),IN,sec,[sd*1.6,2.9,-.8]);
+ mk(box(2.4,.9,.03),IN,sec,[0,5.95,-1.17]);for(const sd of[-1,1])mk(box(.03,.9,1.2),IN,sec,[sd*1.2,5.95,-.6]);mk(box(2.4,.03,1.2),IN,sec,[0,6.4,-.6])}
+// kipas sentrifugal di atas (pelan, tidak strobo)
+const fan=new THREE.Group();fan.position.set(0,m(6.1),m(-.6));sec.add(fan);{mk(cyl(.5,.5,.06,32),ALUD,fan);for(let i=0;i<10;i++){const b=mk(box(.36,.22,.02),ALU,fan,[Math.cos(i*PI/5)*.3,.13,Math.sin(i*PI/5)*.3]);b.rotation.y=-i*PI/5+.4}mk(cyl(.08,.08,.5,16),AS.MAT.dark,fan,[0,.35,0])}
+// elektroda ion: kawat tipis berjajar di bawah kipas (bermuatan +)
+const ELY=5.2;for(let i=0;i<9;i++){const z=-1.3+i*.15;mk(cyl(.006,.006,2.9,6),Ms({color:0xf2c230,emissive:0xf2a020,emissiveIntensity:.5,metalness:.6,roughness:.3}),sec,[0,ELY,z],[0,0,PI/2]);for(const sd of[-1,1])mk(box(.05,.05,.05),Ms({color:0xd23a2a}),sec,[sd*1.47,ELY,z])}
+// pelat pengumpul bermuatan − (vertikal, celah 0,3 m)
+const PLX=[];for(let i=0;i<9;i++){const x=-1.2+i*.3;PLX.push(x);COL.solid(mk(box(.01,2.6,1.3),MET({color:0x5f8fc8,roughness:.35,metalness:.6}),sec,[x,2.6,-.75]),null,'pelat-pengumpul')}
+const NSD=260,sDust=dots(sec,NSD,new THREE.IcosahedronGeometry(m(.018),0),Ms({color:0xffffff,roughness:.9})),ions=dots(sec,120,new THREE.IcosahedronGeometry(m(.008),0),Ms({color:0xffe27a,emissive:0xffc020,emissiveIntensity:1}));
+const cleanS=puffs(sec,24,coolTex,.7,.35);
+
+/* ================= SET 3: BENGKEL (debu dipadatkan → kubus → cincin) ================= */
+const lab=hall(10,8,3.4,0xeceae4,false);
+const BX=0,BZ=-1.5,BY=.9;
+{COL.solid(mk(box(2.4,.05,.9),Ms({color:0x8a6a4a,roughness:.6}),lab,[BX,BY-.025,BZ]),null,'meja');for(const x of[-1.1,1.1])for(const z of[-.38,.38])mk(box(.06,BY-.05,.06),AS.MAT.dark,lab,[BX+x,(BY-.05)/2,BZ+z]);
+ mk(box(3,1.2,.04),Ms({color:0xb08a5a,roughness:.9}),lab,[0,1.9,-3.96])}
+// toples debu hitam
+const jar=new THREE.Group();jar.position.set(m(BX-.8),m(BY),m(BZ));lab.add(jar);mk(cyl(.06,.06,.005,24),Ms({color:0xcfe6f2,roughness:.1,transparent:true,opacity:.35}),jar,[0,.0025,0]);
+mk(cyl(.058,.058,.07,24),Ms({color:0x15171a,roughness:1}),jar,[0,.04,0]);mk(cyl(.06,.06,.14,24,true),Ms({color:0xcfe6f2,roughness:.05,transparent:true,opacity:.3,depthWrite:false,side:THREE.DoubleSide}),jar,[0,.07,0]);COL.solid(jar,{t:'cyl',r:m(.06),y0:0,y1:m(.14)},'toples');
+// pres kecil: rangka, ulir/piston turun menekan debu di cetakan 1 cm
+const press=new THREE.Group();press.position.set(m(BX-.3),m(BY),m(BZ-.05));lab.add(press);
+{const FR=Ms({color:0x2f6bd6,roughness:.45});mk(box(.28,.04,.22),FR,press,[0,.02,0]);for(const sd of[-1,1])mk(box(.04,.4,.04),FR,press,[sd*.1,.22,0]);mk(box(.28,.06,.1),FR,press,[0,.45,0]);
+ COL.solid(mk(box(.05,.03,.05),AS.MAT.steel,press,[0,.055,0]),null,'cetakan');mk(cyl(.035,.035,.04,20),AS.MAT.dark,press,[.0,.52,0]);mk(cyl(.006,.006,.22,8),AS.MAT.steel,press,[0,.52,0],[0,0,PI/2])}
+const piston=mk(cyl(.012,.012,.34,16),AS.MAT.steel,press,[0,.31,0]);
+// kubus 1 cm di blok bening, cincin & kancing manset
+const BLK=Ms({color:0xe6f2f8,roughness:.05,transparent:true,opacity:.35,depthWrite:false}),CUBE=Ms({color:0x0b0c0e,roughness:.9});
+function cubeBlock(parent,s=.014){const g=new THREE.Group();if(parent)parent.add(g);mk(box(.008,.008,.008),CUBE,g,[0,s/2,0]);mk(box(s,s,s),BLK,g,[0,s/2,0]);return g}
+function ring(parent){const g=new THREE.Group();if(parent)parent.add(g);mk(new THREE.TorusGeometry(m(.0095),m(.0016),10,40),SILV,g,[0,.0095,0]);mk(box(.008,.003,.008),SILV,g,[0,.0205,0]);const b=cubeBlock(g,.012);b.position.y=m(.022);return g}
+const cubesT=new THREE.Group();cubesT.position.set(m(BX+.15),m(BY),m(BZ+.05));lab.add(cubesT);mk(box(.24,.006,.16),Ms({color:0x1b2430,roughness:.8}),cubesT,[0,.003,0]);
+for(let i=0;i<12;i++){const b=cubeBlock(cubesT);b.position.set(m(-.09+(i%6)*.036),m(.006),m(-.04+Math.floor(i/6)*.08));COL.item(b,[0,m(.007),0],[0,m(.007),0],m(.006),'kubus',true)}
+const disp=new THREE.Group();disp.position.set(m(BX+.65),m(BY),m(BZ+.05));lab.add(disp);mk(box(.3,.03,.18,.005),Ms({color:0x1b2430,roughness:.8}),disp,[0,.015,0]);
+const rings=[];for(let i=0;i<3;i++){const r=ring(disp);r.position.set(m(-.09+i*.09),m(.0316),m(-.03));r.rotation.y=(i-1)*.4;rings.push(r);COL.item(r,[0,m(.0095),0],[0,m(.022),0],m(.002),'cincin',true)}
+for(let i=0;i<2;i++){const g=new THREE.Group();g.position.set(m(-.06+i*.04),m(.03),m(.05));disp.add(g);mk(cyl(.008,.008,.004,16),SILV,g,[0,.002,0]);mk(cyl(.0025,.0025,.012,8),SILV,g,[0,.01,0]);const b=cubeBlock(g,.012);b.position.y=m(.016)}
+// ketel listrik ±1.400–2.000 W (pembanding daya)
+const ket=new THREE.Group();ket.position.set(m(BX+.95),m(BY),m(BZ-.2));lab.add(ket);
+{const WH=Ms({color:0xf4f4f0,roughness:.35});mk(cyl(.085,.085,.02,32),AS.MAT.dark,ket,[0,.01,0]);COL.solid(mk(cyl(.07,.08,.2,32),WH,ket,[0,.12,0]),null,'ketel');mk(cyl(.072,.072,.02,32),WH,ket,[0,.23,0]);
+ mk(new THREE.TorusGeometry(m(.07),m(.012),8,24,PI),WH,ket,[-.075,.13,0],[0,0,PI/2]);mk(new THREE.ConeGeometry(m(.025),m(.07),12),WH,ket,[.085,.19,0],[0,0,-1.0]);mk(cyl(.004,.004,.003,8),Ms({color:0xd23a2a,emissive:0xd23a2a,emissiveIntensity:.8}),ket,[-.07,.05,.055],[PI/2,0,0])}
+// cincin yang dipegang (c.hold): titik genggam = bawah lingkar, sumbu pegangan X
+const heldRing=new THREE.Group();{/* kotak cincin 7 × 4 × 7 cm digenggam di sisinya; cincin berdiri di celah beludru */const bx=new THREE.Group();bx.position.x=m(.075);heldRing.add(bx);mk(box(.07,.04,.07,.006),Ms({color:0x1b2430,roughness:.7}),bx,[0,0,0]);mk(box(.06,.004,.06),Ms({color:0x2f4f8a,roughness:1}),bx,[0,.021,0]);
+ const r=ring(bx);r.position.set(0,m(.0207),0);COL.item(r,[0,m(.0095),0],[0,m(.022),0],m(.002),'cincin-tangan');heldRing.userData.r=r}
+
+/* ================= SAMPUL ================= */
+const cov=new THREE.Scene();cov.add(new THREE.HemisphereLight(0xffffff,0x8a94a0,1.5));{const l=new THREE.DirectionalLight(0xffffff,2.4);l.position.set(m(-1),m(2),m(3));cov.add(l)}
+{const r=ring(cov);r.position.set(0,m(-.012),0);r.rotation.set(.15,.6,0);const BC=Ms({color:0xe6f2f8,roughness:.05,transparent:true,opacity:.45});r.traverse(o=>{if(o.material===BLK){o.material=BC;const e=new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry),new THREE.LineBasicMaterial({color:0xffffff}));o.add(e)}})}
+function coverPose(){cam.position.copy(Cm(0,.006,.075));cam.fov=34;cam.near=m(.005);cam.far=m(5);cam.updateProjectionMatrix();cam.lookAt(Cm(0,.006,0))}
+
+/* ================= SET aktif ================= */
+const SETS={park,sec,lab};
+const GR={park:()=>m(.03),sec:()=>-1e9,lab:()=>m(.02)};
+function useSet(name,withA){const s=SETS[name];if(withA&&A.root.parent!==s)s.add(A.root);if(!withA&&A.root.parent)A.root.parent.remove(A.root);return s}
+let curSet='park';const aY=(x,z,ry,y)=>{const yy=y??GR[curSet](m(x),m(z))/U;A.root.position.set(m(x),m(yy),m(z));A.root.rotation.y=ry};
+const headW=()=>{A.root.updateMatrixWorld(true);return A.head.localToWorld(V(0,m(.32),0))};
+const gw=(g,x,y,z)=>{g.updateMatrixWorld(true);return g.localToWorld(Cm(x,y,z))};
+// pembuka/penutup: taman, ayah memperlihatkan cincin, menara di belakang
+const aK=()=>aY(1.4,4.6,-.25);
+const camA=()=>[Cm(2.6,1.7,8.6),Cm(.6,2.6,0),48];
+const faceCU=()=>{const h=headW(),ry=A.root.rotation.y,f=V(Math.sin(ry),0,Math.cos(ry)),r=V(Math.cos(ry),0,-Math.sin(ry));return[h.clone().addScaledVector(f,m(3.2)).addScaledVector(r,m(.3)).add(V(0,-m(.2),0)),V(h.x,h.y-m(.25),h.z),39]};
+const WALK0=ST[2]-.3,wx=(x0,t)=>x0-6+(t-WALK0)*1.2;
+function placeWalkers(t,sc,on){walkers.forEach(([c,x0,z])=>{if(!on){if(c.root.parent)c.root.parent.remove(c.root);return}if(c.root.parent!==sc)sc.add(c.root);c.root.position.set(m(wx(x0,t)),m(.03),m(z));c.root.rotation.y=PI/2;c.act('walk',t,'normal')})}
+const SH=[];const S=(i,f,o)=>SH.push(Object.assign({i,f},o));
+// K1 hook: ayah memperlihatkan cincin; kamera mendekat ke cincin
+S(0,0,{set:'park',a:1,ring:1,dust:1,cam:(u)=>{aK();A.act('show',u+1,'happy');A.gaze=null;const k=e3(cl(u/2.2,0,1)),[p1,t1,f1]=camA(),r=(A.hold(1,heldRing),A.aim(1,V(0,1,0),V(0,1,0)),A.root.updateMatrixWorld(true),gw(heldRing.userData.r,0,.015,0));const ky=e3(cl(u/.9,0,1)),p2=r.clone().add(Cm(.06,-.04,.3)),p=p1.clone().lerp(p2,k);p.y=lerp(p1.y,p2.y,ky);return[p,t1.clone().lerp(r,Math.max(k,ky)),lerp(f1,36,k)]/* turun dulu ke tinggi cincin (wajah keluar dari tengah layar), baru mendekat */},fx:(u)=>{FX.label('Cincin',gw(heldRing.userData.r,0,.03,0),u-1.4,150,-110)}});
+// K2 menara di Rotterdam
+S(1,0,{set:'park',dust:1,cam:(u)=>[Cm(6-u*.4,3.0,17),Cm(0,3.6,0),44],fx:(u)=>{FX.label('Smog Free Tower',Cm(0,7.1,0),u-.4,-150,-110)}});
+// K3 7 m (keluarga lewat sebagai skala)
+S(2,0,{set:'park',dust:1,walk:1,cam:(u)=>[Cm(-1.5,1.2,12.5),Cm(0,3.5,0),46],fx:(u)=>{FX.label('±7 m',Cm(1.85,7.0,1.85),u-.4,150,-110)}});
+// K4 30.000 m³/jam: debu terhisap ke kisi puncak
+S(3,0,{set:'park',dust:1,suck:1,cam:(u)=>[Cm(5.5,8.6-u*.2,9.5),Cm(0,6.4,0),44],fx:(u)=>{FX.label('Kisi hisap',Cm(0,6.75,.75),u-.4,-150,-110)}});
+// K5 penampang: bukan saringan, listrik statis
+S(4,0,{set:'sec',flow:1,cam:(u)=>[Cm(.3,3.8,9.5-u*.2),Cm(0,3.8,-.6),44],fx:(u)=>{FX.label('Penampang menara',Cm(0,6.9,0),u-.4,150,-110)}});
+// K6 elektroda melepas ion +
+S(5,0,{set:'sec',flow:1,ion:1,cam:(u)=>[Cm(.5,5.6,1.9-u*.05),Cm(0,5.2,-.6),40],fx:(u)=>{FX.label('Elektroda (+)',Cm(-.65,ELY,-.6),u-.4,-150,-110)}});
+// K7 ion menempel ke debu
+S(6,0,{set:'sec',flow:1,ion:1,cam:(u)=>[Cm(.2,4.9,1.2),Cm(0,4.85,-.6),38],fx:(u)=>{FX.label('Debu bermuatan +',Cm(.15,4.7,-.6),u-.6,150,100)}});
+// K8 pelat bermuatan −
+S(7,0,{set:'sec',flow:1,cam:(u)=>[Cm(1.0,3.0,2.6-u*.1),Cm(0,2.6,-.75),42],fx:(u)=>{FX.label('Pelat bermuatan (−)',Cm(.6,3.4,-.1),u-.3,150,-110)}});
+// K9 tertarik & menempel
+S(8,0,{set:'sec',flow:1,cam:(u)=>[Cm(.35,2.8,1.0),Cm(.15,2.7,-.6),38]});
+// K10 udara bersih keluar
+S(9,0,{set:'park',dust:1,out:1,cam:(u)=>[Cm(9,1.2,6.5-u*.2),Cm(2.8,1.7,1.8),44],fx:(u)=>{FX.label('Udara bersih',Cm(2.6,1.2,1.2),u-.4,150,100)}});
+// K11 1.400 W ≈ ketel
+S(10,0,{set:'lab',cam:(u)=>[Cm(BX+.95+.25,BY+.45,BZ-.2+1.1-u*.03),Cm(BX+.95,BY+.13,BZ-.2),40],fx:(u)=>{FX.label('Ketel listrik',gw(ket,0,.24,0),u-.5,150,-110)}});
+// K12 debu dipadatkan (pres)
+S(11,0,{set:'lab',a:1,press:1,cam:(u)=>{aY(BX-.5,BZ+.75,PI);A.act('work',u+1,'normal');A.gaze=gw(press,0,.1,0);return[Cm(BX-1.3,1.6,BZ-1.2),Cm(BX-.4,BY+.15,BZ),40]},fx:(u)=>{FX.label('Debu polusi',gw(jar,0,.15,0),u-.3,-150,-110);FX.label('Pres',gw(press,0,.5,0),u-1.2,150,-110)}});
+// K13 kubus 1 cm
+S(12,0,{set:'lab',cam:(u)=>[Cm(BX+.15+.05,BY+.2-u*.01,BZ+.05+.28),Cm(BX+.15,BY+.01,BZ+.05),36],fx:(u)=>{FX.label('Kubus ±1 cm',gw(cubesT,-.054,.02,-.04),u-.5,-150,-110)}});
+// K14 cincin & manset
+S(13,0,{set:'lab',cam:(u)=>[Cm(BX+.65+.1-u*.02,BY+.17,BZ+.05+.3),Cm(BX+.65,BY+.05,BZ+.05),36],fx:(u)=>{FX.label('Cincin',gw(disp,0,.09,-.03),u-.3,150,-110);FX.label('Kancing manset',gw(disp,-.04,.05,.05),u-1.6,-150,100)}});
+// K15 tidak membersihkan satu kota (kota berkabut, menara kecil)
+S(14,0,{set:'park',dust:1,cam:(u)=>[Cm(40,55+u*2,70),Cm(0,0,0),40]});
+// K16 PM10 −45 %: zona lingkaran
+S(15,0,{set:'park',dust:1,zone:1,cam:(u)=>[Cm(0,34+u*.5,26),Cm(0,0,0),44],fx:(u)=>{FX.label('Menara',Cm(0,7,0),u-.3,150,-110)}});
+// K17 PM2,5 −25 %, lingkaran >20 m
+S(16,0,{set:'park',dust:1,zone:1,cam:(u)=>[Cm(-4,36,24-u*.4),Cm(0,0,0),44],fx:(u)=>{FX.label('Ø >20 m',Cm(-11,.1,0),u-.4,-150,100)}});
+// K18 bersih hanya di sekitar menara
+S(17,0,{set:'park',dust:1,zone:1,a:1,cam:(u)=>{aK();A.act('present',u+1,'happy');A.gaze=null;return[Cm(8,5.5,16-u*.3),Cm(0,1.5,2),44]}});
+// K19 SELAMAT
+S(18,0,{set:'park',a:1,ring:1,dust:1,cam:(u)=>{aK();A.act('celebrate',u,'happy');A.gaze=null;return faceCU()},fx:(u)=>{FX.confetti(u);FX.boom('SELAMAT!',{x:540,y:620},u-.2,'#2f6bff',2.4,140)}});
+S(18,.5,{set:'park',a:1,ring:1,dust:1,cam:(u,T)=>{aK();A.act('show',u+1.9,'happy');A.gaze=null;const k=e3(cl(u/Math.min(1.8,T),0,1)),[p0,t0,f0]=faceCU(),[p1,t1,f1]=camA();return[p0.lerp(p1,k),t0.lerp(t1,k),lerp(f0,f1,k)]},fx:(u)=>{FX.confetti(u+1.9)}});
+// K20 CTA
+S(19,0,{set:'park',a:1,ring:1,dust:1,cam:(u)=>{aK();A.act('show',u+1,u<1.4?'happy':'normal');A.gaze=null;return camA()}});
+
+/* ================= render(t) ================= */
+SH.forEach(s=>{s.t0=s.f?ST[s.i]+s.f*DUR[s.i]:(s.i===0?0:ST[s.i])});SH.forEach((s,k)=>{s.t1=k<SH.length-1?SH[k+1].t0:TOTAL});
+const lineAt=t=>{for(let i=N-1;i>=0;i--)if(t>=ST[i]-.03)return i;return 0};
+function render(t){t=cl(t,0,TOTAL-1e-3);
+ let k=SH.findIndex(s=>t>=s.t0&&t<s.t1);if(k<0)k=SH.length-1;const sh=SH[k],u=t-sh.t0,T=sh.t1-sh.t0;
+ curSet=sh.set;const sc=useSet(sh.set,!!sh.a);A.gaze=null;placeWalkers(t,sc,!!sh.walk);
+ // cincin di tangan kanan ayah (digenggam: c.hold + c.aim) — dipasang SEBELUM kamera dihitung (kamera mengikuti cincin)
+ A.hold(1,sh.ring&&sh.a?heldRing:null);sh.cam(u,T);if(sh.ring&&sh.a)A.aim(1,V(0,1,0),V(0,1,0));
+ let [pos,tg,fov]=sh.cam(u,T);if(sh.ring&&sh.a)A.aim(1,V(0,1,0),V(0,1,0));cam.position.copy(pos);cam.fov=fov||40;cam.updateProjectionMatrix();cam.lookAt(tg);autoNear(cam,tg,U);
+ if(sh.walk)placeWalkers(t,sc,true);
+ LQ.update(t);
+ // debu di taman: berputar pelan; saat "suck" ditarik ke kisi puncak; di dalam zona bersih lebih jarang
+ {dust.im.visible=!!sh.dust;if(sh.dust)dust.set(i=>{const d=dustP[i];let a=d.a+t*.04,r=d.r,y=d.y,s=1;
+   if(sh.suck){const ph=((t-ST[3])*.25+hash(i+7))%1;const r0=Math.min(d.r,9);r=lerp(r0,.8,ph);y=lerp(d.y*.6+1,6.7,ph);a=d.a+ph*2;s=ph>.96?0:1}
+   if(sh.zone&&d.r<11)s=hash(i+9)<.5?0:1;
+   const p=V(m(Math.cos(a)*r),m(y),m(Math.sin(a)*r));p.s=s*(sh.zone&&!sh.a?3:1);/* butir diperbesar hanya di bidikan atas */p.c=d.c;return p})}
+ // udara bersih keluar dari sisi bawah menara
+ clean.arr.forEach((s,i)=>{const on=!!sh.out;s.visible=on;const side=i%4,ph=(t*.3+i/36)%1,a=side*PI/2,d=1.9+ph*3.5;s.position.set(m(Math.sin(a)*d+(hash(i)-.5)*1.5*Math.cos(a)),m(.8+hash(i+1)*2.5+ph*.6),m(Math.cos(a)*d-(hash(i)-.5)*1.5*Math.sin(a)))});
+ zone.material.opacity=sh.zone?.28:0;zone.visible=!!sh.zone;zRing.visible=!!sh.zone;
+ // penampang: debu masuk dari atas → lewat elektroda (jadi +) → turun di antara pelat → tertarik & menempel di pelat
+ {const on=!!sh.flow;sDust.im.visible=on;ions.im.visible=on&&!!sh.ion;fan.rotation.y=t*1.2;
+  if(on)sDust.set(i=>{const ph=((t-ST[4])*.12+hash(i+11))%1,gap=Math.floor(hash(i+12)*8),x0=PLX[gap]+.15+(hash(i+13)-.5)*.12,z=-.15-hash(i+14)*1.2;let y=lerp(6.6,1.3,ph),x=x0;
+   const stick=hash(i+15)<.7,ys=lerp(3.8,1.5,hash(i+16));let col=new THREE.Color(DUSTC[i%4]);if(y<ELY)col.lerp(new THREE.Color(0xd2702a),.7);
+   if(stick&&y<ys){const k_=cl((ys-y)/.25,0,1),side=hash(i+17)<.5?0:1;x=lerp(x0,PLX[gap+side]+(side?-.026:.026),k_);y=ys}
+   const p=V(m(x),m(y),m(z));p.c=col;return p});
+  if(on&&sh.ion)ions.set(i=>{const ph=(t*.8+hash(i+21))%1,w=Math.floor(hash(i+22)*9);const p=V(m((hash(i+23)-.5)*2.7),m(ELY-ph*.5),m(-1.3+w*.15+(hash(i+24)-.5)*.06));p.s=1-ph;return p});
+  cleanS.arr.forEach((s,i)=>{s.visible=on;const ph=(t*.3+i/24)%1,sd=i%2?1:-1;s.position.set(m(sd*(1.0+ph*1.6)),m(.8+hash(i)*.6),m(-.2-hash(i+1)*1.2))})}
+ // pres: piston turun-naik
+ {const k_=sh.press?Math.abs(Math.sin(cl(u-.8,0,9)*1.4)):0;piston.position.y=m(.31-k_*.068)}
+ if(window.__cover){coverPose();R.setClearColor(0,0);R.render(cov,cam);FX.begin();FX.end();return}
+ R.render(sc,cam);
+ FX.begin();
+ checkCast(THREE,C,sc,GR[sh.set],{U,t,shot:k});
+ COL.check(sc,cam,{t,shot:k,ground:GR[sh.set]});
+ if(A.root.parent===sc){const tp=[];for(const x_ of[-8,8])for(const y_ of[2,21])for(const z_ of[-5,5])tp.push(A.torso.localToWorld(V(x_,y_,z_)));FX.avoidPts(tp,6);
+ const hc=A.H.head.localToWorld(V(0,0,0)),Rw=A.H.head.localToWorld(V(A.H.R,0,0)).distanceTo(hc),cr=V(1,0,0).applyQuaternion(cam.quaternion),cu=V(0,1,0).applyQuaternion(cam.quaternion);
+ FX.avoidPts([hc.clone().addScaledVector(cr,-1.2*Rw),hc.clone().addScaledVector(cr,1.2*Rw),hc.clone().addScaledVector(cu,1.45*Rw),hc.clone().addScaledVector(cu,-1.3*Rw)],18,true);const ep=[];for(const x_ of[-7,-1.5])for(const y_ of[13,19])ep.push(A.torso.localToWorld(V(x_,y_,5)));FX.avoidPts(ep,8,true)}
+ const li=lineAt(t),lu=t-ST[li];
+ FX.stage(D.problems[li],li===0?D.hook:D.chips[li],li===0?'*':D.stageKeys[li],lu,DUR[li]+.3);
+ let kY;if((sh.i===18&&sh.f>=.5||sh.i===0)&&A.root.parent===sc){/* teks naik ke atas kepala bila wajah di tengah layar (R01) */const hc=A.H.head.localToWorld(V(0,0,0)),Rw=A.H.head.localToWorld(V(A.H.R,0,0)).distanceTo(hc),cu=V(0,1,0).applyQuaternion(cam.quaternion);
+  const top=FX.project(hc.clone().addScaledVector(cu,1.6*Rw)).y;if(top>680)kY=560}
+ FX.karaoke(L[li],D.keys[li],cl(lu/DUR[li],0,1),kY);
+ if(sh.fx)sh.fx(u,T);
+ FX.flash(u,k>0?.18:0);FX.end()}
+window.__COL=COL;window.__C=C;window.__SH=SH.map(s=>[s.t0,s.t1,s.i,s.set]);window.__render=render;window.__TOTAL=TOTAL;render(0);window.__ready=1;
+</script></body></html>

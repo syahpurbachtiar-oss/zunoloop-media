@@ -19,7 +19,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P1] panas-tubuh-stockholm — Panas tubuh penumpang Stasiun Stockholm menghangatkan gedung | Di Swedia, gedung ini dipanaskan pakai panas tubuh ribuan orang yang lewat tiap hari.
 - [x] [P1] hp-jadi-medali — Medali Olimpiade Tokyo 2020 dari HP bekas | Medali emas Olimpiade Tokyo dibuat dari… HP bekas yang dibuang orang.
 - [x] [P1] asap-jadi-cincin — Smog Free Tower: polusi udara jadi cincin | Di Belanda, ada menara yang menyedot polusi udara… lalu dijadikan cincin.
-- [ ] [P1] bio-bus — Bio-Bus Bristol: bahan bakar dari kotoran manusia | Bus ini jalan pakai bahan bakar dari kotoran manusia.
+- [x] [P1] bio-bus — Bio-Bus Bristol: bahan bakar dari kotoran manusia | Bus ini jalan pakai bahan bakar dari kotoran manusia.
 - [ ] [P1] lalat-bsf — Larva lalat tentara hitam makan sampah jadi pakan ikan | Lalat ini makan sampah dapurmu… lalu jadi makanan ikan.
 - [ ] [P1] kopi-gajah — Black Ivory Coffee dari kotoran gajah | Kopi termahal di dunia… keluar dari kotoran gajah.
 - [ ] [P1] air-ink — Air-Ink: asap knalpot jadi tinta | Pulpen ini tintanya dari asap knalpot mobil.
