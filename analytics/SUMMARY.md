@@ -1,6 +1,6 @@
 # Ringkasan analitik kumulatif — ZunoLoop
 
-_Terakhir diperbarui: 19 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 Nov)._
+_Terakhir diperbarui: 20 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 Nov)._
 
 ## Baseline
 - Format lama (tips gaya hidup kota, 24 Okt–6 Nov, 60 s): rata-rata views TT 52 · YT 136 · IG 36; retensi TT ±12% (avg 7 s).
@@ -19,10 +19,12 @@ _Terakhir diperbarui: 19 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 
 | 15 Nov | biogas-sapi | maskot 3D, 115 s, P1, CTA 3 pilihan | 445 / 19,4%, 0 komen | 1.267 | IG error 19:30 (audio 96 kHz) → ulang 20:45: 618 / **55,1%** |
 | 16 Nov | jelantah-pesawat | maskot 3D, 105 s, P1, CTA 3 pilihan | 177 (11 jam) / 15,6% | belum terupdate | **1.399 (8,5 jam, start IG tercepat)** / 36%; IG pertama tanpa error sejak fix 48 kHz |
 | 17 Nov | botol-jadi-kaos v3 | maskot 3D, **88,6 s (terpendek)**, P1, topik umum tanpa tempat nyata, CTA biner "7 atau 27" | 83 (10 jam) → **672** (34 jam) / 18,4%, **2 komen**, 1 share | 1.272 | **204 = IG terlemah** / 24% |
-| 18 Nov | udara-jadi-air | maskot 3D, 84,7 s, P1, baris 1 = tempat nyata (gurun Arizona), CTA biner "3 atau 30" | 217 (9 jam) / 16,7% | belum terupdate | 304 (6,5 jam) / **36,7%** |
-| 19 Nov | co2-jadi-batu | maskot 3D, 97,7 s, P1, baris 1 = tempat nyata (Islandia), CTA biner "2 atau 200 tahun" | terjadwal 19:30 | | |
+| 18 Nov | udara-jadi-air | maskot 3D, 84,7 s, P1, baris 1 = tempat nyata (gurun Arizona), CTA biner "3 atau 30" | 217 (9 jam) → 229 (32 jam) / 16,4%, 2 komen | 1.311 (16 jam) | 304 (6,5 jam) → **1.316** (29,5 jam) / **45,1%**, 7 save |
+| 19 Nov | co2-jadi-batu | maskot 3D, 97,7 s, P1, baris 1 = tempat nyata (Islandia), CTA biner "2 atau 200 tahun" | 74 (8 jam) / 18,0% | belum terupdate | 227 (5,5 jam) / 29,5% |
+| 20 Nov | panas-tubuh-stockholm | maskot 3D, **75,97 s (di bawah 85 s, pertama)**, baris 1 = tempat nyata (pernyataan), CTA biner "15% atau 90%" | terjadwal 19:30 | | |
 
 ## Topik pemenang / kalah
+- **20 Nov: udara IG telat panas 304 → 1.316 (ret. 45,1%, 7 save)** → vonis "gagal IG" kemarin dibalik; tempat nyata berbentuk pernyataan cukup untuk IG. Tapi TT udara mandek 229 / 16,4%. Aturan baru (usulan): vonis hanya setelah ±30 jam (TT/IG), ±40 jam (YT).
 - **19 Nov: botol TT telat panas 83 → 672 (+2 komen, 1 share)** → vonis "terlemah" hanya berlaku untuk IG (204). udara-jadi-air (tempat nyata, pernyataan) start lebih baik dari botol di semua metrik (IG +57%, ret. IG 36,7%, TT 2,6×) tapi IG masih jauh di bawah pemenang ber-pertanyaan/klaim mustahil.
 - **18 Nov: botol-jadi-kaos = start terlemah** (IG 194 vs jelantah 1.399 di umur sama; TT ret. 13,4%) walau terpendek → topik "sudah umum" tanpa tempat nyata kalah; durasi bukan tuas utama. jelantah TT 177→636 (telat panas). air-laut-tawar YT 2.253 (masih naik).
 - **17 Nov: copenhill = rekor TT (987, retensi 32,9%) & IG share 4→20 dalam sehari**; air-laut-tawar = rekor YT (2.025). biogas TT lemah (445 / 19,4%) walau IG retensi 55%.
@@ -36,6 +38,7 @@ _Terakhir diperbarui: 19 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 
 - Kalah: tips gaya hidup kota (cuci tangan, minum air, rutinitas malam): IG sering < 15 views, TT retensi 5–12%.
 
 ## Platform
+- 20 Nov: rata-rata maskot (9 video ≥24 jam) TT 535 (10,3×) · YT 1.324 (9,7×) · IG 983 (27,3×); retensi TT 20,1% (5 terakhir 20,5%, turun 3 hari beruntun), IG 38,1% (5 terakhir 43,2%). IG telat panas juga terjadi (udara 4,3× antara jam 6,5–29,5). CTA biner → komentar TT 3/3 video. Komentar IG = 0 di 9/9 video (curiga data Buffer; perlu cek manual). 0 post error 5 hari beruntun.
 - 19 Nov: rata-rata maskot (8 video ≥24 jam) TT 572 (11,0×) · YT 1.316 (9,7×) · IG 940 (26,1×); retensi TT 20,9% (5 terakhir 22,0%), IG 37,2%. Avg tonton TT mentok ±16 s di durasi 85–115 s → titik keluar ±15 s. CTA biner → komentar TT di 2/2 video (copenhill 5, botol 2). jelantah YT 1.624.
 - 18 Nov: rata-rata maskot (7 video ≥24 jam) TT 553 (10,6×) · YT 1.272 (9,4×) · IG 1.044 (29,0×); retensi TT 21,6% (5 terakhir 23,8%), IG 39,1%. YT = lantai stabil (±1.300); IG = barometer hook tercepat (terbaca ≤8 jam); TT baru bisa dinilai di 48 jam.
 - 17 Nov: rata-rata maskot (6 video ≥24 jam) TT 537 (10,3×) · YT 1.229 (9,0×) · IG 981 (27,2×); retensi TT 22,5% (5 terakhir 24,4%), retensi IG 39,7%. TT melemah di video 105–115 s (biogas 19,4%, jelantah 15,6% awal) sementara IG tetap kuat → kebocoran di detik awal TT. Komentar TT hanya muncul di video ber-CTA biner (copenhill, 5).
@@ -73,11 +76,14 @@ _Terakhir diperbarui: 19 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 
 | 17 Nov | Pin komentar CTA biner + balas komentar pertama ≤1 jam di TT botol-jadi-kaos (usulan) | botol TT ≥ 3 komentar & ≥ 500 views dlm 48 jam | 19 Nov: views ✔ (672), komentar 2/3 → hampir |
 | 17 Nov | Uji durasi: botol-jadi-kaos 88,6 s vs video 104–115 s (alami, tanpa ubah pipeline) | retensi TT ≥ 28% & avg tonton ≥ 25 s | **gagal** (19 Nov: 18,4% / 16,3 s) → durasi bukan tuas TT |
 | 17 Nov | Prioritaskan Part 2 copenhill (usulan, penguatan 16 Nov) | Part 2 ≥ 80% views Part 1 IG & YT, TT ≥ 600 | usulan |
-| 18 Nov | Uji pola "tempat nyata + mustahil" di baris 1: udara-jadi-air vs botol (alami) | IG ≥ 1.000 dlm 24 jam & ret. TT ≥ 20% | 19 Nov: IG 304 (6,5 jam), TT 16,7% → kemungkinan gagal di IG; final 20 Nov |
+| 18 Nov | Uji pola "tempat nyata + mustahil" di baris 1: udara-jadi-air vs botol (alami) | IG ≥ 1.000 dlm 24 jam & ret. TT ≥ 20% | **campuran** (20 Nov): IG ✔ 1.316 (±29,5 jam), TT ✘ 16,4% |
 | 18 Nov | Cek TikTok Studio botol: kurva retensi 0–5 dtk & % For You (usulan, manual Ari) | titik keluar teridentifikasi | usulan |
 | 19 Nov | Hook kedua detik 12–15 (prioritas #1, lanjutan usulan 12 Nov) | avg tonton TT ≥ 20 s & ret. TT ≥ 22% di 2 video beruntun | usulan, cek 23 Nov |
 | 19 Nov | Pin komentar CTA biner + balas ≤1 jam di TT co2-jadi-batu (usulan) | co2 TT ≥ 3 komentar & ≥ 600 views dlm 48 jam | usulan, cek 21 Nov |
-| 19 Nov | Baris 1 caption = pertanyaan mustahil + tempat nyata (mis. panas-tubuh-stockholm) vs pernyataan (udara/co2) | IG ≥ 1.000 dlm 24 jam & ret. IG ≥ 35% | usulan |
+| 19 Nov | Baris 1 caption = pertanyaan mustahil + tempat nyata (mis. panas-tubuh-stockholm) vs pernyataan (udara/co2) | IG ≥ 1.000 dlm 24 jam & ret. IG ≥ 35% | belum diterapkan (panas-tubuh = pernyataan); prioritas turun 20 Nov karena udara (pernyataan) IG 1.316 |
+| 20 Nov | Uji durasi alami: panas-tubuh-stockholm 75,97 s (terpendek) | TT ret. ≥ 25% & avg tonton ≥ 19 s pada ±30 jam | berjalan, cek 21–22 Nov |
+| 20 Nov | Cek manual komentar IG di app (copenhill, udara) (usulan) | tahu apakah 0 komentar IG = data Buffer atau nyata | usulan, cek 22 Nov |
+| 20 Nov | Aturan vonis: menang/kalah hanya setelah ±30 jam TT/IG, ±40 jam YT (proses analitik) | 0 vonis dibalik s.d. 23 Nov | berjalan |
 | 18 Nov | Dahulukan topik bertempat nyata: co2-jadi-batu → panas-tubuh-stockholm → hp-jadi-medali → asap-jadi-cincin (usulan) | 3 video berikutnya IG ≥ 1.000, TT ≥ 600, ret. TT ≥ 25% | usulan, cek 23 Nov |
 
 ## Syarat naik ke 2 video/hari (dicek tiap Senin)
@@ -91,3 +97,4 @@ Status 15 Nov: (a) format maskot (4 video ≥24 jam): TT 8,2×, YT 7,4×, IG 20,
 Status 17 Nov: (a) ✔ TT 10,3×, YT 9,0×, IG 27,2× · (b) ✘ retensi TT 5 terakhir 24,4% · (c) 0 post error 16 Nov (IG fix 48 kHz berhasil); produksi 16 & 17 Nov via chat Ari (bukan run otomatis) → tetap 1/hari.
 Status 18 Nov: (a) ✔ TT 10,6×, YT 9,4×, IG 29,0× · (b) ✘ retensi TT 5 terakhir 23,8% · (c) 0 post error 3 hari beruntun; produksi 16–18 Nov via chat Ari (bukan run otomatis) → tetap 1/hari.
 Status 19 Nov: (a) ✔ TT 11,0×, YT 9,7×, IG 26,1× · (b) ✘ retensi TT 5 terakhir 22,0% · (c) 0 post error 4 hari beruntun; produksi co2 di-commit 01:00–03:00 WIB (bukan run 08:41) → tetap 1/hari.
+Status 20 Nov: (a) ✔ TT 10,3×, YT 9,7×, IG 27,3× · (b) ✘ retensi TT 5 terakhir 20,5% · (c) 0 post error 5 hari beruntun; produksi panas-tubuh lewat chat Ari 01:00 WIB (bukan run 08:41) → tetap 1/hari.
