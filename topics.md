@@ -21,7 +21,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P1] asap-jadi-cincin — Smog Free Tower: polusi udara jadi cincin | Di Belanda, ada menara yang menyedot polusi udara… lalu dijadikan cincin.
 - [x] [P1] bio-bus — Bio-Bus Bristol: bahan bakar dari kotoran manusia | Bus ini jalan pakai bahan bakar dari kotoran manusia.
 - [x] [P1] lalat-bsf — Larva lalat tentara hitam makan sampah jadi pakan ikan | Lalat ini makan sampah dapurmu… lalu jadi makanan ikan.
-- [ ] [P1] kopi-gajah — Black Ivory Coffee dari kotoran gajah | Kopi termahal di dunia… keluar dari kotoran gajah.
+- [x] [P1] kopi-gajah — Black Ivory Coffee dari kotoran gajah | Kopi termahal di dunia… keluar dari kotoran gajah.
 - [ ] [P1] air-ink — Air-Ink: asap knalpot jadi tinta | Pulpen ini tintanya dari asap knalpot mobil.
 - [ ] [P1] keringat-jadi-air — Mesin UNICEF Swedia: keringat jadi air minum | Di Swedia, orang antre minum… keringat orang lain.
 - [ ] [P1] kentut-sapi — Ransel penampung gas metana sapi (Argentina) | Di Argentina, sapi dipasangi ransel… buat nampung kentutnya.
