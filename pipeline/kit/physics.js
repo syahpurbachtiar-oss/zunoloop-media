@@ -36,6 +36,21 @@ export function checkCast(THREE, C, scene, groundFn, opt = {}) {
     if (![t.x, t.y, t.z, h.x, h.y, h.z].every(Number.isFinite)) { viol.push(`anatomi-nan-${k}`); continue; }
     if (h.distanceTo(t) / U > .9) viol.push(`kepala-lepas-${k}`);
     for (const a of c.arms) { const p = a.hand.getWorldPosition(new THREE.Vector3()); if (p.distanceTo(t) / U > 1.1) viol.push(`tangan-lepas-${k}`); }
+    // 4) pose wajar & proporsional (revisi Ari 26 Nov 2026: "kalau jongkok ya jongkok yang natural" — kaki jongkok tampak seperti lepas sepatu).
+    //    Sendi dalam batas anatomi; pergelangan kaki ≤0,75 rad (batas tekuk telapak saat jongkok); telapak yang menapak rata di pose diam;
+    //    pinggul berada di atas telapak (seimbang). Ski/memanjat punya aturan sendiri.
+    if (c.legs && !/^(ski|climb)$/.test(c.pose)) {
+      const still = !free[c.pose] && !/^(walk|push|carry)$/.test(c.pose), up = new THREE.Vector3(0, 1, 0), q = new THREE.Quaternion(), fm = new THREE.Vector3(); let nf = 0;
+      for (const l of c.legs) { const hx = l.p.rotation.x, kx = l.knee.rotation.x;
+        if (hx < -2.3 || hx > .9 || Math.abs(l.p.rotation.z) > .5) viol.push(`sendi-pinggul-${k}`);
+        if (kx < -.05 || kx > 2.35) viol.push(`sendi-lutut-${k}`);
+        const ys = up.clone().applyQuaternion(l.knee.getWorldQuaternion(q)), yf = up.clone().applyQuaternion(l.foot.getWorldQuaternion(q));
+        if (ys.angleTo(yf) > .75) viol.push(`pergelangan-tertekuk-${k}`);
+        box.setFromObject(l.foot); box.getCenter(v); fm.add(v); nf++;
+        if (still && (box.min.y - groundFn(v.x, v.z)) / U < .04 && yf.angleTo(up) > .3) viol.push(`telapak-miring-${k}`); }
+      for (const a of c.arms) { const ex = a.el.rotation.x, sx = a.sh.rotation.x; if (ex < -2.7 || ex > .15) viol.push(`sendi-siku-${k}`); if (sx < -3.3 || sx > 1.3) viol.push(`sendi-bahu-${k}`); }
+      if (still && nf) { fm.divideScalar(nf); const hp = c.hips.getWorldPosition(new THREE.Vector3()); if (Math.hypot(hp.x - fm.x, hp.z - fm.z) / U > .35) viol.push(`tidak-seimbang-${k}`); }
+    }
   }
 }
 function isIn(o, scene) { while (o) { if (o === scene) return true; o = o.parent; } return false; }

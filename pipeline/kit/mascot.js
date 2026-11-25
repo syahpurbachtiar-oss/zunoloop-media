@@ -223,7 +223,8 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
       const sh = legLen * .5 - 2.2 * k; mk(taper(2.9 * k, 2.6 * k, sh), pants, knee, [0, -sh / 2, 0]);
       const foot = new THREE.Group(); foot.position.y = -sh; knee.add(foot); foot.userData.sole = true;
       if (s.shoeType === 'boot') { const bm = rubber(s.shoe), so = rubber(s.sole || s.shoe, .5);
-        mk(taper(3.2 * k, 3.0 * k, 8.5 * k), bm, foot, [0, 2.2 * k, 0]); mk(new THREE.TorusGeometry(3.2 * k, .35 * k, 10, 28), bm, foot, [0, 6.5 * k, 0], [Math.PI / 2, 0, 0]);
+        // batang sepatu bot menempel di BETIS (ikut sudut betis), bukan di telapak — revisi Ari 26 Nov 2026 (jongkok: bot tegak sendiri, betis miring = 'seperti lepas sepatu')
+        mk(taper(3.2 * k, 3.0 * k, 8.5 * k), bm, knee, [0, -sh + 2.2 * k, 0]); mk(new THREE.TorusGeometry(3.2 * k, .35 * k, 10, 28), bm, knee, [0, -sh + 6.5 * k, 0], [Math.PI / 2, 0, 0]);
         mk(new RBG(5.6 * k, 4 * k, 9.5 * k, 5, 1.9 * k), bm, foot, [0, -.8 * k, 1.6 * k]);
         mk(new RBG(6 * k, 1.3 * k, 10.2 * k, 4, .6 * k), so, foot, [0, -2.5 * k, 1.7 * k]);
       } else if (s.shoeType === 'sneaker') { const up = cloth(s.shoe, 'cotton', .7), so = rubber(s.sole || 0xdddddd, .6);
@@ -235,7 +236,7 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
         mk(new RBG(5.6 * k, 1.1 * k, 9.6 * k, 4, .5 * k), rubber(s.sole || 0x8a6a4a, .6), foot, [0, -3.3 * k, 1.6 * k]);
         for (const z of [3.4, -.4]) mk(new RBG(5.4 * k, 1.1 * k, 1.6 * k, 3, .5 * k), rubber(s.shoe, .5), foot, [0, -1.4 * k, z * k]);
       }
-      return { p, knee, foot }; });
+      return { p, knee, foot, th, sh, soleD: (s.shoeType === 'boot' ? 3.15 : s.shoeType === 'sneaker' ? 3.3 : 3.85) * k }; });
     const torso = new THREE.Group(); hips.add(torso);
     mk(new RBG(torW, torH, torD, 6, 4.2 * k), top, torso, [0, torH / 2 + 1.5 * k, 0]);
     for (const sd of [-1, 1]) mk(sph(3.6 * k, 24, 18), sleeve, torso, [sd * (torW / 2 - .6 * k), torH - 1 * k, 0]);
@@ -309,7 +310,12 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     if (name === 'wave') c.arms[1].el.rotation.z = Math.sin(u * 10) * .45 * e;
     if (name === 'celebrate') { c.body.position.y = Math.abs(Math.sin(u * 7)) * 4 * c.k; c.arms[1].sh.rotation.z += Math.sin(u * 14) * .1; }
     if (name === 'shock') c.body.position.y = Math.max(0, Math.sin(cl(u / .25, 0, 1) * Math.PI)) * 2.5 * c.k;
-    if (name === 'crouch') { c.hips.position.y = c.legLen * .55; c.legs.forEach(l => { l.p.rotation.x = -1.25; l.knee.rotation.x = 2.1; l.foot.rotation.x = -.85; });
+    // jongkok alami (revisi Ari 26 Nov 2026): paha condong ke depan-bawah, lutut sedikit membuka ke samping, betis miring ±40°,
+    // telapak rata di tanah (pergelangan menekuk 0,7 rad — dalam batas sendi), pinggul tepat setinggi rantai kaki (tidak melayang/tembus)
+    if (name === 'crouch') { const A_ = 1.2, B_ = 1.9, S_ = B_ - A_, SP = .2, KN = .1; let hy = 0;
+      c.legs.forEach((l, j) => { const sd = j ? 1 : -1; l.p.rotation.set(-A_, 0, sd * SP); l.knee.rotation.set(B_, 0, -sd * KN); l.foot.rotation.set(-S_, 0, -sd * (SP - KN));
+        hy = l.th * Math.cos(A_) * Math.cos(SP) + l.sh * Math.cos(S_) * Math.cos(SP - KN) + l.soleD; });
+      c.hips.position.y = hy;
       c.torso.rotation.x += .4; c.head.rotation.x -= .35; }
     if (P.climb) { const ph = Math.sin(u * 2.2), sw = ph > 0 ? 1 : -1, k_ = Math.abs(ph);
       c.arms[0].sh.rotation.x = -(2.1 + .65 * (ph > 0 ? 1 : 0)); c.arms[1].sh.rotation.x = -(2.1 + .65 * (ph > 0 ? 0 : 1));
