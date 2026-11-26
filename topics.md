@@ -26,7 +26,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [ ] [P1] kapal-terumbu — Kapal perang bekas ditenggelamkan jadi terumbu karang | Kapal perang raksasa ini sengaja ditenggelamkan… biar jadi rumah ikan.
 - [x] [P1] keringat-jadi-air — Mesin UNICEF Swedia: keringat jadi air minum | Di Swedia, orang antre minum… keringat orang lain.
 - [ ] [P1] ampas-kopi-bus — Ampas kopi London jadi bahan bakar bus | Bus di London pernah jalan pakai ampas kopi.
-- [ ] [P1] kentut-sapi — Ransel penampung gas metana sapi (Argentina) | Di Argentina, sapi dipasangi ransel… buat nampung kentutnya.
+- [x] [P1] kentut-sapi — Ransel penampung gas metana sapi (Argentina) | Di Argentina, sapi dipasangi ransel… buat nampung kentutnya.
 - [ ] [P1] kaca-jadi-pasir — Botol kaca bekas jadi pasir pantai (New Orleans) | Botol bekas ini digiling jadi pasir… buat nyelamatin pantai.
 - [ ] [P1] ulat-styrofoam — Ulat hongkong yang bisa mencerna styrofoam | Ulat ini bisa makan styrofoam… dan tetap hidup.
 - [ ] [P1] jalan-plastik — Jalan raya dari sampah plastik | Jalan raya ini dibuat dari sampah plastik.
