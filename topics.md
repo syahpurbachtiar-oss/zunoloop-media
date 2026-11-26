@@ -23,18 +23,18 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P1] lalat-bsf — Larva lalat tentara hitam makan sampah jadi pakan ikan | Lalat ini makan sampah dapurmu… lalu jadi makanan ikan.
 - [x] [P1] kopi-gajah — Black Ivory Coffee dari kotoran gajah | Kopi termahal di dunia… keluar dari kotoran gajah.
 - [x] [P1] air-ink — Air-Ink: asap knalpot jadi tinta | Pulpen ini tintanya dari asap knalpot mobil.
+- [ ] [P1] kapal-terumbu — Kapal perang bekas ditenggelamkan jadi terumbu karang | Kapal perang raksasa ini sengaja ditenggelamkan… biar jadi rumah ikan.
 - [ ] [P1] keringat-jadi-air — Mesin UNICEF Swedia: keringat jadi air minum | Di Swedia, orang antre minum… keringat orang lain.
+- [ ] [P1] ampas-kopi-bus — Ampas kopi London jadi bahan bakar bus | Bus di London pernah jalan pakai ampas kopi.
 - [ ] [P1] kentut-sapi — Ransel penampung gas metana sapi (Argentina) | Di Argentina, sapi dipasangi ransel… buat nampung kentutnya.
+- [ ] [P1] kaca-jadi-pasir — Botol kaca bekas jadi pasir pantai (New Orleans) | Botol bekas ini digiling jadi pasir… buat nyelamatin pantai.
 - [ ] [P1] ulat-styrofoam — Ulat hongkong yang bisa mencerna styrofoam | Ulat ini bisa makan styrofoam… dan tetap hidup.
+- [ ] [P1] jalan-plastik — Jalan raya dari sampah plastik | Jalan raya ini dibuat dari sampah plastik.
 - [ ] [P1] bakteri-minyak — Bakteri pemakan tumpahan minyak di laut | Tumpahan minyak di laut dibersihkan… sama bakteri.
 - [ ] [P1] rambut-salon — Rambut potongan salon jadi penyerap tumpahan minyak | Rambut yang kamu potong di salon… dipakai buat nyedot tumpahan minyak di laut.
-- [ ] [P1] ampas-kopi-bus — Ampas kopi London jadi bahan bakar bus | Bus di London pernah jalan pakai ampas kopi.
 - [ ] [P1] kertas-gajah — Kertas dari kotoran gajah (Sri Lanka) | Kertas ini dibuat dari kotoran gajah… dan nggak bau sama sekali.
 - [ ] [P1] gas-tpa — Gas metana TPA jadi listrik | Bau busuk tempat sampah ini… nyalain listrik ribuan rumah.
-- [ ] [P1] kapal-terumbu — Kapal perang bekas ditenggelamkan jadi terumbu karang | Kapal perang raksasa ini sengaja ditenggelamkan… biar jadi rumah ikan.
 - [ ] [P1] popok-daur-ulang — Daur ulang popok bekas | Popok bekas bayi ternyata bisa didaur ulang… jadi barang baru.
-- [ ] [P1] jalan-plastik — Jalan raya dari sampah plastik | Jalan raya ini dibuat dari sampah plastik.
-- [ ] [P1] kaca-jadi-pasir — Botol kaca bekas jadi pasir pantai (New Orleans) | Botol bekas ini digiling jadi pasir… buat nyelamatin pantai.
 - [ ] [P1] belatung-luka — Terapi belatung medis (maggot debridement therapy) untuk luka kronis | Dokter ini sengaja naruh belatung di luka pasien… biar sembuh.
 - [ ] [P2] qris-2-detik — QRIS: alur pembayaran dari scan sampai dana masuk | Scan QRIS, lunas dalam 2 detik… padahal uangmu lewat 4 pihak.
 - [ ] [P2] pesawat-kabut — ILS: pesawat mendarat dalam kabut | Pilot ini mendarat tanpa bisa lihat landasan sama sekali.
