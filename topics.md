@@ -28,7 +28,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [ ] [P1] ampas-kopi-bus — Ampas kopi London jadi bahan bakar bus | Bus di London pernah jalan pakai ampas kopi.
 - [x] [P1] kentut-sapi — Ransel penampung gas metana sapi (Argentina) | Di Argentina, sapi dipasangi ransel… buat nampung kentutnya.
 - [ ] [P1] kaca-jadi-pasir — Botol kaca bekas jadi pasir pantai (New Orleans) | Botol bekas ini digiling jadi pasir… buat nyelamatin pantai.
-- [ ] [P1] ulat-styrofoam — Ulat hongkong yang bisa mencerna styrofoam | Ulat ini bisa makan styrofoam… dan tetap hidup.
+- [x] [P1] ulat-styrofoam — Ulat hongkong yang bisa mencerna styrofoam | Ulat ini bisa makan styrofoam… dan tetap hidup.
 - [ ] [P1] jalan-plastik — Jalan raya dari sampah plastik | Jalan raya ini dibuat dari sampah plastik.
 - [ ] [P1] bakteri-minyak — Bakteri pemakan tumpahan minyak di laut | Tumpahan minyak di laut dibersihkan… sama bakteri.
 - [ ] [P1] rambut-salon — Rambut potongan salon jadi penyerap tumpahan minyak | Rambut yang kamu potong di salon… dipakai buat nyedot tumpahan minyak di laut.
