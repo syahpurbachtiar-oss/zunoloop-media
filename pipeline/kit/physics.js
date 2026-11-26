@@ -5,7 +5,7 @@
 // groundFn(xWorld, zWorld) → y dunia permukaan tempat karakter berdiri (lantai 0, lereng ski: yAt, atap, dll.).
 export function checkCast(THREE, C, scene, groundFn, opt = {}) {
   const U = opt.U || C.M, v = new THREE.Vector3(), box = new THREE.Box3();
-  const free = { celebrate: 1, shock: 1, climb: 1, ...(opt.allowFloat || {}) };
+  const free = { celebrate: 1, shock: 1, climb: 1, cycle: 1, ...(opt.allowFloat || {}) };
   const viol = window.__fxViol || (window.__fxViol = []);
   for (const k of ['ayah', 'ibu', 'kakak', 'adik', 'orang']) {
     const c = C[k]; if (!c || !c.root.visible || !isIn(c.root, scene)) continue;

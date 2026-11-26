@@ -295,7 +295,8 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
     carry: { R: [.04, .2, .06], L: [0, .1, .3], walk: 1, armFix: 1 },                                         // menjinjing (jerigen/ember) di tangan kanan sambil berjalan; c.hold(1, benda)
     show: { R: [1.0, .22, 1.35], L: [.06, .12, .2], head: [.08, 0, 0] },                                    // memperlihatkan benda di tangan kanan setinggi dada
     pour: { R: [1.15, .15, .45], L: [.06, .12, .2], torso: [.14, 0, 0], head: [.22, 0, 0] },                    // menuang dengan tangan kanan; miringkan lewat c.wrist(1, ...)
-    drop: { R: [1.85, .08, .1], L: [.06, .12, .2], torso: [.06, 0, 0], head: [.3, 0, 0] },                      // menjulurkan benda di tangan kanan ke atas wadah lalu melepasnya (buang ke tong)
+    drop: { R: [1.85, .08, .1], L: [.06, .12, .2], torso: [.06, 0, 0], head: [.3, 0, 0] },
+    cycle: { R: [1.2, .12, .5], L: [1.2, .12, .5], torso: [.32, 0, 0], head: [-.22, 0, 0], cycle: 1 },                 // menggenjot sepeda (statis): duduk di sadel (pinggul di sadel diatur scene), tangan di setang, kaki IK ke pedal (R31)                      // menjulurkan benda di tangan kanan ke atas wadah lalu melepasnya (buang ke tong)
   };
   const lerp = (a, b, p) => a + (b - a) * p, cl = (v, a, b) => v < a ? a : v > b ? b : v, eo = x => 1 - Math.pow(1 - x, 3);
 
@@ -317,6 +318,12 @@ export function makeCast(THREE, RBG, cam) { // cam opsional: mata otomatis menat
         hy = l.th * Math.cos(A_) * Math.cos(SP) + l.sh * Math.cos(S_) * Math.cos(SP - KN) + l.soleD; });
       c.hips.position.y = hy;
       c.torso.rotation.x += .4; c.head.rotation.x -= .35; }
+    // genjot sepeda: pedal berputar di depan-bawah pinggul (pusat engkol 0,70·L ke bawah, 0,22·L ke depan, jari-jari 0,17·L; L = paha+betis),
+    // kaki diselesaikan IK 2 ruas (paha, betis) — lutut di depan, telapak hampir rata di pedal. c.crank = sudut engkol (rad) bila diatur scene.
+    if (P.cycle) { c.legs.forEach((l, j) => { const Lg = l.th + l.sh, ph = (c.crank !== undefined ? c.crank : u * 5) + j * Math.PI, r = .17 * Lg;
+        const pz = .22 * Lg + Math.cos(ph) * r, py = -.70 * Lg + Math.sin(ph) * r + l.soleD * .8, d = Math.min(Math.hypot(py, pz), (l.th + l.sh) * .995);
+        const al = Math.atan2(pz, -py), be = Math.acos(cl((l.th * l.th + d * d - l.sh * l.sh) / (2 * l.th * d), -1, 1)), kin = Math.acos(cl((l.th * l.th + l.sh * l.sh - d * d) / (2 * l.th * l.sh), -1, 1));
+        l.p.rotation.set(-(al + be), 0, 0); l.knee.rotation.set(Math.PI - kin, 0, 0); l.foot.rotation.set(cl(-(l.p.rotation.x + l.knee.rotation.x) * .65, -.6, .6), 0, 0); }); }
     if (P.climb) { const ph = Math.sin(u * 2.2), sw = ph > 0 ? 1 : -1, k_ = Math.abs(ph);
       c.arms[0].sh.rotation.x = -(2.1 + .65 * (ph > 0 ? 1 : 0)); c.arms[1].sh.rotation.x = -(2.1 + .65 * (ph > 0 ? 0 : 1));
       c.legs[0].p.rotation.x = -(.35 + .75 * (ph > 0 ? k_ : 0)); c.legs[0].knee.rotation.x = .5 + 1.1 * (ph > 0 ? k_ : 0);
