@@ -1,6 +1,6 @@
 # Ringkasan analitik kumulatif — ZunoLoop
 
-_Terakhir diperbarui: 25 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 Nov, #3 = 30 Nov)._
+_Terakhir diperbarui: 26 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 Nov, #3 = 30 Nov)._
 
 ## Baseline
 - Format lama (tips gaya hidup kota, 24 Okt–6 Nov, 60 s): rata-rata views TT 52 · YT 136 · IG 36; retensi TT ±12% (avg 7 s).
@@ -25,10 +25,12 @@ _Terakhir diperbarui: 25 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 
 | 21 Nov | hp-jadi-medali | maskot 3D, 82,7 s, benda dipegang + Olimpiade, hook pakai jeda "…", CTA biner "emas murni atau perak" | 46 (6 jam) → **151 (29 jam)** / 15,8%, 2 komen | 941 (17 jam) | 455 (3,5 jam) → **1.361 (26,5 jam) / 65,7% = rekor retensi IG**, 47 like |
 | 22 Nov | asap-jadi-cincin | maskot 3D, 86,0 s, gas/polusi + Belanda, baris 1 pernyataan, CTA biner | 44 (5 jam) → 145 (52 jam) / **26,7%** | 1.015 | 516 (2,5 jam) → **1.311** / 43,9%, 74 like, 8 save |
 | 23 Nov | bio-bus | 82,4 s; baris 1 pernyataan ("kotoran manusia"), CTA 3 pilihan | 27 (4 jam) → 131 (27 jam) / 17,3%, 0 komen | 976 (18,5 jam) | 126 (1,5 jam) → **150 (24,5 jam) / 27,0% = terlemah sejak wa** |
-| 24 Nov | lalat-bsf | 79,6 s; **baris 1 "Judul?!" kembali (uji #1)**, CTA biner | 17 (3,4 jam) / 20,8% | belum terupdate | 70 (0,5 jam) |
-| 25 Nov | kopi-gajah-v2 | 89,3 s; "Judul?!" (uji #2), CTA biner; terjadwal 19:30 | | | |
+| 24 Nov | lalat-bsf | 79,6 s; **baris 1 "Judul?!" kembali (uji #1)**, CTA biner | 17 (3,4 jam) → **122 (28,6 jam)** / 18,5%, 0 komen, 2 share | **1.328 (18 jam) = start YT terbaik sejak air-laut** | 70 (0,5 jam) → 218 (23,5 jam) / 24,4% |
+| 25 Nov | kopi-gajah-v2 | 89,3 s; "Judul?!" (uji #2), CTA biner, kotoran gajah | 26 (4,6 jam) / 10,6% | belum terupdate | belum terupdate |
+| 26 Nov | air-ink-v2 | 102,8 s; "Judul?!" (uji #3), CTA biner, polusi (bukan jijik); terjadwal 19:30 | | | |
 
 ## Topik pemenang / kalah
+- **26 Nov: uji "Judul?!" #1 (lalat) gagal di TT (122 / 18,5% pada 28,6 jam) & IG (218), menang di YT (1.328/18 jam).** botol (pernyataan, 17 Nov) TT 712 → jatuhnya TT mulai **18 Nov**, bukan karena baris 1 caption; hipotesis caption melemah, cek sumber trafik FYP di TikTok Studio. IG lemah 2× beruntun di topik kotoran/serangga (bio-bus 150, lalat 218; ret. 24–27%) — pola mirip newater ("toilet", 182).
 - **25 Nov: bio-bus kalah** (total 1.257 di ±24 jam; IG 150, TT 131 / 0 komen) walau YT normal. biogas ("Kotoran Sapi Jadi Api Biru?!") IG 625 / TT 513 → kata "kotoran" bukan masalah, baris 1 pernyataan lebih mungkin. Kelompok pernyataan (7 video) TT 235 vs "Judul?!" 629. Tayang 18–23 Nov vs 11–17 Nov: TT −75% padahal ret. TT naik 19,6 → 22,0% → tuas TT = distribusi awal, bukan retensi (masih tercampur waktu; uji lalat/kopi memisahkan).
 - 24 Nov: asap = juara IG (1.310, 74 like) & ret. TT 27,1% tapi TT tetap ±140 → video ke-2 (setelah panas) dengan retensi TT bagus yang tidak didorong FYP.
 - **23 Nov (review #2): baris 1 caption berubah dari "Judul Kapital + ?!" (11–16 Nov) ke pernyataan (17 Nov →) → TT jatuh.** Rata-rata "Judul?!" (6 video) vs pernyataan (5 video matang): TT 624 vs 268 (median 699 vs 151), YT 1.552 vs 1.178, IG 1.201 vs 928. Terbaik minggu ini: jelantah (total 3.766, seimbang 3 platform); juara IG: hp (65,7% ret.); terburuk: co2 (1.659). Hipotesis "tanpa jeda …" melemah (jelantah tanpa jeda, ret. TT 15,6%). Topik benda/air/sampah sehari-hari + judul pertanyaan = pola TT ≥ 600.
@@ -48,6 +50,7 @@ _Terakhir diperbarui: 25 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 
 - Kalah: tips gaya hidup kota (cuci tangan, minum air, rutinitas malam): IG sering < 15 views, TT retensi 5–12%.
 
 ## Platform
+- 26 Nov: rata-rata maskot (15 video wa → lalat) TT 386 (7,4×) · YT 1.240 (9,1×) · IG 915 (25,4×); ret. TT 19,8%, IG 38,9%. 18–24 vs 11–17 Nov: TT −76% (median 144 vs 712), YT −26%, IG −18%, ret. TT naik 19,3 → 21,4%. 0 post error 11 hari beruntun. Push git run analitik ditolak hari ke-3.
 - 25 Nov: rata-rata maskot (14 video wa → bio-bus) TT 403 (7,8×) · YT 1.233 (9,1×) · IG 964 (26,8×); ret. TT 20,0% (5 terakhir 23,0%), IG 39,9%. 0 post error 10 hari beruntun. 13 video lama +79 views/24 jam. Push git dari run analitik terjadwal ditolak 2 hari beruntun (repo tak diizinkan untuk task).
 - 24 Nov: rata-rata maskot (13 video wa → asap) TT 422 (8,1×) · YT 1.251 (9,2×) · IG 1.024 (28,5×); ret. TT 20,5% (5 terakhir 23,0%), IG 40,9%; 0 error 9 hari. (SUMMARY 24 Nov tidak sempat diperbarui karena push ditolak; diisi 25 Nov.)
 - 23 Nov: rata-rata maskot (12 video wa → hp) TT 442 (8,5×) · YT 1.268 (9,3×) · IG 999 (27,8×); retensi TT 20,4% (5 terakhir 21,4%), IG 40,7%. Minggu 16–22 vs 9–15 Nov (video matang): TT rata-rata −34% (median 496 → 192), YT & IG datar, retensi IG naik 39,3 → 41,8%. Video > 3 hari praktis berhenti tumbuh (+127/24 jam untuk 33 post). 0 post error 8 hari beruntun. Komentar IG 0 di 13/13.
@@ -71,6 +74,7 @@ _Terakhir diperbarui: 25 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 
 ## Eksperimen berjalan
 | Mulai | Eksperimen | Metrik sukses | Status |
 |---|---|---|---|
+| 24 Nov | Baris 1 "Judul Kapital?!" 3 video (lalat, kopi-gajah, air-ink) | TT ≥ 500 pada ±30 jam (rata-rata 3 video) | lalat TT 122 ✘, YT 1.328 ✔; kopi & air-ink menunggu; vonis 28 Nov |
 | 10 Nov | Seri "Dibongkar #N" + maskot keluarga 3D, 85–115 s (keputusan Ari) | retensi TT ≥ 25%, views TT ≥ 190 | berjalan |
 | 10 Nov | Hook pertanyaan di baris 1 caption (usulan) | avg tonton TT ≥ 25 s | usulan |
 | 10 Nov | CTA silang YT/IG → TikTok (usulan) | views TT ≥ 290/video dalam 7 hari | usulan |
@@ -109,10 +113,10 @@ _Terakhir diperbarui: 25 Nov 2026 (harian; review mingguan #1 = 16 Nov, #2 = 23 
 | 23 Nov | Kembalikan baris 1 caption ke "Judul Kapital + ?!" untuk 3 video, mulai bio-bus (usulan) | rata-rata TT ≥ 500 pada ±30 jam di 3 video, IG ≥ 1.000 | **berjalan**: lalat (24 Nov) & kopi-gajah (25 Nov) memakai "Judul?!"; bio-bus tidak sempat. Cek 26–28 Nov |
 | 23 Nov | Urutan ulang 5 topik: kopi-gajah → lalat-bsf → kentut-sapi → keringat-jadi-air → air-ink (usulan) | rata-rata 5 video TT ≥ 500, IG ≥ 1.000, YT ≥ 1.250 | usulan, cek 30 Nov |
 | 23 Nov | Pastikan video 24 Nov ada (stok habis; tak ada commit produksi sejak 20 Nov) (usulan) | post 24 Nov terjadwal 3 platform sebelum 18:00 WIB 24 Nov | **tercapai** (via chat Ari 01:49 WIB) |
-| 24 Nov | Ari sematkan komentar tebakan + balas ≤1 jam di TT lalat (usulan) | lalat TT ≥ 3 komentar & ≥ 300 views dlm 24 jam | cek 26 Nov (0 komen pada ±3,4 jam) |
+| 24 Nov | Ari sematkan komentar tebakan + balas ≤1 jam di TT lalat (usulan) | lalat TT ≥ 3 komentar & ≥ 300 views dlm 24 jam | **gagal** (26 Nov: 0 komen, 122 views pada ±28,6 jam) |
 | 24 Nov | Run produksi 08:41 membuat video 25 Nov tanpa chat Ari (usulan) | post 25 Nov terjadwal sebelum 18:00 oleh run otomatis | ✘ post ada, tapi dibuat lewat chat Ari 01:00 WIB |
-| 25 Nov | Pin komentar tebakan + balas ≤1 jam di TT kopi-gajah (usulan) | kopi TT ≥ 3 komentar & ≥ 300 views dlm 24 jam | cek 26 Nov |
-| 25 Nov | Tambah repo zunoloop-media (push) ke scheduled task analitik & produksi lewat chat baru, lalu buat ulang task (usulan) | git push run analitik berhasil + run 08:41 buat video sendiri 3 hari beruntun | cek 26–28 Nov |
+| 25 Nov | Pin komentar tebakan + balas ≤1 jam di TT kopi-gajah (usulan) | kopi TT ≥ 3 komentar & ≥ 300 views dlm 24 jam | cek 27 Nov (0 komen pada ±4,6 jam) |
+| 25 Nov | Tambah repo zunoloop-media (push) ke scheduled task analitik & produksi lewat chat baru, lalu buat ulang task (usulan) | git push run analitik berhasil + run 08:41 buat video sendiri 3 hari beruntun | 26 Nov ✘ push ditolak lagi |
 
 ## Syarat naik ke 2 video/hari (dicek tiap Senin)
 (a) views format baru ≥ 2× baseline di ≥ 2 platform · (b) retensi TT rata-rata ≥ 30% · (c) tidak ada run produksi gagal/QC dilewati.
@@ -131,3 +135,4 @@ Status 22 Nov: (a) ✔ TT 9,0×, YT 9,5×, IG 26,8× · (b) ✘ retensi TT 5 ter
 **Review Senin 23 Nov → TETAP 1 video/hari.** (a) ✔ TT 8,5×, YT 9,3×, IG 27,8× · (b) ✘ retensi TT 20,4% (5 terakhir 21,4%) · (c) ✘ 0 post error 8 hari ✔, tapi produksi 16–23 Nov lewat chat Ari, bukan run otomatis, dan tak ada video baru sejak 20 Nov. Perbaiki dulu: produksi otomatis 7 hari beruntun, TT ≥ 500/video (uji format judul ?!), retensi TT 5 terakhir ≥ 30%. Review berikutnya: Senin 30 Nov.
 Status 24 Nov: (a) ✔ TT 8,1×, YT 9,2×, IG 28,5× · (b) ✘ retensi TT 20,5% · (c) ✘ produksi lalat lewat chat Ari → tetap 1/hari.
 Status 25 Nov: (a) ✔ TT 7,8×, YT 9,1×, IG 26,8× · (b) ✘ retensi TT 20,0% (5 terakhir 23,0%) · (c) ✘ produksi kopi-gajah lewat chat Ari; run terjadwal tidak punya akses push ke repo → tetap 1/hari.
+Status 26 Nov: (a) ✔ TT 7,4×, YT 9,1×, IG 25,4× · (b) ✘ retensi TT 19,8% · (c) ✘ run terjadwal masih tanpa akses push ke repo; air-ink di-commit 01:01–03:02 WIB → tetap 1/hari.
