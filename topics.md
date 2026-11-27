@@ -35,7 +35,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P1] kertas-gajah — Kertas dari kotoran gajah (Sri Lanka) | Kertas ini dibuat dari kotoran gajah… dan nggak bau sama sekali.
 - [x] [P1] gas-tpa — Gas metana TPA jadi listrik | Bau busuk tempat sampah ini… nyalain listrik ribuan rumah.
 - [x] [P1] popok-daur-ulang — Daur ulang popok bekas | Popok bekas bayi ternyata bisa didaur ulang… jadi barang baru.
-- [ ] [P1] belatung-luka — Terapi belatung medis (maggot debridement therapy) untuk luka kronis | Dokter ini sengaja naruh belatung di luka pasien… biar sembuh.
+- [x] [P1] belatung-luka — Terapi belatung medis (maggot debridement therapy) untuk luka kronis | Dokter ini sengaja naruh belatung di luka pasien… biar sembuh.
 - [ ] [P2] qris-2-detik — QRIS: alur pembayaran dari scan sampai dana masuk | Scan QRIS, lunas dalam 2 detik… padahal uangmu lewat 4 pihak.
 - [ ] [P2] pesawat-kabut — ILS: pesawat mendarat dalam kabut | Pilot ini mendarat tanpa bisa lihat landasan sama sekali.
 - [ ] [P2] lift-tidak-jatuh — Rem pengaman lift (safety gear + governor) | Kalau semua kabel lift putus… lift-nya tetap nggak jatuh.
