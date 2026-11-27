@@ -36,13 +36,13 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P1] gas-tpa — Gas metana TPA jadi listrik | Bau busuk tempat sampah ini… nyalain listrik ribuan rumah.
 - [x] [P1] popok-daur-ulang — Daur ulang popok bekas | Popok bekas bayi ternyata bisa didaur ulang… jadi barang baru.
 - [x] [P1] belatung-luka — Terapi belatung medis (maggot debridement therapy) untuk luka kronis | Dokter ini sengaja naruh belatung di luka pasien… biar sembuh.
-- [ ] [P2] qris-2-detik — QRIS: alur pembayaran dari scan sampai dana masuk | Scan QRIS, lunas dalam 2 detik… padahal uangmu lewat 4 pihak.
-- [ ] [P2] pesawat-kabut — ILS: pesawat mendarat dalam kabut | Pilot ini mendarat tanpa bisa lihat landasan sama sekali.
-- [ ] [P2] lift-tidak-jatuh — Rem pengaman lift (safety gear + governor) | Kalau semua kabel lift putus… lift-nya tetap nggak jatuh.
-- [ ] [P2] listrik-jam-7 — Penyeimbangan beban jaringan listrik, frekuensi 50 Hz | Jam 7 malam semua orang nyalain AC… kok listriknya nggak padam?
-- [ ] [P2] tsunami-buoy — Peringatan dini tsunami: sensor dasar laut + buoy (InaTEWS/DART) | Pelampung di tengah laut ini tahu tsunami datang… sebelum sampai pantai.
-- [ ] [P2] handover-kereta — Handover sinyal seluler di kereta cepat | Nelpon di kereta 350 km/jam nggak putus… sinyalmu dioper estafet.
-- [ ] [P2] youtube-cdn — CDN / cache server dekat pengguna | Video YouTube-mu sebenarnya udah dititip di gedung dekat rumahmu.
+- [x] [P2] qris-2-detik — QRIS: alur pembayaran dari scan sampai dana masuk | Scan QRIS, lunas dalam 2 detik… padahal uangmu lewat 4 pihak.
+- [x] [P2] pesawat-kabut — ILS: pesawat mendarat dalam kabut | Pilot ini mendarat tanpa bisa lihat landasan sama sekali.
+- [x] [P2] lift-tidak-jatuh — Rem pengaman lift (safety gear + governor) | Kalau semua kabel lift putus… lift-nya tetap nggak jatuh.
+- [x] [P2] listrik-jam-7 — Penyeimbangan beban jaringan listrik, frekuensi 50 Hz | Jam 7 malam semua orang nyalain AC… kok listriknya nggak padam?
+- [x] [P2] tsunami-buoy — Peringatan dini tsunami: sensor dasar laut + buoy (InaTEWS/DART) | Pelampung di tengah laut ini tahu tsunami datang… sebelum sampai pantai.
+- [x] [P2] handover-kereta — Handover sinyal seluler di kereta cepat | Nelpon di kereta 350 km/jam nggak putus… sinyalmu dioper estafet.
+- [x] [P2] youtube-cdn — CDN / cache server dekat pengguna | Video YouTube-mu sebenarnya udah dititip di gedung dekat rumahmu.
 - [ ] [P2] jam-hp-atom — Sinkronisasi waktu HP (NTP/jaringan) ke jam atom | Jam HP-mu diam-diam disamain sama jam atom.
 - [ ] [P2] parabola-satelit — Satelit geostasioner & arah antena parabola | Kenapa parabola harus menghadap satu titik di langit yang nggak kelihatan?
 - [ ] [P2] maps-macet — Google Maps tahu macet dari data lokasi anonim | Google Maps tahu jalan macet… dari HP-mu sendiri.
