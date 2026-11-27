@@ -1,51 +1,33 @@
-# Riset: qris-2-detik — Cara kerja QRIS dari scan sampai dana masuk
+# qris-2-detik — Alur pembayaran QRIS (warung di Indonesia → penerbit → switching → acquirer)
 
-Diriset 11 Nov 2026 (run otomatis). Hook asli topics.md ("lunas dalam 2 detik… uangmu lewat 4 pihak") DIPOLES:
-- "2 detik" tidak ditemukan di sumber terpercaya mana pun → diganti "hitungan detik" (BRI: "processed in real-time"; OttoDigital/BINUS: "hitungan detik").
-- "uangmu lewat 4 pihak" kurang tepat: yang lewat cepat adalah PESAN/instruksi (penerbit → switching → (switching lain) → acquirer); dana antarbank baru diselesaikan saat settlement (H+0 atau H+1). Hook baru: "Pas QRIS bunyi 'ting', uangnya belum sampai ke penjual!" — benar untuk alur umum karena dana ke rekening penjual menunggu settlement (sebagian PJP H+0, BRI H+1 pagi).
+Dikumpulkan 27 Nov 2026 (mode beruntun). Satu "fasilitas": **sistem pembayaran QRIS (standar Bank Indonesia & ASPI), satu transaksi di warung di Indonesia**. Tanpa merek/logo bank atau dompet digital; pihak disebut menurut perannya. Klaim "2 detik" di judul topik TIDAK dipakai (tidak ada sumber waktu per langkah).
 
 ## Sumber
-| # | Judul | Penerbit | URL | Tanggal |
-|---|---|---|---|---|
-| 1 | Quick Response Code Indonesian Standard (QRIS) | Bank Indonesia | https://www.bi.go.id/id/fungsi-utama/sistem-pembayaran/ritel/kanal-layanan/QRIS/default.aspx | diakses 11 Nov 2026 |
-| 2 | Bahan Sosialisasi QRIS (slide) | Bank Indonesia | https://www.bi.go.id/id/edukasi/Documents/Bahan-Sosialisasi-QRIS.pdf | data per 12 Mar 2020 |
-| 3 | MDR QRIS Bagi Merchant: Kategorisasi dan Simulasi | Bank Indonesia (Dep. Komunikasi) | https://www.bi.go.id/id/publikasi/ruang-media/cerita-bi/pages/mdr-qris.aspx | 13 Okt 2026 |
-| 4 | EMV QR Code Specification for Payment Systems — Merchant-Presented Mode v1.0 | EMVCo | https://mvallim.github.io/emv-qrcode/docs/EMVCo-Merchant-Presented-QR-Specification-v1-1.pdf | Jul 2017 |
-| 5 | Volume transaksi QRIS tembus 12,55 miliar pada semester I 2026 | ANTARA | https://bali.antaranews.com/berita/411036/volume-transaksi-qris-tembus-1255-miliar-pada-semester-i-2026 | 6 Agu 2026 |
-| 6 | QRIS dipakai 65,77 juta pengguna dan diterima 44,86 juta gerai | ANTARA (Rizka Khaerunnisa) | https://bali.antaranews.com/berita/411917/qris-dipakai-6577-juta-pengguna-dan-diterima-4486-juta-gerai | 21 Agu 2026 |
-| 7 | QRIS (developer portal) | Bank Rakyat Indonesia | https://developers.bri.co.id/en/product/qris | diakses 11 Nov 2026 |
-| 8 | Ada pedagang masih ogah pakai QRIS, BI upayakan percepatan settlement | Bisnis.com | https://finansial.bisnis.com/read/20240320/90/1751162/ada-pedagang-masih-ogah-pakai-qris-bi-upayakan-percepatan-settlement | 20 Mar 2024 |
-| 9 | UnionPay's new four-party model … (konten bersponsor; hanya untuk nama 4 switching "RAJA") | The Jakarta Post | https://www.thejakartapost.com/business/2025/12/02/unionpays-new-four-party-model-makes-cross-border-qr-payments-seamless-in-indonesia | 2 Des 2025 |
-| 10 | Cara kerja QRIS | OttoDigital (PJP) | https://ottodigital.id/artikel/cara-kerja-qris-2/ | 19 Jun 2026 |
-| 11 | Bagaimana cara kerja QRIS? | BINUS SoCS (F.R. Tambunan) | https://socs.binus.ac.id/2025/09/23/29921/ | 23 Sep 2025 |
-| 12 | How a QRIS Payment Actually Moves in Indonesia (pendukung, bukan primer) | Sudhanshu (blog) | https://sudhanshuraheja.com/qris-payments-in-indonesia-how-it-works-challenges-and-the-future | 24 Feb 2025 |
+1. Bank Indonesia, siaran pers 17 Agustus 2019: QRIS diluncurkan; berlaku nasional 1 Januari 2020; disusun BI & ASPI dengan standar EMVCo. https://www.bi.go.id/id/publikasi/ruang-media/news-release/Pages/sp_216219.aspx
+2. Bank Indonesia, halaman QRIS: para pihak — PJP (Penerbit, Acquirer), Lembaga Switching, Lembaga Standar, pengelola National Merchant Repository; MPM statis/dinamis. https://www.bi.go.id/id/fungsi-utama/sistem-pembayaran/ritel/kanal-layanan/QRIS/default.aspx
+3. CNN Indonesia (2019): lembaga switching = penerus data transaksi QRIS antar-PJSP. https://www.cnnindonesia.com/ekonomi/20190821154718-78-423426/bi-rilis-aturan-qris-transaksi-qr-code-dibatasi-rp2-juta
+4. S. Raheja, "How a QRIS Payment Actually Moves in Indonesia": QR statis → pelanggan mengetik nominal; alur off-us: aplikasi → penerbit → switch penerbit → switch acquirer → acquirer → notifikasi ke merchant; setelmen lewat bank penyelesaian; minimal 6 rekonsiliasi harian; MDR UMI 0 % s.d. Rp500.000 (berlaku 15 Maret 2025). https://sudhanshuraheja.com/qris-payments-in-indonesia-how-it-works-challenges-and-the-future
+6. Bank Indonesia, siaran pers No. 28/159/DKom (17 Agustus 2026): perluasan MDR QRIS 0 % efektif 1 Oktober 2026 — UMI s.d. Rp500.000; UKE/UME/UBE s.d. Rp100.000; QRIS menjangkau 44,86 juta merchant. https://www.bi.go.id/id/publikasi/ruang-media/news-release/Pages/sp_2815926.aspx ; ANTARA https://www.antaranews.com/berita/5697901/bi-perluas-kebijakan-mdr-qris-0-persen-untuk-pelaku-umkm
+5. ITERA blog: QRIS adalah standar kanal pembayaran, bukan produk satu perusahaan. https://www.itera.ac.id/blog/?p=2673
 
 ## Tabel fakta
-| fakta | angka/nama | sumber # |
-|---|---|---|
-| QRIS dikembangkan oleh | Bank Indonesia + ASPI | 2 |
-| QRIS disusun dengan standar internasional | EMVCo | 2, 4 |
-| Implementasi nasional QRIS dimulai | 1 Januari 2020 | 2 |
-| QRIS statis berisi Merchant ID, tetap, dicetak di stiker; konsumen input nominal | — | 2 |
-| QRIS dinamis dibuat real time tiap transaksi; nominal dari merchant (EDC/HP) | — | 2, 7 |
-| Identitas outlet di QRIS: nama merchant + National Merchant ID (NMID) | — | 2 |
-| QR EMV memuat nama merchant (ID 59), kota (ID 60), mata uang (ID 53), negara (58), nominal (54, opsional) | — | 4 |
-| Kode diakhiri CRC: checksum atas semua data, untuk cek keutuhan data yang di-scan | ID 63 | 4 |
-| Merchant cukup punya akun di 1 PJP; QR bisa di-scan semua aplikasi pembayaran QR | — | 1, 2 |
-| Konsumen otorisasi (PIN/sidik jari/wajah) | — | 10, 11 |
-| MPM = push payment: transaksi dipicu transfer dari akun nasabah di penerbit | — | 2 |
-| Para pihak pemrosesan: PJP (penerbit/acquirer), lembaga switching, lembaga standar, pengelola NMR | — | 1 |
-| Switching berada di antara penerbit dan acquirer | — | 11, 12 |
-| Jumlah lembaga switching QRIS | 4 (Artajasa, Rintis, Jalin, Alto) | 5, 9 |
-| Alur off-us contoh: penerbit → switching penerbit → switching acquirer → acquirer → merchant | — | 12 |
-| Merchant & konsumen menerima notifikasi | — | 2 |
-| Diproses real-time / hitungan detik | — | 7, 10 |
-| Settlement BRI ke merchant | H+1 pukul 06.30–10.00 WIB, cut-off 23.30 | 7 |
-| Hampir 55% PJP bisa settlement H+0; beberapa bank 2x sehari | (Mar 2024) | 8 |
-| Rekonsiliasi harian antar pihak | — | 12 |
-| MDR ditanggung merchant, tidak boleh dibebankan ke konsumen | — | 3 |
-| MDR usaha mikro: transaksi ≤ Rp500.000 = 0%; di atasnya 0,3% (berlaku 1 Okt 2026) | — | 3 |
-| Batas nominal per transaksi QRIS | Rp10.000.000 | 1, 7 |
-| Volume transaksi QRIS semester I 2026 | 12,55 miliar (tumbuh 100,12% yoy) | 5 |
-| Pengguna QRIS (Juni 2026) | 65,77 juta; merchant 44,86 juta | 5, 6 |
-| Ekosistem: 96 bank, 60 lembaga nonbank, 4 lembaga switching | — | 5 |
+| fakta | angka/nama | lokasi | sumber # |
+|---|---|---|---|
+| Standar QR pembayaran nasional BI + ASPI | wajib 1 Jan 2020 | sistem QRIS, Indonesia | 1 |
+| Satu QR bisa dibayar dari aplikasi PJP mana pun | — | sistem QRIS, Indonesia | 2, 5 |
+| QR statis: pembeli mengetik nominal | — | sistem QRIS, Indonesia | 4 |
+| Alur: penerbit → switching penerbit → switching acquirer → acquirer → penjual | 4 pihak | sistem QRIS, Indonesia | 2, 3, 4 |
+| Uang dipindah belakangan lewat bank penyelesaian (setelmen) | — | sistem QRIS, Indonesia | 4 |
+| Rekonsiliasi harian berkali-kali | ≥6 | sistem QRIS, Indonesia | 4 |
+| MDR 0 % untuk transaksi s.d. Rp100.000 di semua kategori merchant (UMI s.d. Rp500.000) | sejak 1 Okt 2026 | sistem QRIS, Indonesia | 6 |
+| QRIS menjangkau 44,86 juta merchant | 44,86 juta | sistem QRIS, Indonesia | 6 |
+
+**Kenyataan berlawanan dugaan (R23):** saat "berhasil", yang lewat baru pesan transaksi; uangnya dipindah belakangan lewat setelmen (sumber 4).
+
+## Fakta visual
+| benda | warna/material/ukuran |
+|---|---|
+| stiker/standee QRIS | papan akrilik kecil, kotak QR hitam-putih (tanpa logo merek) |
+| warung | gerobak/warung kopi, meja kayu, toples |
+| HP | ponsel layar ±6,5″ |
+| pusat data | gedung/rak server dengan lampu indikator |
