@@ -32,7 +32,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P1] jalan-plastik — Jalan raya dari sampah plastik | Jalan raya ini dibuat dari sampah plastik.
 - [x] [P1] bakteri-minyak — Bakteri pemakan tumpahan minyak di laut | Tumpahan minyak di laut dibersihkan… sama bakteri.
 - [x] [P1] rambut-salon — Rambut potongan salon jadi penyerap tumpahan minyak | Rambut yang kamu potong di salon… dipakai buat nyedot tumpahan minyak di laut.
-- [ ] [P1] kertas-gajah — Kertas dari kotoran gajah (Sri Lanka) | Kertas ini dibuat dari kotoran gajah… dan nggak bau sama sekali.
+- [x] [P1] kertas-gajah — Kertas dari kotoran gajah (Sri Lanka) | Kertas ini dibuat dari kotoran gajah… dan nggak bau sama sekali.
 - [ ] [P1] gas-tpa — Gas metana TPA jadi listrik | Bau busuk tempat sampah ini… nyalain listrik ribuan rumah.
 - [ ] [P1] popok-daur-ulang — Daur ulang popok bekas | Popok bekas bayi ternyata bisa didaur ulang… jadi barang baru.
 - [ ] [P1] belatung-luka — Terapi belatung medis (maggot debridement therapy) untuk luka kronis | Dokter ini sengaja naruh belatung di luka pasien… biar sembuh.
