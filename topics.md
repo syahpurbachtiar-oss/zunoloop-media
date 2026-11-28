@@ -43,6 +43,11 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P2] tsunami-buoy — Peringatan dini tsunami: sensor dasar laut + buoy (InaTEWS/DART) | Pelampung di tengah laut ini tahu tsunami datang… sebelum sampai pantai.
 - [x] [P2] handover-kereta — Handover sinyal seluler di kereta cepat | Nelpon di kereta 350 km/jam nggak putus… sinyalmu dioper estafet.
 - [x] [P2] youtube-cdn — CDN / cache server dekat pengguna | Video YouTube-mu sebenarnya udah dititip di gedung dekat rumahmu.
+- [ ] [P2] jakarta-pompa — Sistem polder & pompa banjir Jakarta | Sebagian Jakarta lebih rendah dari laut… kota ini dipompa tiap hujan.
+- [ ] [P2] burung-kabel-pln — Beda potensial: burung di kabel tidak kesetrum | Burung ini nangkring di kabel listrik ribuan volt… kok nggak kesetrum?
+- [ ] [P2] eskalator — Mekanisme anak tangga eskalator | Tangga eskalator ke mana hilangnya di ujung?
+- [ ] [P2] mrt-presisi — MRT menyetir otomatis (CBTC/ATO) berhenti presisi | MRT ini berhenti pas di depan pintu… keretanya nyetir sendiri.
+- [ ] [P2] kontainer-pelabuhan — Pelabuhan kontainer: kapal, crane, kontainer standar | Barang di tokomu datang lewat kotak besi yang ukurannya sama di seluruh dunia.
 - [ ] [P2] jam-hp-atom — Sinkronisasi waktu HP (NTP/jaringan) ke jam atom | Jam HP-mu diam-diam disamain sama jam atom.
 - [ ] [P2] parabola-satelit — Satelit geostasioner & arah antena parabola | Kenapa parabola harus menghadap satu titik di langit yang nggak kelihatan?
 - [ ] [P2] maps-macet — Google Maps tahu macet dari data lokasi anonim | Google Maps tahu jalan macet… dari HP-mu sendiri.
@@ -50,17 +55,12 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [ ] [P2] etoll-tanpa-baterai — Kartu e-toll/NFC tanpa baterai | Kartu tanpa baterai ini kok bisa ngobrol sama gerbang tol?
 - [ ] [P2] jalan-tol-udara — ATC & jalur udara: ribuan pesawat tidak tabrakan | Ribuan pesawat di langit nggak tabrakan… ada jalan tol nggak kelihatan di udara.
 - [ ] [P2] lampu-merah-magnet — Detektor loop induktif di bawah aspal | Ada magnet di bawah aspal yang tahu mobilmu lagi nunggu.
-- [ ] [P2] mrt-presisi — MRT menyetir otomatis (CBTC/ATO) berhenti presisi | MRT ini berhenti pas di depan pintu… keretanya nyetir sendiri.
 - [ ] [P2] etle-plat — ETLE: kamera baca plat nomor (ANPR) | Dari foto plat nomor… jadi surat tilang di rumahmu.
-- [ ] [P2] eskalator — Mekanisme anak tangga eskalator | Tangga eskalator ke mana hilangnya di ujung?
 - [ ] [P2] pdam-lantai-30 — Pompa booster & tangki atap gedung tinggi | Air keran di lantai 30… siapa yang dorong naik setinggi itu?
 - [ ] [P2] bensin-ke-spbu — Rantai BBM dari kilang ke SPBU + meter pompa | Bensin di motormu udah jalan ribuan kilometer sebelum masuk tangki.
-- [ ] [P2] jakarta-pompa — Sistem polder & pompa banjir Jakarta | Sebagian Jakarta lebih rendah dari laut… kota ini dipompa tiap hujan.
-- [ ] [P2] burung-kabel-pln — Beda potensial: burung di kabel tidak kesetrum | Burung ini nangkring di kabel listrik ribuan volt… kok nggak kesetrum?
 - [ ] [P2] bmkg-hujan — Prakiraan cuaca: radar, satelit, superkomputer | BMKG tahu besok hujan… dari superkomputer yang ngitung langit.
 - [ ] [P2] darah-donor — Pemisahan komponen darah donor (sentrifugasi) | Sekantong darah donormu bisa nolong lebih dari satu orang.
 - [ ] [P2] kapsul-usus — Lapisan enterik kapsul obat | Kapsul ini tahu kapan harus pecah… bukan di lambung, tapi di usus.
 - [ ] [P2] xray-bandara — Pemindai X-ray bagasi bandara (dual-energy) | Mesin bandara ini bisa bedain sabun dan bahan peledak di dalam kopermu.
 - [ ] [P2] paket-besok-sampai — Gudang sortir otomatis paket e-commerce | Paketmu dipilah mesin bareng ribuan paket lain dalam hitungan detik.
-- [ ] [P2] kontainer-pelabuhan — Pelabuhan kontainer: kapal, crane, kontainer standar | Barang di tokomu datang lewat kotak besi yang ukurannya sama di seluruh dunia.
 - [ ] [P2] flush-gedung-50 — Sistem pipa air kotor gedung tinggi | Flush toilet di lantai 50… ke mana perginya, kok pipanya nggak meledak?
