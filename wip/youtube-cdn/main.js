@@ -8,7 +8,7 @@ mk(new THREE.PlaneGeometry(m(2.4),m(1.4)),new THREE.MeshBasicMaterial({map:sky('
 // lemari TV + TV
 const CAB=mk(box(2.4,.5,.5),Ms({color:0x6a4a32,roughness:.6}),home,[-1.6,.25,-3.7]);COL.solid(CAB,null,'lemari-tv');
 const tvCv=document.createElement('canvas');tvCv.width=640;tvCv.height=360;const tvTex=new THREE.CanvasTexture(tvCv);tvTex.colorSpace=THREE.SRGBColorSpace;let tvK='';
-function drawTV(p,spin,txt){const k=Math.round(p*100)+'|'+(spin?Math.round(spin*8):0)+'|'+txt;if(k===tvK)return;tvK=k;const x=tvCv.getContext('2d');const g=x.createLinearGradient(0,0,640,360);g.addColorStop(0,'#2f6bd6');g.addColorStop(1,'#7a3ad6');x.fillStyle=g;x.fillRect(0,0,640,360);
+function drawTV(p,spin,txt){p=Math.round(p*100)/100;spin=Math.round(spin*8)/8;const k=Math.round(p*100)+'|'+(spin?Math.round(spin*8):0)+'|'+txt;if(k===tvK)return;tvK=k;const x=tvCv.getContext('2d');const g=x.createLinearGradient(0,0,640,360);g.addColorStop(0,'#2f6bd6');g.addColorStop(1,'#7a3ad6');x.fillStyle=g;x.fillRect(0,0,640,360);
  x.fillStyle='rgba(255,255,255,.18)';for(let i=0;i<6;i++){x.beginPath();x.arc(80+i*100,180+40*Math.sin(i+p*6),40,0,2*PI);x.fill()}
  x.fillStyle='rgba(0,0,0,.5)';x.fillRect(0,320,640,40);x.fillStyle='#ff3a3a';x.fillRect(20,336,600*p,8);x.fillStyle='#ffffff';x.beginPath();x.arc(20+600*p,340,9,0,2*PI);x.fill();
  if(spin){x.strokeStyle='#ffffff';x.lineWidth=8;x.beginPath();x.arc(320,170,36,spin*2*PI,spin*2*PI+4.5);x.stroke()}
@@ -35,7 +35,7 @@ const GGC=RACKS.find(r=>r.ggc);COL.solid(GGC.g.children[0],null,'rak-ggc');
 // kabel serat kuning di atas rak
 for(let r=0;r<2;r++)mk(box(5,.06,.12),Ms({color:0xf2c230}),srv,[-2.4,2.5,-2+r*3.2]);mk(box(.12,.06,3.2),Ms({color:0xf2c230}),srv,[-2.4,2.5,-.4]);
 const monCv=document.createElement('canvas');monCv.width=512;monCv.height=320;const monTex=new THREE.CanvasTexture(monCv);monTex.colorSpace=THREE.SRGBColorSpace;let monK='';
-function drawMon(p){const k=Math.round(p*50);if(k===monK)return;monK=k;const x=monCv.getContext('2d');x.fillStyle='#10161c';x.fillRect(0,0,512,320);x.fillStyle='#cfe3f2';x.font='bold 30px Inter,Arial';x.textAlign='center';x.fillText('LALU LINTAS CACHE',256,44);
+function drawMon(p){p=Math.round(p*50)/50;const k=p;if(k===monK)return;monK=k;const x=monCv.getContext('2d');x.fillStyle='#10161c';x.fillRect(0,0,512,320);x.fillStyle='#cfe3f2';x.font='bold 30px Inter,Arial';x.textAlign='center';x.fillText('LALU LINTAS CACHE',256,44);
  const a0=-PI/2,a1=a0+2*PI*.8*p;x.fillStyle='#ff3a3a';x.beginPath();x.moveTo(180,185);x.arc(180,185,110,a0,a1);x.fill();x.fillStyle='#5a6a7a';x.beginPath();x.moveTo(180,185);x.arc(180,185,110,a1,a0+2*PI*Math.max(p,.001));x.fill();
  x.textAlign='left';x.font='bold 30px Inter,Arial';x.fillStyle='#ff6a6a';x.fillText('Video',320,160);x.fillStyle='#9aa8b4';x.fillText('Lainnya',320,215);monTex.needsUpdate=true}drawMon(1);
 const MON=new THREE.Group();srv.add(MON);MON.position.set(m(1.2),m(.3),m(-1.6));mk(box(1.2,.75,.6),Ms({color:0xcfd4d8}),MON,[0,.375,0]);mk(box(.9,.6,.05),Ms({color:0x15171a}),MON,[0,1.12,-.1],[-.1,0,0]);mk(new THREE.PlaneGeometry(m(.84),m(.52)),new THREE.MeshBasicMaterial({map:monTex,toneMapped:false}),MON,[0,1.12,-.07],[-.1,0,0]);
@@ -77,7 +77,7 @@ const DCAM=(x,y,z,tx,tz)=>[Cm(x,y,z),Cm(tx,.6,tz),46];
 S(0,0,{set:'home',a:1,tv:'play',cam:(u)=>{aK();A.gaze=gwL(TV,0,0,0);A.act('point',u+1,'happy');return camA()}});
 S(0,.5,{set:'home',tv:'play',cam:(u)=>[Cm(-1.1,1.4,-1.6),Cm(-1.6,1.35,-3.85),40]});
 // K2 Google Global Cache di gedung provider
-S(1,0,{set:'srv',ggc:1,cam:(u)=>[Cm(-1.2-u*.1,1.6,1.6),Cm(-2.4,1.2,-2),44],fx:(u)=>{FX.label('Server cache',gwL(GGC.g,0,2.05,0),u-.4,150,-110)}});
+S(1,0,{set:'srv',ggc:1,cam:(u)=>[Cm(-1.55-u*.025,1.6,1.6),Cm(-2.4,1.2,-2),44],fx:(u)=>{FX.label('Server cache',gwL(GGC.g,0,2.05,0),u-.4,150,-110)}});
 // K3 provider sediakan rak, listrik, sambungan
 S(2,0,{set:'srv',cam:(u)=>[Cm(3.8,2.3,5.0),Cm(-2.4,1.0,-.4),46],fx:(u)=>{FX.label('Rak provider',Cm(-4.5,2.4,-2),u-.5,-150,-110)}});
 // K4 diarahkan ke server paling pas
@@ -99,8 +99,8 @@ S(10,0,{set:'srv',mon:1,cam:(u)=>[Cm(1.2,1.6,.1),Cm(1.2,1.38,-1.75),40]});
 // K12 jalur keluar lebih lega
 S(11,0,{set:'dio',pk:'hit',calm:1,cam:(u)=>DCAM(-2.5,9,10,1.2,0)});
 // K13 SELAMAT
-S(12,0,{set:'home',a:1,tv:'play',cam:(u)=>{aK();A.gaze=null;A.act('celebrate',u,'happy');return faceCU()},fx:(u)=>{FX.confetti(u);FX.boom('SELAMAT!',{x:540,y:620},nsh(u-.2),'#2f6bff',2.76,140)}});
-S(12,.5,{set:'home',a:1,tv:'play',cam:(u)=>{aK();A.gaze=null;A.act('celebrate',u+1.4,'happy');return camA()},fx:(u)=>{FX.confetti(u+1.4)}});
+S(12,0,{set:'home',a:1,tv:'play',cam:(u)=>{aK();A.gaze=null;A.act('celebrate',u,'happy');const c=faceCU(),h=headW();c[0].sub(h).multiplyScalar(1.25).add(h);c[1].y-=m(.08);return c},fx:(u)=>{FX.confetti(u);FX.boom('SELAMAT!',{x:540,y:620},nsh(u-.2),'#2f6bff',2.76,140)}});
+S(12,.5,{set:'home',a:1,tv:'play',cam:(u)=>{aK();A.gaze=null;A.act('celebrate',u+1.4,'happy');return [Cm(1.9,1.3,1.6),Cm(-.4,.85,-3.0),46]},fx:(u)=>{FX.confetti(u+1.4)}});
 // K14 CTA
 S(13,0,{set:'home',a:1,tv:'play',cam:(u)=>{aK();A.gaze=gwL(TV,0,0,0);A.act('point',u+1,u<.8?'happy':'normal');return camA()}});
 
