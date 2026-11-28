@@ -2,7 +2,6 @@
 
 Video yang sudah lolos KISI dan sudah ada di repo, tapi belum terjadwal karena Buffer penuh (batas 10 posting terjadwal per kanal). Jadwalkan berurutan begitu slot kosong (satu posting terbit tiap hari 19:30 WIB). Setelah dijadwalkan: hapus barisnya dari sini dan isi ID di log.md.
 
-> **Catatan 27 Nov 23:50 (perintah Ari):** video permintaan komentator `minyak-goreng-sawit` tayang 28 Nov 19:30 WIB; `kentut-sapi` (sekarang 28 Nov) dipindah ke 7 Des; semua baris di bawah sudah digeser +1 hari. **Sisakan 1 slot Buffer kosong** sampai minyak-goreng-sawit terjadwal (dikerjakan di sesi chat ini; suara menunggu kuota Gemini ±15:00 WIB 28 Nov).
 
 | slug | target terbit | video | judul YT (+ #shorts) / TT | teks posting |
 |---|---|---|---|---|
