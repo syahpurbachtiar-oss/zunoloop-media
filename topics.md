@@ -43,7 +43,7 @@ P1 = "Dari Jijik Jadi Berguna" · P2 = "Di Balik Hal Biasa". Urutan: 30 topik P1
 - [x] [P2] tsunami-buoy — Peringatan dini tsunami: sensor dasar laut + buoy (InaTEWS/DART) | Pelampung di tengah laut ini tahu tsunami datang… sebelum sampai pantai.
 - [x] [P2] handover-kereta — Handover sinyal seluler di kereta cepat | Nelpon di kereta 350 km/jam nggak putus… sinyalmu dioper estafet.
 - [x] [P2] youtube-cdn — CDN / cache server dekat pengguna | Video YouTube-mu sebenarnya udah dititip di gedung dekat rumahmu.
-- [ ] [P2] jakarta-pompa — Sistem polder & pompa banjir Jakarta | Sebagian Jakarta lebih rendah dari laut… kota ini dipompa tiap hujan.
+- [x] [P2] jakarta-pompa — Sistem polder & pompa banjir Jakarta | Sebagian Jakarta lebih rendah dari laut… kota ini dipompa tiap hujan.
 - [ ] [P2] burung-kabel-pln — Beda potensial: burung di kabel tidak kesetrum | Burung ini nangkring di kabel listrik ribuan volt… kok nggak kesetrum?
 - [ ] [P2] eskalator — Mekanisme anak tangga eskalator | Tangga eskalator ke mana hilangnya di ujung?
 - [ ] [P2] mrt-presisi — MRT menyetir otomatis (CBTC/ATO) berhenti presisi | MRT ini berhenti pas di depan pintu… keretanya nyetir sendiri.
